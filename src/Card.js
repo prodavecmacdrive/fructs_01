@@ -17,6 +17,11 @@ export default class Card extends Phaser.GameObjects.Container {
         this.isFaceUp = true;
         this.setFaceUp(true);
 
+        // Required for interaction inside container
+        const width = this.front.width;
+        const height = this.front.height;
+        this.setSize(width, height);
+
         this.back.setInteractive();
         this.front.setInteractive();
 
@@ -36,13 +41,13 @@ export default class Card extends Phaser.GameObjects.Container {
     flip() {
         this.scene.tweens.add({
             targets: this,
-            scaleX: 0,
+            pScaleX: 0,
             duration: 150,
             onComplete: () => {
                 this.setFaceUp(true);
                 this.scene.tweens.add({
                     targets: this,
-                    scaleX: this.originalScale || 0.75,
+                    pScaleX: this.originalScale || 0.75,
                     duration: 150
                 });
             }
@@ -52,9 +57,10 @@ export default class Card extends Phaser.GameObjects.Container {
     magnetizeTo(zone) {
         this.scene.tweens.add({
             targets: this,
-            x: zone.x,
-            y: zone.y,
-            scale: zone.scaleX * 0.8,
+            px: zone.px,
+            py: zone.py,
+            pScaleX: zone.pScaleX * 0.8,
+            pScaleY: zone.pScaleY * 0.8,
             duration: 300,
             ease: 'Power2'
         });
@@ -65,7 +71,7 @@ export default class Card extends Phaser.GameObjects.Container {
     shakeAndBack() {
         this.scene.tweens.add({
             targets: this,
-            x: this.x + 15,
+            px: this.px + 15,
             duration: 50,
             yoyo: true,
             repeat: 3,
@@ -78,9 +84,10 @@ export default class Card extends Phaser.GameObjects.Container {
     returnToStack() {
         this.scene.tweens.add({
             targets: this,
-            x: this.originalX,
-            y: this.originalY,
-            scale: this.originalScale,
+            px: this.originalX,
+            py: this.originalY,
+            pScaleX: this.originalScale,
+            pScaleY: this.originalScale,
             duration: 300,
             ease: 'Back.easeOut'
         });
