@@ -6,55 +6,48 @@ export default class Preloader extends Phaser.Scene {
     create() {
         console.log('Preloader: Starting Base64 texture loading...');
         const textures = window.App.resources.textures;
-        const keys = Object.keys(textures);
+        const keys = Object.keys(textures || {});
 
         if (keys.length === 0) {
-            this.scene.start('Game');
+            this.finish();
             return;
         }
 
-        let loadedCount = 0;
-        const total = keys.length;
-
+        let loaded = 0;
         keys.forEach(key => {
             const data = textures[key];
             if (typeof data === 'string' && data.startsWith('data:image')) {
-                // Use addBase64 which is designed for this
-                this.textures.addBase64(key, data);
+                const img = new Image();
+                img.onload = () => {
+                    this.textures.addImage(key, img);
+                    loaded++;
+                    if (loaded === keys.length) this.finish();
+                };
+                img.onerror = () => {
+                    console.error('Failed to load texture:', key);
+                    loaded++;
+                    if (loaded === keys.length) this.finish();
+                };
+                img.src = data;
+            } else {
+                loaded++;
+                if (loaded === keys.length) this.finish();
             }
         });
 
-        // Simple poll to ensure textures are ready before starting
-        const checkInterval = setInterval(() => {
-            let allReady = true;
-            for (const key of keys) {
-                if (!this.textures.exists(key)) {
-                    allReady = false;
-                    break;
-                }
-
-                // Check if the texture is actually loaded (has a source)
-                const texture = this.textures.get(key);
-                if (!texture || !texture.source || texture.source.length === 0) {
-                    allReady = false;
-                    break;
-                }
-            }
-
-            if (allReady) {
-                clearInterval(checkInterval);
-                console.log('Preloader: All textures loaded successfully.');
-                this.scene.start('Game');
-            }
-        }, 50);
-
-        // Safety timeout
+        // Fail-safe
         this.time.delayedCall(5000, () => {
-            if (checkInterval) {
-                clearInterval(checkInterval);
-                console.log('Preloader: Safety timeout reached, starting Game anyway.');
-                this.scene.start('Game');
+            if (loaded < keys.length) {
+                console.warn('Preloader: Timeout reached, starting anyway.');
+                this.finish();
             }
         });
+    }
+
+    finish() {
+        const loader = document.getElementById('loader');
+        if (loader) loader.style.display = 'none';
+        console.log('Preloader: Finished, starting Game.');
+        this.scene.start('Game');
     }
 }
