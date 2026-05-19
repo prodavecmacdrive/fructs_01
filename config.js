@@ -10,10 +10,16 @@ module.exports = {
     'currentVersion': 'v_1',
     'versions': {
         'v_1': {
-            'audio' : [],
+            'audio' : ['fail', 'music', 'pop', 'win', 'сlick'],
             'fonts' : [],
             'sheets' : [],
-            'textures' : []
+            'textures' : [
+                'btnFin', 'card-back-bg', 'card-front-bg',
+                'edible_1', 'edible_2', 'edible_3', 'edible_4',
+                'main_bg', 'merge_bg', 'merge_head', 'moves_bg',
+                'not_edible_1', 'not_edible_2', 'not_edible_3', 'not_edible_4',
+                'start_btn'
+            ]
         }
     }
 };

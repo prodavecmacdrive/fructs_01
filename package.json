@@ -10,6 +10,7 @@
 		"bestzip": "^2.2.0",
 		"clean-webpack-plugin": "^4.0.0",
 		"fetch-base64": "^2.1.2",
+		"ffmpeg-static": "^5.3.0",
 		"free-tex-packer-core": "^0.3.4",
 		"imagemin": "^7.0.1",
 		"imagemin-mozjpeg": "^9.0.0",
@@ -26,4 +27,3 @@
 		"ffmpeg": "^0.0.4"
 	}
 }
- 
