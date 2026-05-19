@@ -1,69 +1,58 @@
-import Utils from "../core/framework/Utils";
-
 export default class DropZone extends Phaser.GameObjects.Container {
-    constructor({ scene, x, y, type, targetCount, container }) {
-        super(scene, x, y);
+    constructor(scene, title, category) {
+        super(scene, 0, 0);
         this.scene = scene;
-        this.zoneType = type; // 'edible' or 'not_edible'
-        this.targetCount = targetCount;
-        this.currentCount = 0;
+        this.category = category;
+        this.count = 0;
 
-        this.init();
-        if (container) container.add(this);
-    }
+        this.bg = scene.add.image(0, 0, 'merge_bg');
+        this.head = scene.add.image(0, -110, 'merge_head');
 
-    init() {
-        this.bg = this.scene.add.sprite(0, 0, 'merge_bg');
-        this.add(this.bg);
-
-        this.head = this.scene.add.sprite(0, -this.bg.height / 2, 'merge_head');
-        this.head.setOrigin(0.5, 0.5);
-        this.add(this.head);
-
-        const titleText = this.zoneType === 'edible' ? 'Edible' : 'Non Edible';
-        this.titleLabel = this.scene.add.text(0, 20, titleText, {
-            fontFamily: 'Arial',
-            fontSize: '32px',
-            color: '#000000',
-            fontWeight: 'bold'
-        }).setOrigin(0.5);
-        this.add(this.titleLabel);
-
-        this.counterLabel = this.scene.add.text(0, -30, `0/${this.targetCount}`, {
+        this.titleText = scene.add.text(0, -110, title, {
             fontFamily: 'Arial',
             fontSize: '24px',
-            color: '#000000',
+            color: '#ffffff',
             fontWeight: 'bold'
         }).setOrigin(0.5);
-        this.add(this.counterLabel);
 
-        this.errorCross = this.scene.add.text(0, 0, '❌', { fontSize: '64px' }).setOrigin(0.5).setAlpha(0);
+        this.counterText = scene.add.text(0, 0, '0/4', {
+            fontFamily: 'Arial',
+            fontSize: '48px',
+            color: '#333333',
+            fontWeight: 'bold'
+        }).setOrigin(0.5);
+
+        this.add([this.bg, this.head, this.titleText, this.counterText]);
+
+        // Error cross (initially hidden)
+        this.errorCross = scene.add.graphics();
+        this.errorCross.lineStyle(10, 0xff0000);
+        this.errorCross.moveTo(-50, -50);
+        this.errorCross.lineTo(50, 50);
+        this.errorCross.moveTo(50, -50);
+        this.errorCross.lineTo(-50, 50);
+        this.errorCross.setVisible(false);
         this.add(this.errorCross);
 
-        this.setSize(this.bg.width, this.bg.height);
-        Utils.addDefaultProperties(this);
-        this.addProperties(['pos', 'scale', 'alpha']);
+        scene.add.existing(this);
     }
 
-    updateCounter() {
-        this.currentCount++;
-        this.counterLabel.setText(`${this.currentCount}/${this.targetCount}`);
-    }
+    increment() {
+        this.count++;
+        this.counterText.setText(`${this.count}/4`);
 
-    showError() {
         this.scene.tweens.add({
-            targets: this.errorCross,
-            alpha: 1,
+            targets: this.counterText,
+            scale: 1.2,
             duration: 100,
-            yoyo: true,
-            hold: 300,
-            onComplete: () => {
-                this.errorCross.setAlpha(0);
-            }
+            yoyo: true
         });
     }
 
-    getBounds() {
-        return super.getBounds();
+    showError() {
+        this.errorCross.setVisible(true);
+        this.scene.time.delayedCall(500, () => {
+            this.errorCross.setVisible(false);
+        });
     }
 }

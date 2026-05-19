@@ -10,7 +10,7 @@ module.exports = {
     'currentVersion': 'v_1',
     'versions': {
         'v_1': {
-            'audio' : ['fail', 'music', 'pop', 'win', 'сlick'],
+            'audio' : [], // Temporarily disable audio to bypass decoding error
             'fonts' : [],
             'sheets' : [],
             'textures' : [

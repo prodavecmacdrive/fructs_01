@@ -1,96 +1,89 @@
-import Utils from "../core/framework/Utils";
-
 export default class Card extends Phaser.GameObjects.Container {
-    constructor({ scene, x, y, type, id, isFaceUp, container }) {
-        super(scene, x, y);
+    constructor(scene, itemKey, category) {
+        super(scene, 0, 0);
         this.scene = scene;
-        this.cardType = type; // 'edible' or 'not_edible'
-        this.cardId = id; // e.g., 1, 2, 3, 4
-        this.isFaceUp = isFaceUp;
-        this.isDragging = false;
+        this.itemKey = itemKey;
+        this.category = category;
 
-        this.init();
-        if (container) container.add(this);
+        // Front
+        this.front = scene.add.image(0, 0, 'card-front-bg');
+        this.icon = scene.add.image(0, 0, itemKey);
+
+        // Back
+        this.back = scene.add.image(0, 0, 'card-back-bg');
+
+        this.add([this.front, this.icon, this.back]);
+
+        this.isFaceUp = true;
+        this.setFaceUp(true);
+
+        this.back.setInteractive();
+        this.front.setInteractive();
+
+        scene.add.existing(this);
     }
 
-    init() {
-        this.bg = this.scene.add.sprite(0, 0, this.isFaceUp ? 'card-front-bg' : 'card-back-bg');
-        this.add(this.bg);
+    setFaceUp(value) {
+        this.isFaceUp = value;
+        this.back.setVisible(!value);
+        this.front.setVisible(value);
+        this.icon.setVisible(value);
 
-        this.icon = this.scene.add.sprite(0, 0, `${this.cardType}_${this.cardId}`);
-        this.add(this.icon);
-        this.icon.setVisible(this.isFaceUp);
-
-        this.setSize(this.bg.width, this.bg.height);
-
-        // Add responsive properties if needed, but since it's in a stack, maybe not direct
-        // Actually, we might need them for the initial positions if we don't manage them in Game.js
-        Utils.addDefaultProperties(this);
-        this.addProperties(['pos', 'scale', 'angle', 'alpha']);
+        if (this.back.input) this.back.input.enabled = !value;
+        if (this.front.input) this.front.input.enabled = value;
     }
 
-    flip(callback) {
-        if (this.isFaceUp) return;
-
+    flip() {
         this.scene.tweens.add({
             targets: this,
             scaleX: 0,
             duration: 150,
             onComplete: () => {
-                this.isFaceUp = true;
-                this.bg.setTexture('card-front-bg');
-                this.icon.setVisible(true);
+                this.setFaceUp(true);
                 this.scene.tweens.add({
                     targets: this,
-                    scaleX: 1,
-                    duration: 150,
-                    onComplete: () => {
-                        if (callback) callback();
-                    }
+                    scaleX: this.originalScale || 0.75,
+                    duration: 150
                 });
             }
         });
     }
 
-    shake() {
-        const originalX = this.x;
+    magnetizeTo(zone) {
         this.scene.tweens.add({
             targets: this,
-            x: originalX - 10,
+            x: zone.x,
+            y: zone.y,
+            scale: zone.scaleX * 0.8,
+            duration: 300,
+            ease: 'Power2'
+        });
+        this.back.disableInteractive();
+        this.front.disableInteractive();
+    }
+
+    shakeAndBack() {
+        this.scene.tweens.add({
+            targets: this,
+            x: this.x + 15,
             duration: 50,
             yoyo: true,
-            repeat: 3
-        });
-    }
-
-    flyBack(originalPos, callback) {
-        this.scene.tweens.add({
-            targets: this,
-            x: originalPos.x,
-            y: originalPos.y,
-            scaleX: 1,
-            scaleY: 1,
-            duration: 300,
-            ease: 'Power2',
+            repeat: 3,
             onComplete: () => {
-                this.isDragging = false;
-                if (callback) callback();
+                this.returnToStack();
             }
         });
     }
 
-    magnetize(targetPos, targetScale, callback) {
+    returnToStack() {
         this.scene.tweens.add({
             targets: this,
-            x: targetPos.x,
-            y: targetPos.y,
-            scaleX: targetScale,
-            scaleY: targetScale,
+            x: this.originalX,
+            y: this.originalY,
+            scale: this.originalScale,
             duration: 300,
-            ease: 'Back.easeOut',
-            onComplete: () => {
-                if (callback) callback();
-            }
+            ease: 'Back.easeOut'
         });
+        this.setDepth(20);
     }
 }

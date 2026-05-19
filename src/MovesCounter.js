@@ -14,20 +14,20 @@ export default class MovesCounter extends Phaser.GameObjects.Container {
         this.bg = this.scene.add.sprite(0, 0, 'moves_bg');
         this.add(this.bg);
 
-        this.label = this.scene.add.text(0, 0, `Moves : ${this.moves}`, {
-            fontFamily: 'Arial',
-            fontSize: '40px',
-            color: '#000000',
-            fontWeight: 'bold'
+        this.text = this.scene.add.text(0, 0, `Moves: ${this.moves}`, {
+            fontSize: '42px',
+            fill: '#fff',
+            fontStyle: 'bold',
+            fontFamily: 'Arial'
         }).setOrigin(0.5);
-        this.add(this.label);
+        this.add(this.text);
 
         Utils.addDefaultProperties(this);
-        this.addProperties(['pos', 'scale', 'alpha', 'align']);
+        this.addProperties(['pos', 'scale', 'align']);
     }
 
     updateMoves(moves) {
         this.moves = moves;
-        this.label.setText(`Moves : ${this.moves}`);
+        this.text.setText(`Moves: ${this.moves}`);
     }
 }
