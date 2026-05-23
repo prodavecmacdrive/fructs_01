@@ -1,0 +1,219 @@
+{
+  "_comment": "Global settings for the Category Sort playable. All placement, scale, and animation values live here.",
+
+  "game": {
+    "startingMoves": 161
+  },
+
+  "cardTypes": [
+    {
+      "type": "edible",
+      "label": "Edible",
+      "iconPrefix": "edible_",
+      "iconCount": 4,
+      "target": 4
+    },
+    {
+      "type": "not_edible",
+      "label": "Not Edible",
+      "iconPrefix": "not_edible_",
+      "iconCount": 4,
+      "target": 4
+    }
+  ],
+
+  "background": {
+    "mode": "color",
+    "color": "#ff9564",
+    "pImage": "main_bg",
+    "lImage": "main_bg",
+    "pScaleX": 1.05,
+    "pScaleY": 1.05,
+    "lScaleX": 2.1,
+    "lScaleY": 2.1
+  },
+
+  "layout": {
+    "deckCount": 8,
+    "movesCounter": { "cx": 0, "cy": -400 },
+    "dropZones": [
+      { "type": "edible",     "cx": 0, "cy": -70 },
+      { "type": "not_edible", "cx": 0, "cy": 124 }
+    ],
+
+    "ctaButton": {
+      "portraitX":  0, "portraitY": -80,
+      "landscapeX": 0, "landscapeY": -60,
+      "scale": 0.5
+    },
+
+    "decks": [
+      {
+        "name": 1,
+        "cx": -82, "cy": -272,
+        "cards": [
+          { "type": "edible",     "icon": "edible_4"     },
+          { "type": "edible",     "icon": "edible_2"     },
+          { "type": "not_edible", "icon": "not_edible_1" }
+        ]
+      },
+      {
+        "name": 2,
+        "cx": 82, "cy": -272,
+        "cards": [
+          { "type": "not_edible", "icon": "not_edible_4" },
+          { "type": "not_edible", "icon": "not_edible_2" },
+          { "type": "edible",     "icon": "edible_3"     }
+        ]
+      },
+      {
+        "name": 3,
+        "cx": -162, "cy": -82,
+        "cards": [
+          { "type": "not_edible", "icon": "not_edible_3" },
+          { "type": "edible",     "icon": "edible_4"     },
+          { "type": "edible",     "icon": "edible_1"     }
+        ]
+      },
+      {
+        "name": 4,
+        "cx": 162, "cy": -82,
+        "cards": [
+          { "type": "edible",     "icon": "edible_3"     },
+          { "type": "not_edible", "icon": "not_edible_1" },
+          { "type": "not_edible", "icon": "not_edible_2" }
+        ]
+      },
+      {
+        "name": 5,
+        "cx": -162, "cy": 118,
+        "cards": [
+          { "type": "edible",     "icon": "edible_2"     },
+          { "type": "not_edible", "icon": "not_edible_4" },
+          { "type": "not_edible", "icon": "not_edible_3" }
+        ]
+      },
+      {
+        "name": 6,
+        "cx": 162, "cy": 118,
+        "cards": [
+          { "type": "not_edible", "icon": "not_edible_2" },
+          { "type": "edible",     "icon": "edible_1"     },
+          { "type": "edible",     "icon": "edible_2"     }
+        ]
+      },
+      {
+        "name": 7,
+        "cx": -82, "cy": 310,
+        "cards": [
+          { "type": "not_edible", "icon": "not_edible_1" },
+          { "type": "not_edible", "icon": "not_edible_3" },
+          { "type": "edible",     "icon": "edible_4"     }
+        ]
+      },
+      {
+        "name": 8,
+        "cx": 82, "cy": 310,
+        "cards": [
+          { "type": "edible",     "icon": "edible_3"     },
+          { "type": "edible",     "icon": "edible_1"     },
+          { "type": "not_edible", "icon": "not_edible_4" }
+        ]
+      }
+    ]
+  },
+
+  "deckStack": {
+    "shadowBottomOffsetCx": 2,
+    "shadowBottomOffsetCy": 18,
+    "shadowBottomDepth": 0,
+    "shadowMiddleOffsetCx": 1,
+    "shadowMiddleOffsetCy": 4,
+    "shadowMiddleDepth": 1,
+    "topCardDepthFaceDown": 2,
+    "topCardDepthFaceUp": 5,
+    "topCardDepthDragging": 20
+  },
+
+  "card": {
+    "faceScale": 0.5,
+    "iconScale": 0.5,
+    "iconOffsetY": 0
+  },
+
+  "dropZone": {
+    "scale": 0.5,
+    "bgOffsetY": 12,
+    "headOffsetY": -68,
+    "headTextFOffsetY": -82,
+    "headRevealDurationMs": 350,
+    "headRevealEase": "Back.Out",
+    "headTextFontFamily": "Arial Black, Arial",
+    "headTextFontStyle": "bold",
+    "headTextColor": "#3d2200",
+    "headTextFontSize": 18,
+    "counterOffsetX": -22,
+    "counterOffsetY": -38,
+    "counterTextFontFamily": "Arial Black, Arial",
+    "counterTextFontStyle": "bold",
+    "counterTextColor": "#5c3a00",
+    "counterTextStroke": "#ffffff",
+    "counterTextStrokeThickness": 3,
+    "counterFontSize": 24,
+    "labelOffsetY": 25,
+    "labelTextFontFamily": "Arial Black, Arial",
+    "labelTextFontStyle": "bold",
+    "labelTextColor": "#3d2200",
+    "labelFontSize": 26,
+    "bodyLabelFadeDurationMs": 150,
+    "highlightDurationMs": 100,
+    "highlightEase": "Power2",
+    "hitHalfWidth": 125,
+    "hitHalfHeight": 120,
+    "acceptedCardScale": 0.82,
+    "acceptedCardOffsetY": 10,
+    "completeBounceScale": 1.12,
+    "completeBounceMs": 120,
+    "highlightGlowAlpha": 0,
+    "highlightScaleUp": 1.05
+  },
+
+  "movesCounter": {
+    "backgroundScale": 0.5,
+    "textOffsetX": 0,
+    "textOffsetY": -5,
+    "textFontFamily": "Arial Black, Arial",
+    "textFontStyle": "bold",
+    "textColor": "#ffffff",
+    "textStroke": "#7a3900",
+    "textStrokeThickness": 5,
+    "fontSize": 28,
+    "shakeFeedbackScale": 1.1,
+    "shakeDurationMs": 70
+  },
+
+  "animations": {
+    "cardFlipHalfDurationMs": 150,
+    "cardFlipEase": "Power2",
+    "flipRevealInitialDelayMs": 0,
+    "flipRevealMinIntervalMs": 100,
+    "flipRevealMaxIntervalMs": 130,
+    "revealNextCardDelayMs": 300,
+    "dragPickupScale": 1.08,
+    "dragPickupDurationMs": 100,
+    "dragPickupEase": "Power2",
+    "flyToDurationMs": 260,
+    "flyToEase": "Power2.Out",
+    "shakeOffsetPx": 14,
+    "shakeDurationMs": 55,
+    "shakeRepeat": 3,
+    "returnHomeDurationMs": 320,
+    "returnHomeEase": "Back.Out",
+    "sortedFadeDelayMs": 120,
+    "sortedFadeDurationMs": 200,
+    "endScreenDelayMs": 400,
+    "endScreenFadeDurationMs": 350,
+    "lossDelayMs": 600,
+    "resizeDebounceMs": 11
+  }
+}

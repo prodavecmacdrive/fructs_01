@@ -248,11 +248,3 @@ export default class Game extends ParentScene {
     }
 }
 ```
-
----
-
-## Recommended Agent Skills
-
-The recommended GitHub Copilot agent skills for this project are now available in the `skills/` directory.
-
-> See `skills/new-game-object.skill.md`, `skills/add-network.skill.md`, `skills/add-version.skill.md`, `skills/asset-audit.skill.md`, `skills/build-debug.skill.md`, and `skills/responsive-layout.skill.md`.
