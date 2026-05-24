@@ -1,9 +1,9 @@
 import ParentScene  from "../core/framework/components/Scene";
 import Utils        from "../core/framework/Utils";
 import Background   from "./Background";
-import Button       from "./Button";
 import Card         from "./Card";
 import DropZone     from "./DropZone";
+import FinalWindow  from "./FinalWindow";
 import MovesCounter from "./MovesCounter";
 import StartScreen  from "./StartScreen";
 import SETTINGS     from "../game-settings.json";
@@ -110,20 +110,12 @@ export default class Game extends ParentScene {
             this._initialTopCards.push(topCard);
         }
 
-        // CTA button (hidden until end-state)
-        const cta = L.ctaButton;
-        this.ctaButton = new Button({
-            scene: this,
-            texture: 'btnFin',
-            px: cta.portraitX,  py: cta.portraitY,
-            lx: cta.landscapeX, ly: cta.landscapeY,
-            pScaleX: cta.scale, pScaleY: cta.scale,
-            lScaleX: cta.scale, lScaleY: cta.scale,
-            align: 'Bottom',
+        // Final window (hidden until end-state)
+        this.finalWindow = new FinalWindow({
+            scene:     this,
             container: this.mainContainer,
-            callback: () => this._onCta()
+            onCta:     () => this._onCta()
         });
-        this.ctaButton.setAlpha(0);
 
         // Trigger resize, set up listener, then show start screen
         setTimeout(() => {
@@ -275,10 +267,7 @@ export default class Game extends ParentScene {
     _triggerEnd() {
         this.gameOver = true;
         this.time.delayedCall(SETTINGS.animations.endScreenDelayMs, () => {
-            this.tweens.add({
-                targets: this.ctaButton, alpha: 1,
-                duration: SETTINGS.animations.endScreenFadeDurationMs
-            });
+            this.finalWindow.show();
         });
     }
 

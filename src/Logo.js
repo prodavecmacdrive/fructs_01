@@ -7,7 +7,7 @@ export default class Logo extends Phaser.GameObjects.Container {
             this.logo = this.scene.add.image(0, 0, texture).setDepth(8).setOrigin(0.5, 0.5);
         } else {
             this.logo = this.scene.add.text(0, 0, text, {
-                fontFamily: 'Arial',
+                fontFamily: 'LilitaOne-Regular, Arial',
                 fontSize: 80,
                 fontStyle: 'bold',
                 color: '#ffffff',

@@ -7,16 +7,23 @@
 
   "cardTypes": [
     {
-      "type": "edible",
-      "label": "Edible",
-      "iconPrefix": "edible_",
+      "type": "past",
+      "label": "Past",
+      "iconPrefix": "past_",
       "iconCount": 4,
       "target": 4
     },
     {
-      "type": "not_edible",
-      "label": "Not Edible",
-      "iconPrefix": "not_edible_",
+      "type": "present",
+      "label": "Present",
+      "iconPrefix": "present_",
+      "iconCount": 4,
+      "target": 4
+    },
+    {
+      "type": "future",
+      "label": "Future",
+      "iconPrefix": "future_",
       "iconCount": 4,
       "target": 4
     }
@@ -24,7 +31,7 @@
 
   "background": {
     "mode": "color",
-    "color": "#ff9564",
+    "color": "#6fd7c8",
     "pImage": "main_bg",
     "lImage": "main_bg",
     "pScaleX": 1.05,
@@ -37,8 +44,9 @@
     "deckCount": 8,
     "movesCounter": { "cx": 0, "cy": -400 },
     "dropZones": [
-      { "type": "edible",     "cx": 0, "cy": -70 },
-      { "type": "not_edible", "cx": 0, "cy": 124 }
+      { "type": "past",    "cx": 0, "cy": -200 },
+      { "type": "present", "cx": 0, "cy": 0 },
+      { "type": "future",  "cx": 0, "cy": 200 }
     ],
 
     "ctaButton": {
@@ -50,74 +58,74 @@
     "decks": [
       {
         "name": 1,
-        "cx": -82, "cy": -272,
+        "cx": -162, "cy": -272,
         "cards": [
-          { "type": "edible",     "icon": "edible_4"     },
-          { "type": "edible",     "icon": "edible_2"     },
-          { "type": "not_edible", "icon": "not_edible_1" }
+          { "type": "past",    "icon": "past_1"    },
+          { "type": "present", "icon": "present_1" },
+          { "type": "future",  "icon": "future_1"  }
         ]
       },
       {
         "name": 2,
-        "cx": 82, "cy": -272,
+        "cx": 162, "cy": -272,
         "cards": [
-          { "type": "not_edible", "icon": "not_edible_4" },
-          { "type": "not_edible", "icon": "not_edible_2" },
-          { "type": "edible",     "icon": "edible_3"     }
+          { "type": "past",    "icon": "past_2"    },
+          { "type": "present", "icon": "present_2" },
+          { "type": "future",  "icon": "future_2"  }
         ]
       },
       {
         "name": 3,
         "cx": -162, "cy": -82,
         "cards": [
-          { "type": "not_edible", "icon": "not_edible_3" },
-          { "type": "edible",     "icon": "edible_4"     },
-          { "type": "edible",     "icon": "edible_1"     }
+          { "type": "past",    "icon": "past_3"    },
+          { "type": "present", "icon": "present_3" },
+          { "type": "future",  "icon": "future_3"  }
         ]
       },
       {
         "name": 4,
         "cx": 162, "cy": -82,
         "cards": [
-          { "type": "edible",     "icon": "edible_3"     },
-          { "type": "not_edible", "icon": "not_edible_1" },
-          { "type": "not_edible", "icon": "not_edible_2" }
+          { "type": "past",    "icon": "past_4"    },
+          { "type": "present", "icon": "present_4" },
+          { "type": "future",  "icon": "future_4"  }
         ]
       },
       {
         "name": 5,
         "cx": -162, "cy": 118,
         "cards": [
-          { "type": "edible",     "icon": "edible_2"     },
-          { "type": "not_edible", "icon": "not_edible_4" },
-          { "type": "not_edible", "icon": "not_edible_3" }
+          { "type": "past",    "icon": "past_1"    },
+          { "type": "present", "icon": "present_2" },
+          { "type": "future",  "icon": "future_3"  }
         ]
       },
       {
         "name": 6,
         "cx": 162, "cy": 118,
         "cards": [
-          { "type": "not_edible", "icon": "not_edible_2" },
-          { "type": "edible",     "icon": "edible_1"     },
-          { "type": "edible",     "icon": "edible_2"     }
+          { "type": "past",    "icon": "past_2"    },
+          { "type": "present", "icon": "present_3" },
+          { "type": "future",  "icon": "future_4"  }
         ]
       },
       {
         "name": 7,
-        "cx": -82, "cy": 310,
+        "cx": -162, "cy": 310,
         "cards": [
-          { "type": "not_edible", "icon": "not_edible_1" },
-          { "type": "not_edible", "icon": "not_edible_3" },
-          { "type": "edible",     "icon": "edible_4"     }
+          { "type": "past",    "icon": "past_3"    },
+          { "type": "present", "icon": "present_4" },
+          { "type": "future",  "icon": "future_1"  }
         ]
       },
       {
         "name": 8,
-        "cx": 82, "cy": 310,
+        "cx": 162, "cy": 310,
         "cards": [
-          { "type": "edible",     "icon": "edible_3"     },
-          { "type": "edible",     "icon": "edible_1"     },
-          { "type": "not_edible", "icon": "not_edible_4" }
+          { "type": "past",    "icon": "past_4"    },
+          { "type": "present", "icon": "present_1" },
+          { "type": "future",  "icon": "future_2"  }
         ]
       }
     ]

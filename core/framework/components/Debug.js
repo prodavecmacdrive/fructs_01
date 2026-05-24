@@ -16,7 +16,7 @@ export default class Debug {
     }
 
     _addFps() {
-        this._fps = this._scene.add.text(0, 0, '', {fontFamily: 'Arial', fontSize: 25, fill: '#00ff00'});
+        this._fps = this._scene.add.text(0, 0, '', {fontFamily: 'LilitaOne-Regular, Arial', fontSize: 25, fill: '#00ff00'});
         this._fps.setCustomPosition(0, 0).setAlign('Top Left').setDepth(10000).setScrollFactor(0);
         this._scene.mainContainer.add(this._fps);
         

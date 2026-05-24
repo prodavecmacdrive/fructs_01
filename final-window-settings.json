@@ -1,0 +1,59 @@
+{
+  "_comment": "Settings for the FinalWindow overlay shown at game end. Position offsets use the same coordinate conventions as game-settings.json: portrait/landscape pairs, aligned to Top or Bottom edge.",
+
+  "autoShowOnLaunchMs": 0,
+
+  "overlay": {
+    "_comment": "Full-screen translucent black rectangle drawn in container local-space.",
+    "fillAlpha": 0.6,
+    "targetAlpha": 1,
+    "depth": 50
+  },
+
+  "imgFin": {
+    "_comment": "Win image. Aligned to Top; portraitY/landscapeY are offsets downward from the top edge.",
+    "portraitX":  0, "portraitY":  320,
+    "landscapeX": 0, "landscapeY": 380,
+    "pScale": 0.55,
+    "lScale": 0.55,
+    "depth": 52,
+
+    "intro": {
+      "_comment": "Fade + zoom-in with bounces. Use Bounce.Out for multi-bounce feel.",
+      "delayMs":    150,
+      "durationMs": 850,
+      "ease":       "Bounce.Out"
+    },
+
+    "pulse": {
+      "_comment": "After intro: continuously grows and shrinks in a loop.",
+      "scaleAdd":   0.04,
+      "durationMs": 950,
+      "ease":       "Sine.InOut"
+    }
+  },
+
+  "btnFin": {
+    "_comment": "CTA button. Aligned to Bottom; portraitY/landscapeY are offsets upward (negative = up from bottom).",
+    "portraitX":  0, "portraitY":  -100,
+    "landscapeX": 0, "landscapeY": -80,
+    "pScale": 0.35,
+    "lScale": 0.35,
+    "depth": 52,
+
+    "intro": {
+      "_comment": "Fade + zoom-in after imgFin starts.",
+      "delayMs":    400,
+      "durationMs": 450,
+      "ease":       "Back.Out"
+    },
+
+    "twitch": {
+      "_comment": "Periodic grow-and-shrink twitch loop that starts after the intro.",
+      "pauseMs":   2200,
+      "upMs":       180,
+      "downMs":     480,
+      "scaleMultiplier": 1.18
+    }
+  }
+}

@@ -7,24 +7,38 @@
 
   "cardTypes": [
     {
-      "type": "edible",
-      "label": "Edible",
-      "iconPrefix": "edible_",
+      "type": "spring",
+      "label": "Spring",
+      "iconPrefix": "spring_",
       "iconCount": 4,
-      "target": 4
+      "target": 3
     },
     {
-      "type": "not_edible",
-      "label": "Not Edible",
-      "iconPrefix": "not_edible_",
+      "type": "summer",
+      "label": "Summer",
+      "iconPrefix": "summer_",
       "iconCount": 4,
-      "target": 4
+      "target": 3
+    },
+    {
+      "type": "autumn",
+      "label": "Autumn",
+      "iconPrefix": "autumn_",
+      "iconCount": 4,
+      "target": 3
+    },
+    {
+      "type": "winter",
+      "label": "Winter",
+      "iconPrefix": "winter_",
+      "iconCount": 4,
+      "target": 3
     }
   ],
 
   "background": {
     "mode": "color",
-    "color": "#ff9564",
+    "color": "#9c65e2",
     "pImage": "main_bg",
     "lImage": "main_bg",
     "pScaleX": 1.05,
@@ -37,8 +51,10 @@
     "deckCount": 8,
     "movesCounter": { "cx": 0, "cy": -400 },
     "dropZones": [
-      { "type": "edible",     "cx": 0, "cy": -70 },
-      { "type": "not_edible", "cx": 0, "cy": 124 }
+      { "type": "spring", "cx": 0, "cy": -272 },
+      { "type": "summer", "cx": 0, "cy": -76 },
+      { "type": "autumn", "cx": 0, "cy": 120 },
+      { "type": "winter", "cx": 0, "cy": 314 }
     ],
 
     "ctaButton": {
@@ -50,74 +66,74 @@
     "decks": [
       {
         "name": 1,
-        "cx": -82, "cy": -272,
+        "cx": -162, "cy": -272,
         "cards": [
-          { "type": "edible",     "icon": "edible_4"     },
-          { "type": "edible",     "icon": "edible_2"     },
-          { "type": "not_edible", "icon": "not_edible_1" }
+          { "type": "spring", "icon": "spring_1" },
+          { "type": "summer", "icon": "summer_1" },
+          { "type": "autumn", "icon": "autumn_1" }
         ]
       },
       {
         "name": 2,
-        "cx": 82, "cy": -272,
+        "cx": 162, "cy": -272,
         "cards": [
-          { "type": "not_edible", "icon": "not_edible_4" },
-          { "type": "not_edible", "icon": "not_edible_2" },
-          { "type": "edible",     "icon": "edible_3"     }
+          { "type": "spring", "icon": "spring_2" },
+          { "type": "summer", "icon": "summer_2" },
+          { "type": "winter", "icon": "winter_1" }
         ]
       },
       {
         "name": 3,
         "cx": -162, "cy": -82,
         "cards": [
-          { "type": "not_edible", "icon": "not_edible_3" },
-          { "type": "edible",     "icon": "edible_4"     },
-          { "type": "edible",     "icon": "edible_1"     }
+          { "type": "spring", "icon": "spring_3" },
+          { "type": "autumn", "icon": "autumn_2" },
+          { "type": "winter", "icon": "winter_2" }
         ]
       },
       {
         "name": 4,
         "cx": 162, "cy": -82,
         "cards": [
-          { "type": "edible",     "icon": "edible_3"     },
-          { "type": "not_edible", "icon": "not_edible_1" },
-          { "type": "not_edible", "icon": "not_edible_2" }
+          { "type": "summer", "icon": "summer_3" },
+          { "type": "autumn", "icon": "autumn_3" },
+          { "type": "winter", "icon": "winter_3" }
         ]
       },
       {
         "name": 5,
         "cx": -162, "cy": 118,
         "cards": [
-          { "type": "edible",     "icon": "edible_2"     },
-          { "type": "not_edible", "icon": "not_edible_4" },
-          { "type": "not_edible", "icon": "not_edible_3" }
+          { "type": "spring", "icon": "spring_1" },
+          { "type": "summer", "icon": "summer_3" },
+          { "type": "winter", "icon": "winter_3" }
         ]
       },
       {
         "name": 6,
         "cx": 162, "cy": 118,
         "cards": [
-          { "type": "not_edible", "icon": "not_edible_2" },
-          { "type": "edible",     "icon": "edible_1"     },
-          { "type": "edible",     "icon": "edible_2"     }
+          { "type": "spring", "icon": "spring_1" },
+          { "type": "autumn", "icon": "autumn_2" },
+          { "type": "winter", "icon": "winter_1" }
         ]
       },
       {
         "name": 7,
-        "cx": -82, "cy": 310,
+        "cx": -162, "cy": 310,
         "cards": [
-          { "type": "not_edible", "icon": "not_edible_1" },
-          { "type": "not_edible", "icon": "not_edible_3" },
-          { "type": "edible",     "icon": "edible_4"     }
+          { "type": "summer", "icon": "summer_1" },
+          { "type": "autumn", "icon": "autumn_1" },
+          { "type": "winter", "icon": "winter_2" }
         ]
       },
       {
         "name": 8,
-        "cx": 82, "cy": 310,
+        "cx": 162, "cy": 310,
         "cards": [
-          { "type": "edible",     "icon": "edible_3"     },
-          { "type": "edible",     "icon": "edible_1"     },
-          { "type": "not_edible", "icon": "not_edible_4" }
+          { "type": "spring", "icon": "spring_2" },
+          { "type": "summer", "icon": "summer_2" },
+          { "type": "autumn", "icon": "autumn_2" }
         ]
       }
     ]

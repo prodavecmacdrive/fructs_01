@@ -3,7 +3,7 @@ export default class GameStartedText extends Phaser.GameObjects.Container {
         super(scene, 0, 0);
 
         this.label = this.scene.add.text(0, 0, "Game Started", {
-            fontFamily: 'Arial',
+            fontFamily: 'LilitaOne-Regular, Arial',
             fontSize: 72,
             fontStyle: 'bold',
             color: '#ffffff',

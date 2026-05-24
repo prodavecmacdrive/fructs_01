@@ -18,7 +18,7 @@ export default class Button extends Phaser.GameObjects.Container{
             this.add(this.filterTexture);
         }
         if(text){
-            this.text = this.scene.add.text(0, 0, text, {fontFamily: 'Varela', fontSize: 48, color: '#ffffff'}).setDepth(9).setOrigin(0.5, 0.5);
+            this.text = this.scene.add.text(0, 0, text, {fontFamily: 'LilitaOne-Regular, Arial', fontSize: 48, color: '#ffffff'}).setDepth(9).setOrigin(0.5, 0.5);
             this.add(this.text);
         }
         this.add([this.button]);
