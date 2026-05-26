@@ -1,5 +1,3 @@
-import SETTINGS from "../game-settings.json";
-
 export default class DropZone extends Phaser.GameObjects.Container {
     /**
      * A sorting drop zone.  Visual: merge_bg + merge_head + counter + label.
@@ -25,7 +23,7 @@ export default class DropZone extends Phaser.GameObjects.Container {
         this._highlighted  = false;
         this._headRevealed = false;
 
-        const dz = SETTINGS.dropZone;
+        const dz = this.scene.SETTINGS.dropZone;
 
         this.hitHalfW = dz.hitHalfWidth;
         this.hitHalfH = dz.hitHalfHeight;
@@ -96,7 +94,7 @@ export default class DropZone extends Phaser.GameObjects.Container {
      */
     acceptCard(card) {
         this.count++;
-        const dz = SETTINGS.dropZone;
+        const dz = this.scene.SETTINGS.dropZone;
         card.flyTo(this.x, this.y + dz.acceptedCardOffsetY, dz.acceptedCardScale, () => {
             this._attachAcceptedCard(card);
             this._updateCounter();
@@ -131,7 +129,7 @@ export default class DropZone extends Phaser.GameObjects.Container {
     _revealHead() {
         if (this._headRevealed) return;
         this._headRevealed = true;
-        const dz = SETTINGS.dropZone;
+        const dz = this.scene.SETTINGS.dropZone;
 
         // Body label fades out
         this.scene.tweens.add({
@@ -157,7 +155,7 @@ export default class DropZone extends Phaser.GameObjects.Container {
     }
 
     _playComplete() {
-        const dz = SETTINGS.dropZone;
+        const dz = this.scene.SETTINGS.dropZone;
         this.scene.tweens.add({
             targets: this,
             scaleX: dz.completeBounceScale, scaleY: dz.completeBounceScale,
@@ -174,7 +172,7 @@ export default class DropZone extends Phaser.GameObjects.Container {
         this._highlighted = active;
 
         if (!this._glowOverlay) {
-            const dz = SETTINGS.dropZone;
+            const dz = this.scene.SETTINGS.dropZone;
             this._glowOverlay = this.scene.add.graphics();
             this._glowOverlay.fillStyle(0xffffff, dz.highlightGlowAlpha);
             this._glowOverlay.fillRoundedRect(
@@ -185,13 +183,21 @@ export default class DropZone extends Phaser.GameObjects.Container {
             this.add(this._glowOverlay);
         }
 
-        const dz = SETTINGS.dropZone;
+        const dz = this.scene.SETTINGS.dropZone;
+        const targetScale = active ? dz.highlightScaleUp : 1.0;
+
         this._glowOverlay.setVisible(active);
+
+        // Keep the responsive system's backing values in sync so that
+        // a resize() call during hover won't snap the zone back to scale 1.
+        this._pScaleX = this._pScaleY = targetScale;
+        this._lScaleX = this._lScaleY = targetScale;
+
         this.scene.tweens.killTweensOf(this);
         this.scene.tweens.add({
-            targets: this,
-            scaleX: active ? dz.highlightScaleUp : 1.0,
-            scaleY: active ? dz.highlightScaleUp : 1.0,
+            targets:  this,
+            scaleX:   targetScale,
+            scaleY:   targetScale,
             duration: dz.highlightDurationMs,
             ease:     dz.highlightEase
         });

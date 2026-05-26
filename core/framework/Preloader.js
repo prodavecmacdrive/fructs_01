@@ -1,3 +1,5 @@
+import TRANSITION_SETTINGS from '../../transition-screen-settings.json';
+
 export default class Preloader extends Phaser.Scene {
     constructor() {
         super({key: 'Preloader'});
@@ -47,6 +49,14 @@ export default class Preloader extends Phaser.Scene {
 
                 this.audioLoaded = true;
                 
+                // Play background music once global audio is loaded
+                if (window.App.resources.audio.json && !window.App.isMusicPlaying) {
+                    let sound = this.game.sound.addAudioSprite('sfx');
+                    sound.play('music', { loop: true, volume: 0.35 });
+                    window.App.isMusicPlaying = true;
+                    window.App.bgMusic = sound;
+                }
+
                 this.startGame();
             });
 
@@ -106,7 +116,29 @@ export default class Preloader extends Phaser.Scene {
             document.getElementById('loader').style.display = 'none';
             document.getElementById('app').style.display = 'block';
             
-            this.scene.start('Game');
+            if (typeof window.App.isDev === 'undefined') {
+                window.App.isDev = window.location && (
+                    window.location.hostname === 'localhost' ||
+                    window.location.hostname === '127.0.0.1' ||
+                    window.location.port === '3080'
+                );
+            }
+
+            console.log('[Preloader] autoShowOnLaunchMs test', {
+                isDev: window.App.isDev,
+                autoShowOnLaunchMs: TRANSITION_SETTINGS.autoShowOnLaunchMs,
+                willShowTransition: window.App.isDev && TRANSITION_SETTINGS.autoShowOnLaunchMs > 0
+            });
+
+            if (window.App.isDev && TRANSITION_SETTINGS.autoShowOnLaunchMs > 0) {
+                this.time.delayedCall(TRANSITION_SETTINGS.autoShowOnLaunchMs, () => {
+                    this.scene.start('TransitionScene');
+                });
+            } else if (window.App.levelSelect) {
+                this.scene.start('TransitionScene');
+            } else {
+                this.scene.start('Game', { sceneId: window.App.flow && window.App.flow[0] });
+            }
         }, callbackScope: this});
     }
 }

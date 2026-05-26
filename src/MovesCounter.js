@@ -1,5 +1,3 @@
-import SETTINGS from "../game-settings.json";
-
 export default class MovesCounter extends Phaser.GameObjects.Container {
     /**
      * Top-panel moves counter.  Visual: moves_bg pill + "Moves : N" text.
@@ -15,7 +13,7 @@ export default class MovesCounter extends Phaser.GameObjects.Container {
 
         this.remaining = moves;
 
-        const mc = SETTINGS.movesCounter;
+        const mc = this.scene.SETTINGS.movesCounter;
 
         this.bg = scene.add.image(0, 0, 'moves_bg').setScale(mc.backgroundScale);
         this.add(this.bg);
@@ -46,7 +44,7 @@ export default class MovesCounter extends Phaser.GameObjects.Container {
     decrement() {
         if (this.remaining > 0) this.remaining--;
         this.label.setText(this._buildText());
-        const mc = SETTINGS.movesCounter;
+        const mc = this.scene.SETTINGS.movesCounter;
         this.scene.tweens.add({
             targets: this,
             scaleX: mc.shakeFeedbackScale, scaleY: mc.shakeFeedbackScale,

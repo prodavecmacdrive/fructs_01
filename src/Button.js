@@ -45,7 +45,7 @@ export default class Button extends Phaser.GameObjects.Container{
 
     onClick(){
         if(!this.enabled) return;
-        Utils.addAudio(this.scene, 'click', 0.5);
+        Utils.addAudio(this.scene, 'click', 1.5);
         if(this.loopedAnimation) this.loopedAnimation.pause();
         
         this.disableClick();

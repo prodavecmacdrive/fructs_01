@@ -7,38 +7,31 @@
 
   "cardTypes": [
     {
-      "type": "spring",
-      "label": "Spring",
-      "iconPrefix": "spring_",
+      "type": "past",
+      "label": "Past",
+      "iconPrefix": "past_",
       "iconCount": 4,
-      "target": 3
+      "target": 4
     },
     {
-      "type": "summer",
-      "label": "Summer",
-      "iconPrefix": "summer_",
+      "type": "present",
+      "label": "Present",
+      "iconPrefix": "present_",
       "iconCount": 4,
-      "target": 3
+      "target": 4
     },
     {
-      "type": "autumn",
-      "label": "Autumn",
-      "iconPrefix": "autumn_",
+      "type": "future",
+      "label": "Future",
+      "iconPrefix": "future_",
       "iconCount": 4,
-      "target": 3
-    },
-    {
-      "type": "winter",
-      "label": "Winter",
-      "iconPrefix": "winter_",
-      "iconCount": 4,
-      "target": 3
+      "target": 4
     }
   ],
 
   "background": {
     "mode": "color",
-    "color": "#9c65e2",
+    "color": "#6fd7c8",
     "pImage": "main_bg",
     "lImage": "main_bg",
     "pScaleX": 1.05,
@@ -51,10 +44,9 @@
     "deckCount": 8,
     "movesCounter": { "cx": 0, "cy": -400 },
     "dropZones": [
-      { "type": "spring", "cx": 0, "cy": -272 },
-      { "type": "summer", "cx": 0, "cy": -76 },
-      { "type": "autumn", "cx": 0, "cy": 120 },
-      { "type": "winter", "cx": 0, "cy": 314 }
+      { "type": "past",    "cx": 0, "cy": -200 },
+      { "type": "present", "cx": 0, "cy": 0 },
+      { "type": "future",  "cx": 0, "cy": 200 }
     ],
 
     "ctaButton": {
@@ -68,72 +60,72 @@
         "name": 1,
         "cx": -162, "cy": -272,
         "cards": [
-          { "type": "spring", "icon": "spring_1" },
-          { "type": "summer", "icon": "summer_1" },
-          { "type": "autumn", "icon": "autumn_1" }
+          { "type": "future", "icon": "future_5"},
+          { "type": "present", "icon": "present_5"},
+          { "type": "past", "icon": "past_1"}
         ]
       },
       {
         "name": 2,
         "cx": 162, "cy": -272,
         "cards": [
-          { "type": "spring", "icon": "spring_2" },
-          { "type": "summer", "icon": "summer_2" },
-          { "type": "winter", "icon": "winter_1" }
+          { "type": "past", "icon": "past_6"},
+          { "type": "future", "icon": "future_6"},
+          { "type": "present", "icon": "present_2"}
         ]
       },
       {
         "name": 3,
         "cx": -162, "cy": -82,
         "cards": [
-          { "type": "spring", "icon": "spring_3" },
-          { "type": "autumn", "icon": "autumn_2" },
-          { "type": "winter", "icon": "winter_2" }
+          { "type": "past", "icon": "past_7"},
+          { "type": "future", "icon": "future_8"},
+          { "type": "past", "icon": "past_2"}
         ]
       },
       {
         "name": 4,
         "cx": 162, "cy": -82,
         "cards": [
-          { "type": "summer", "icon": "summer_3" },
-          { "type": "autumn", "icon": "autumn_3" },
-          { "type": "winter", "icon": "winter_3" }
+          { "type": "past",    "icon": "past_8"},
+          { "type": "present", "icon": "present_8"},
+          { "type": "future",  "icon": "future_4"}
         ]
       },
       {
         "name": 5,
         "cx": -162, "cy": 118,
         "cards": [
-          { "type": "spring", "icon": "spring_1" },
-          { "type": "summer", "icon": "summer_3" },
-          { "type": "winter", "icon": "winter_3" }
+          { "type": "past",    "icon": "past_5"},
+          { "type": "present", "icon": "present_6"},
+          { "type": "future",  "icon": "future_3"}
         ]
       },
       {
         "name": 6,
         "cx": 162, "cy": 118,
         "cards": [
-          { "type": "spring", "icon": "spring_1" },
-          { "type": "autumn", "icon": "autumn_2" },
-          { "type": "winter", "icon": "winter_1" }
+          { "type": "future", "icon": "future_7"},
+          { "type": "present", "icon": "present_7"},
+          { "type": "present", "icon": "present_3"}
         ]
       },
       {
         "name": 7,
         "cx": -162, "cy": 310,
         "cards": [
-          { "type": "summer", "icon": "summer_1" },
-          { "type": "autumn", "icon": "autumn_1" },
-          { "type": "winter", "icon": "winter_2" }
+          { "type": "past","icon": "past_3"},
+          { "type": "present","icon": "present_4"},
+          { "type": "future","icon": "future_1"}
         ]
       },
       {
         "name": 8,
         "cx": 162, "cy": 310,
         "cards": [
-          { "type": "spring", "icon": "spring_2" },
-          { "type": "summer", "icon": "summer_2" },
-          { "type": "autumn", "icon": "autumn_2" }
+          { "type": "past", "icon": "past_4"},
+          { "type": "present", "icon": "present_1"},
+          { "type": "future", "icon": "future_2"}
         ]
       }
     ]

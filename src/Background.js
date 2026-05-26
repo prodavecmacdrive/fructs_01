@@ -19,7 +19,17 @@ export default class Background extends Phaser.GameObjects.Container {
             this._colorFill = this.scene.add.graphics();
             this.add(this._colorFill);
             this._updateColorFill();
-            this.scene.scale.on('resize', () => this._updateColorFill());
+
+            // Keep a named reference so we can remove it when the scene shuts
+            // down. Without this, the handler fires on the destroyed object the
+            // next time App.resize() is called from the incoming scene, causing
+            // "Cannot read properties of undefined (reading 'game')".
+            this._resizeHandler = () => this._updateColorFill();
+            const sceneScale = this.scene.scale;
+            sceneScale.on('resize', this._resizeHandler);
+            this.scene.events.once('shutdown', () => {
+                sceneScale.off('resize', this._resizeHandler);
+            });
         } else {
             this.addProperties(["image"]);
             this.imageSprite = this.scene.add.image(0, 0, pImage);
@@ -34,8 +44,9 @@ export default class Background extends Phaser.GameObjects.Container {
     }
 
     _updateColorFill() {
-        const width = (this.scene.game.size?.x ?? 0) * 2;
-        const height = (this.scene.game.size?.y ?? 0) * 2;
+        if (!this.scene || !this._colorFill) return;
+        const width = (this.scene.game?.size?.x ?? 0) * 2;
+        const height = (this.scene.game?.size?.y ?? 0) * 2;
         this._colorFill.clear();
         const hex = this.color.replace('#', '');
         const colorInt = parseInt(hex.length === 6 ? hex : hex.split('').map((c) => c + c).join(''), 16);

@@ -1,5 +1,4 @@
 import Utils     from "../core/framework/Utils";
-import SETTINGS  from "../game-settings.json";
 
 export default class Card extends Phaser.GameObjects.Container {
     /**
@@ -52,9 +51,9 @@ export default class Card extends Phaser.GameObjects.Container {
     // ─── Visuals ──────────────────────────────────────────────────────────────
 
     _buildVisuals() {
-        const S = SETTINGS.card.faceScale;
-        const I = SETTINGS.card.iconScale;
-        const Y = SETTINGS.card.iconOffsetY;
+        const S = this.scene.SETTINGS.card.faceScale;
+        const I = this.scene.SETTINGS.card.iconScale;
+        const Y = this.scene.SETTINGS.card.iconOffsetY;
         this.backImg   = this.scene.add.image(0, 0, 'card_back_bg').setScale(S);
         this.frontBg   = this.scene.add.image(0, 0, 'card_front_bg').setScale(S);
         this.frontIcon = this.scene.add.image(0, Y, this.iconKey).setScale(I);
@@ -81,7 +80,7 @@ export default class Card extends Phaser.GameObjects.Container {
         if (this.dragEnabled) return;
         this.dragEnabled = true;
 
-        const S = SETTINGS.card.faceScale;
+        const S = this.scene.SETTINGS.card.faceScale;
         const w = this.frontBg.width  * S;
         const h = this.frontBg.height * S;
         this.setSize(w, h).setInteractive();
@@ -89,6 +88,7 @@ export default class Card extends Phaser.GameObjects.Container {
         this.on('pointerdown', (pointer, lx, ly, ev) => {
             ev.stopPropagation();
             if (this.isLocked || !this.dragEnabled) return;
+            Utils.addAudio(this.scene, 'click', 1.5);
             this._startDrag(pointer);
         });
     }
@@ -119,6 +119,7 @@ export default class Card extends Phaser.GameObjects.Container {
     }
 
     _startDrag(pointer) {
+        this.scene.helper?.notifyDragStart();
         this.isDragging = true;
         const local = this._toLocal(pointer.x, pointer.y);
         this.grabOX = local.x - this.x;
@@ -134,7 +135,7 @@ export default class Card extends Phaser.GameObjects.Container {
         this.scene.input.on('pointerupoutside', this._onUp);
 
         this.scene.tweens.killTweensOf(this);
-        const anim = SETTINGS.animations;
+        const anim = this.scene.SETTINGS.animations;
         this.scene.tweens.add({
             targets: this,
             scaleX: anim.dragPickupScale, scaleY: anim.dragPickupScale,
@@ -176,10 +177,15 @@ export default class Card extends Phaser.GameObjects.Container {
         this.x += (this.dragTargetX - this.x) * 0.48;
         this.y += (this.dragTargetY - this.y) * 0.48;
 
+        // Synchronize custom properties cx/cy with raw x/y to prevent 
+        // the global resize listener from snapping the card back.
+        this._cx = this.x - Utils.getAlignX(this);
+        this._cy = this.y - Utils.getAlignY(this);
+
         const velX = this.x - prevX;
         this.dragVx = this.dragVx * 0.65 + velX * 0.35;
 
-        const S = SETTINGS.card.faceScale;
+        const S = this.scene.SETTINGS.card.faceScale;
         const bias = -(this.grabOY / (this.frontBg.height * S * 0.5));
         const rawAngle = this.dragVx * 17 + bias * 5;
         const targetAngle = Math.max(-20, Math.min(20, rawAngle));
@@ -201,8 +207,12 @@ export default class Card extends Phaser.GameObjects.Container {
         }
         this.x = this.dragTargetX;
         this.y = this.dragTargetY;
+        // Sync design-space offsets so the resize system doesn't snap this card
+        // back to a stale position before shakeAndReturn runs.
+        this._cx = this.x - Utils.getAlignX(this);
+        this._cy = this.y - Utils.getAlignY(this);
         this.angle = 0;
-        this.setDepth(SETTINGS.deckStack.topCardDepthFaceUp);
+        this.setDepth(this.scene.SETTINGS.deckStack.topCardDepthFaceUp);
         if (this.onDropCb) this.onDropCb(this);
     }
 
@@ -217,8 +227,8 @@ export default class Card extends Phaser.GameObjects.Container {
             x: targetX, y: targetY,
             scaleX: targetScale, scaleY: targetScale,
             angle: 0,
-            duration: SETTINGS.animations.flyToDurationMs,
-            ease:     SETTINGS.animations.flyToEase,
+            duration: this.scene.SETTINGS.animations.flyToDurationMs,
+            ease:     this.scene.SETTINGS.animations.flyToEase,
             onComplete
         });
     }
@@ -229,7 +239,7 @@ export default class Card extends Phaser.GameObjects.Container {
         this.scene.tweens.killTweensOf(this);
 
         const cross  = this._makeCross();
-        const anim   = SETTINGS.animations;
+        const anim   = this.scene.SETTINGS.animations;
         this.add(cross);
 
         const origX = this.x;
@@ -237,6 +247,9 @@ export default class Card extends Phaser.GameObjects.Container {
             targets: this,
             x: origX + anim.shakeOffsetPx,
             duration: anim.shakeDurationMs, yoyo: true, repeat: anim.shakeRepeat, ease: 'Power1',
+            onUpdate: () => {
+                this._cx = this.x - Utils.getAlignX(this);
+            },
             onComplete: () => {
                 cross.destroy();
                 this.scene.tweens.add({
@@ -245,7 +258,15 @@ export default class Card extends Phaser.GameObjects.Container {
                     scaleX: 1, scaleY: 1, angle: 0,
                     duration: anim.returnHomeDurationMs,
                     ease:     anim.returnHomeEase,
+                    onUpdate: () => {
+                        // Synchronize custom properties during the tween
+                        this._cx = this.x - Utils.getAlignX(this);
+                        this._cy = this.y - Utils.getAlignY(this);
+                    },
                     onComplete: () => {
+                        // Final snap to ensure alignment
+                        this._cx = this.homeX - Utils.getAlignX(this);
+                        this._cy = this.homeY - Utils.getAlignY(this);
                         this.isLocked = false;
                         if (onComplete) onComplete();
                     }
@@ -259,47 +280,82 @@ export default class Card extends Phaser.GameObjects.Container {
         if (this.isFlipping) return;
         this.isFlipping = true;
 
-        const anim = SETTINGS.animations;
-        const cardSX = SETTINGS.card.faceScale;
-        const cardSY = SETTINGS.card.faceScale;
-        const iconSX = SETTINGS.card.iconScale;
-        const iconSY = SETTINGS.card.iconScale;
+        const anim = this.scene.SETTINGS.animations;
+        const cardSX = this.scene.SETTINGS.card.faceScale;
+        const cardSY = this.scene.SETTINGS.card.faceScale;
+        const iconSX = this.scene.SETTINGS.card.iconScale;
+        const iconSY = this.scene.SETTINGS.card.iconScale;
+        const flipStart = performance.now();
+        const originalY = this.y;
+        const liftDistance = 22;
+        const liftScale = 1.06;
+        const liftDuration = 130;
+        const fallDuration = 180;
 
-        this.scene.tweens.killTweensOf([this.backImg, this.frontBg, this.frontIcon]);
+        this.scene.tweens.killTweensOf([this.backImg, this.frontBg, this.frontIcon, this]);
 
-        // First half: only the back is visible and rotates towards edge-on.
+        Utils.addAudio(this.scene, 'pop', 0.8);
+
         this.backImg.setVisible(true).setScale(cardSX, cardSY);
         this.frontBg.setVisible(false).setScale(cardSX, cardSY);
         this.frontIcon.setVisible(false).setScale(iconSX, iconSY);
         this.isFaceUp = false;
 
         this.scene.tweens.add({
-            targets: this.backImg,
-            scaleX: 0,
-            duration: anim.cardFlipHalfDurationMs,
-            ease: anim.cardFlipEase,
+            targets: this,
+            y: originalY - liftDistance,
+            scaleX: liftScale,
+            scaleY: liftScale,
+            duration: liftDuration,
+            ease: 'Power2.Out',
+            onUpdate: () => {
+                this._cx = this.x - Utils.getAlignX(this);
+                this._cy = this.y - Utils.getAlignY(this);
+            },
             onComplete: () => {
-                // Midpoint swap: hide back instantly, show front at edge-on.
-                this.backImg.setVisible(false);
-                this.frontBg.setVisible(true).setScale(0, cardSY);
-                this.frontIcon.setVisible(true).setScale(0, iconSY);
-
-                // Second half: front expands from edge-on to full width.
                 this.scene.tweens.add({
-                    targets: this.frontIcon,
-                    scaleX: iconSX,
-                    duration: anim.cardFlipHalfDurationMs,
-                    ease: anim.cardFlipEase
-                });
-                this.scene.tweens.add({
-                    targets: this.frontBg,
-                    scaleX: cardSX,
+                    targets: this.backImg,
+                    scaleX: 0,
                     duration: anim.cardFlipHalfDurationMs,
                     ease: anim.cardFlipEase,
                     onComplete: () => {
-                        this.isFaceUp = true;
-                        this.isFlipping = false;
-                        if (onComplete) onComplete();
+                        const midTime = performance.now();
+
+                        this.backImg.setVisible(false);
+                        this.frontBg.setVisible(true).setScale(0, cardSY);
+                        this.frontIcon.setVisible(true).setScale(0, iconSY);
+
+                        this.scene.tweens.add({
+                            targets: this.frontIcon,
+                            scaleX: iconSX,
+                            duration: anim.cardFlipHalfDurationMs,
+                            ease: anim.cardFlipEase
+                        });
+                        this.scene.tweens.add({
+                            targets: this.frontBg,
+                            scaleX: cardSX,
+                            duration: anim.cardFlipHalfDurationMs,
+                            ease: anim.cardFlipEase,
+                            onComplete: () => {
+                                this.scene.tweens.add({
+                                    targets: this,
+                                    y: originalY,
+                                    scaleX: 1,
+                                    scaleY: 1,
+                                    duration: fallDuration,
+                                    ease: 'Back.Out',
+                                    onUpdate: () => {
+                                        this._cx = this.x - Utils.getAlignX(this);
+                                        this._cy = this.y - Utils.getAlignY(this);
+                                    },
+                                    onComplete: () => {
+                                        this.isFaceUp = true;
+                                        this.isFlipping = false;
+                                        if (onComplete) onComplete();
+                                    }
+                                });
+                            }
+                        });
                     }
                 });
             }

@@ -10,6 +10,8 @@ import Vungle from '../networks/Vungle';
 
 import Preloader from './Preloader';
 import Game from '../../src/Game';
+import TransitionScene from '../../src/TransitionScene';
+import StateManager from '../../src/StateManager';
 
 import Utils from './Utils';
 
@@ -25,7 +27,7 @@ class App extends Phaser.Game {
             },
             title: 'Core Version: ' + window.App.CORE_VERSION,
             backgroundColor: '#1e1e1e',
-            scene: [Preloader, Game]
+            scene: [Preloader, Game, TransitionScene]
         };
 
         if(window.SpinePlugin) {
@@ -51,6 +53,9 @@ class App extends Phaser.Game {
         this.network = network;
         this.network.game = this;
         this.size = {resize: this.resize.bind(this)};
+
+        // Initialise the state manager with the level flow injected by the builder
+        window.App.stateManager = new StateManager(window.App.flow || []);
     }
 
     addStyle() {

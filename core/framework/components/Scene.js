@@ -12,8 +12,15 @@ export default class Scene extends Phaser.Scene {
         this.mainContainer = this.add.container(0, 0);
         this.game.size.resize();
 
-        this.sound.mute = true;
-        this.input.once('pointerdown', () => this.sound.mute = false);
+        // Only mute on the very first load. On subsequent level restarts the
+        // user has already interacted, so muting would cut the background music.
+        if (!window.App.userInteracted) {
+            this.sound.mute = true;
+            this.input.once('pointerdown', () => {
+                this.sound.mute = false;
+                window.App.userInteracted = true;
+            });
+        }
     }
 
     sort() {

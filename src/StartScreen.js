@@ -1,3 +1,5 @@
+import Utils from "../core/framework/Utils";
+
 export default class StartScreen {
     /**
      * Full-screen semi-transparent overlay with a centred start button.
@@ -24,7 +26,10 @@ export default class StartScreen {
             .setDepth(41)
             .setInteractive();
         this._btn.setCustomPosition(0, 0);
-        this._btn.once('pointerdown', () => this._dismiss(onStart));
+        this._btn.once('pointerdown', () => {
+            Utils.addAudio(this._scene, 'click', 1.5);
+            this._dismiss(onStart);
+        });
         container.add(this._btn);
     }
 

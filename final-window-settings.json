@@ -7,15 +7,16 @@
     "_comment": "Full-screen translucent black rectangle drawn in container local-space.",
     "fillAlpha": 0.6,
     "targetAlpha": 1,
-    "depth": 50
+    "depth": 50,
+    "blurRadius": 12
   },
 
   "imgFin": {
     "_comment": "Win image. Aligned to Top; portraitY/landscapeY are offsets downward from the top edge.",
     "portraitX":  0, "portraitY":  320,
-    "landscapeX": 0, "landscapeY": 380,
-    "pScale": 0.55,
-    "lScale": 0.55,
+    "landscapeX": 0, "landscapeY": 300,
+    "pScale": 0.6,
+    "lScale": 0.7,
     "depth": 52,
 
     "intro": {
@@ -35,8 +36,8 @@
 
   "btnFin": {
     "_comment": "CTA button. Aligned to Bottom; portraitY/landscapeY are offsets upward (negative = up from bottom).",
-    "portraitX":  0, "portraitY":  -100,
-    "landscapeX": 0, "landscapeY": -80,
+    "portraitX":  0, "portraitY":  -300,
+    "landscapeX": 0, "landscapeY": -270,
     "pScale": 0.35,
     "lScale": 0.35,
     "depth": 52,

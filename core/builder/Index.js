@@ -16,11 +16,21 @@ class BuilderPlugin {
 
         this.currentVersion = 0;
         this.isOpenTab = false;
+
+        // Cached after the first full asset load so subsequent versions
+        // don't re-encode the same files 14 extra times.
+        this._cachedAssetResources = null;
+        this._cachedFonts          = null;
     }
 
     apply(compiler) {
         compiler.hooks.done.tap('Builder Plugin', (compilation, callback) => {
             this.callback = callback;
+
+            // Reset state for a fresh production run
+            this.currentVersion        = 0;
+            this._cachedAssetResources = null;
+            this._cachedFonts          = null;
             
             this.setDefaultProps();
 
@@ -33,6 +43,7 @@ class BuilderPlugin {
                     const path = 'dist/' + Object.keys(config.versions)[i];
                     if( !fs.existsSync(path) ) fs.mkdirSync(path);
                 }
+                if( !fs.existsSync('dist/preview') ) fs.mkdirSync('dist/preview');
             }
 
             !fs.existsSync('assets/textures') ? fs.mkdir('assets/textures', () => textures.load.bind(this)()) : textures.load.bind(this)();
@@ -56,7 +67,9 @@ class BuilderPlugin {
 
         this.fonts = '';
 
+        // Base resource string — flow and scenesData are appended per-version in makeHtml()
         this.resources = `window.App={};window.App.CORE_VERSION;window.App.network='{network}';window.App.version='{version}';`;
+        this.resources += `window.App.isDev=${this.mode === 'development'};`;
         this.resources += `window.App.iosUrl='${config.ios}';window.App.androidUrl='${config.android}';`;
         this.resources += 'window.App.resources={};window.App.resources.textures={};window.App.resources.sheets={};';
         this.resources += 'window.App.resources.audio={};window.App.resources.spine={};';
@@ -69,7 +82,7 @@ class BuilderPlugin {
         const currentVesion = this.mode === 'production' ? Object.keys(config.versions)[this.currentVersion] : config.currentVersion;
 
         for (const key in config.versions) {
-            if(config.versions[key][folder].includes(name)) {
+            if(config.versions[key][folder] && config.versions[key][folder].includes(name)) {
                 if(currentVesion === key) includesCurrentVersion = true;
                 includes = true;
             }
@@ -80,21 +93,72 @@ class BuilderPlugin {
         return false;
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // Scene-settings helper
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Reads all game-settings_scene-N.json files present on disk and returns
+     * an object keyed by 'scene-N'.  Missing files are silently skipped.
+     */
+    _readSceneSettings() {
+        const scenesData = {};
+        for (let i = 1; i <= 3; i++) {
+            const filePath = `game-settings_scene-${i}.json`;
+            if (fs.existsSync(filePath)) {
+                try {
+                    scenesData[`scene-${i}`] = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                } catch (e) {
+                    console.warn(`[Builder] Could not parse ${filePath}:`, e.message);
+                }
+            }
+        }
+        return scenesData;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Build pipeline
+    // ─────────────────────────────────────────────────────────────────────────
+
     loadChunck() {
         if(!this.audioLoaded || !this.fontsLoaded || !this.sheetsLoaded || !this.texturesLoaded || !this.spineLoaded || this.buildComplete) return;
         
         this.buildComplete = true;
+
+        // Cache the asset portion of resources after the first full load so
+        // subsequent versions can skip the expensive re-encode cycle.
+        if (!this._cachedAssetResources) {
+            this._cachedAssetResources = this.resources;
+            this._cachedFonts          = this.fonts;
+        }
+
         this.makeHtml(this.mode === 'development' ? 'dev' : config.networks[0]);
     }
 
     makeHtml(network) {
         let html = fs.readFileSync(`./core/template/${network === 'IronSource' ? 'dapi' : 'mraid'}.html`, 'utf8');
         const engine = fs.readFileSync(`core/libs/phaser${config.customPhaser ? '-custom' : ''}.min.js`, 'utf8');
-        const spine = (this.inlineSpine) ? fs.readFileSync('core/libs/SpinePlugin.min.js', 'utf8') : '';
+        const spineLib = (this.inlineSpine) ? fs.readFileSync('core/libs/SpinePlugin.min.js', 'utf8') : '';
 
-        html = html.replace('{engine}', engine + spine);
+        // Resolve which version's flow to embed
+        const versionKey = this.mode === 'production'
+            ? Object.keys(config.versions)[this.currentVersion]
+            : config.currentVersion;
+        const versionCfg = config.versions[versionKey] || {};
+        const flow       = Array.isArray(versionCfg.flow) ? versionCfg.flow : [];
+
+        // Build full resources string: cached asset data + per-version flow.
+        // In development, use base game-settings.json only; do not inject scene-specific settings.
+        const scenesData  = this.mode === 'development' ? {} : this._readSceneSettings();
+        const levelSelect = versionCfg.levelSelect === true;
+        const fullResources = this.resources
+            + `window.App.flow=${JSON.stringify(flow)};`
+            + `window.App.scenesData=${JSON.stringify(scenesData)};`
+            + `window.App.levelSelect=${levelSelect};`;
+
+        html = html.replace('{engine}', engine + spineLib);
         html = html.replace('{fonts}', this.fonts);
-        html = html.replace('{resources}', this.resources);
+        html = html.replace('{resources}', fullResources);
         html = html.replace('{fonts}', '');
         html = html.replace('{network}', network);
         html = html.replace('{title}', config.name);
@@ -122,7 +186,11 @@ class BuilderPlugin {
 
         const folderName = Object.keys(config.versions)[this.currentVersion];
         html = html.replace('{version}', folderName);
-        
+
+        const filenameBase = `${config.name}_${folderName}_${network.toLowerCase()}`;
+        const htmlFilename = filenameBase + '.html';
+        const zipFilename = filenameBase + '.zip';
+
         const makeNextNetwork = () => {
             if(this.currentNetworkCount !== config.networks.length - 1) {
                 this.currentNetworkCount++;
@@ -134,52 +202,83 @@ class BuilderPlugin {
                     fs.unlink('dist/main.js', () => {});
                 }
             }
-        }
+        };
 
         if(network === 'Google') {
-            fs.writeFile('dist/' + folderName + '/index.html', html, (err) => {
+            fs.writeFile(`dist/${folderName}/${htmlFilename}`, html, (err) => {
                 zip({
-                    source: 'index.html',
-                    destination: config.name + '(Adwords).zip',
-                    cwd: 'dist/' + folderName + '/'
+                    source: htmlFilename,
+                    destination: zipFilename,
+                    cwd: `dist/${folderName}/`
                 }).then(() => {
-                    fs.unlink('dist/' + folderName + '/index.html', () => makeNextNetwork());
+                    fs.unlink(`dist/${folderName}/${htmlFilename}`, () => makeNextNetwork());
+                }).catch((zipErr) => {
+                    console.error('[Builder] Adwords zip failed for ' + folderName + ':', zipErr.message);
+                    fs.unlink(`dist/${folderName}/${htmlFilename}`, () => makeNextNetwork());
                 });
             });
         } else if(network === 'TikTok') {
             let c = fs.readFileSync('./core/template/config.json', 'utf8');
-            fs.writeFileSync('dist/' + folderName + '/config.json', c);
+            fs.writeFileSync(`dist/${folderName}/config.json`, c);
             
-            fs.writeFile('dist/' + folderName + '/index.html', html, (err) => {
+            fs.writeFile(`dist/${folderName}/${htmlFilename}`, html, (err) => {
                 zip({
-                    source: ['index.html', 'config.json'],
-                    destination: config.name + '(TikTok).zip',
-                    cwd: 'dist/' + folderName + '/'
+                    source: [htmlFilename, 'config.json'],
+                    destination: zipFilename,
+                    cwd: `dist/${folderName}/`
                 }).then(() => {
-                    fs.unlink('dist/' + folderName + '/config.json', () => {});
-                    fs.unlink('dist/' + folderName + '/index.html', () => makeNextNetwork());
+                    fs.unlink(`dist/${folderName}/config.json`, () => {});
+                    fs.unlink(`dist/${folderName}/${htmlFilename}`, () => makeNextNetwork());
+                }).catch((zipErr) => {
+                    console.error('[Builder] TikTok zip failed for ' + folderName + ':', zipErr.message);
+                    fs.unlink(`dist/${folderName}/config.json`, () => {});
+                    fs.unlink(`dist/${folderName}/${htmlFilename}`, () => makeNextNetwork());
                 });
             });
         } else if(network === 'Vungle') {
-            const path = 'dist/' + folderName + '/' + config.name + '(' + network + ')';
-            fs.mkdir(path, () => {
-                fs.writeFile(path + '/ad.html', html, (err) => makeNextNetwork());
-            });
+            fs.writeFile(`dist/${folderName}/${htmlFilename}`, html, (err) => makeNextNetwork());
         } else {
-            fs.writeFile('dist/' + folderName + '/' + config.name + '(' + network + ')' + '.html', html, (err) => makeNextNetwork());
+            fs.writeFile(`dist/${folderName}/${htmlFilename}`, html, (err) => {
+                if(network === 'UnityAds') {
+                    const previewBase = `${config.name}_${folderName}`;
+                    const previewPath = `dist/preview/${previewBase}.html`;
+                    fs.copyFile(`dist/${folderName}/${htmlFilename}`, previewPath, (copyErr) => {
+                        if(copyErr) {
+                            console.error('[Builder] Preview copy failed for ' + previewPath + ':', copyErr.message);
+                        }
+                        makeNextNetwork();
+                    });
+                } else {
+                    makeNextNetwork();
+                }
+            });
         }
     }
 
+    /**
+     * Advance to the next build variant.
+     *
+        * Because all 18 variants share identical assets, we skip re-running the
+     * asset loaders and instead restore the cached resources + fonts strings,
+     * then jump straight to HTML generation.
+     */
     buildNextVersion() {
         this.currentVersion++;
-        
-        this.setDefaultProps();
+        this.buildComplete       = false;
+        this.currentNetworkCount = 0;
 
-        textures.load.bind(this)();
-        sheets.load.bind(this)();
-        fonts.load.bind(this)();
-        audio.load.bind(this)();
-        spine.load.bind(this)();
+        // Restore cached asset data — no re-encoding needed
+        this.resources = this._cachedAssetResources;
+        this.fonts     = this._cachedFonts;
+
+        // Mark all asset loaders as done so loadChunck() fires immediately
+        this.texturesLoaded = true;
+        this.sheetsLoaded   = true;
+        this.fontsLoaded    = true;
+        this.audioLoaded    = true;
+        this.spineLoaded    = true;
+
+        this.loadChunck();
     }
 }
   
