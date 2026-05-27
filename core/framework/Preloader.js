@@ -137,7 +137,7 @@ export default class Preloader extends Phaser.Scene {
             } else if (window.App.levelSelect) {
                 this.scene.start('TransitionScene');
             } else {
-                this.scene.start('Game', { sceneId: window.App.flow && window.App.flow[0] });
+                this.scene.start('Game', { sceneId: window.App.stateManager.getNextScene() });
             }
         }, callbackScope: this});
     }

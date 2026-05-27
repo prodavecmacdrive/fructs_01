@@ -25,15 +25,58 @@ export default class StateManager {
     }
 
     /**
-     * Returns scene-ids from the flow that have not yet been completed.
-     * These are the scenes the player can still choose.
+     * Returns the current stage index of the flow.
      */
-    getAvailableScenes() {
-        return this.flow.filter((id) => !this._completed.includes(id));
+    _getStageIndex() {
+        let index = 0;
+        while (index < this.flow.length) {
+            const item = this.flow[index];
+            if (typeof item === 'string') {
+                if (this._completed.includes(item)) {
+                    index++;
+                    continue;
+                }
+                break;
+            }
+            if (Array.isArray(item)) {
+                if (item.some((id) => this._completed.includes(id))) {
+                    index++;
+                    continue;
+                }
+                break;
+            }
+            index++;
+        }
+        return index;
     }
 
-    /** True when every scene in the flow has been completed. */
+    /**
+     * Returns scene ids available at the current stage.
+     */
+    getAvailableScenes() {
+        const index = this._getStageIndex();
+        if (index >= this.flow.length) return [];
+
+        const item = this.flow[index];
+        if (typeof item === 'string') {
+            return [item];
+        }
+        if (Array.isArray(item)) {
+            return item.filter((id) => !this._completed.includes(id));
+        }
+        return [];
+    }
+
+    /**
+     * Returns the next scene to load when starting or continuing the game.
+     */
+    getNextScene() {
+        const available = this.getAvailableScenes();
+        return available.length > 0 ? available[0] : null;
+    }
+
+    /** True when every stage of the flow has been completed. */
     isFlowComplete() {
-        return this.flow.length > 0 && this.flow.every((id) => this._completed.includes(id));
+        return this._getStageIndex() >= this.flow.length;
     }
 }

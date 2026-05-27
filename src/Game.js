@@ -10,7 +10,9 @@ import Helper       from "./Helper";
 
 export default class Game extends ParentScene {
     init(data) {
-        this._sceneId = (data && data.sceneId) ? data.sceneId : (window.App.flow && window.App.flow[0]) || 'scene-1';
+        this._sceneId = (data && data.sceneId)
+            ? data.sceneId
+            : (window.App.stateManager ? window.App.stateManager.getNextScene() : (window.App.flow && window.App.flow[0])) || 'scene-1';
         const sceneData = (window.App.scenesData && window.App.scenesData[this._sceneId]) || {};
         this.SETTINGS = this._deepMerge(BASE_SETTINGS, sceneData);
     }
