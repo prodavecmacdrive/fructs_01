@@ -7,6 +7,7 @@ const sheets = require('./Sheets.js');
 const fonts = require('./Fonts.js');
 const audio = require('./Audio.js');
 const spine = require('./Spine.js');
+const imagemaps = require('./Imagemaps.js');
 
 let config = require('../../config');
 
@@ -51,6 +52,7 @@ class BuilderPlugin {
             !fs.existsSync('assets/fonts') ? fs.mkdir('assets/fonts', () => fonts.load.bind(this)()) : fonts.load.bind(this)();
             !fs.existsSync('assets/audio') ? fs.mkdir('assets/audio', () => audio.load.bind(this)()) : audio.load.bind(this)();
             !fs.existsSync('assets/spine') ? fs.mkdir('assets/spine', () => spine.load.bind(this)()) : spine.load.bind(this)();
+            !fs.existsSync('assets/imagemap') ? fs.mkdir('assets/imagemap', () => imagemaps.load.bind(this)()) : imagemaps.load.bind(this)();
         });
     }
 
@@ -61,6 +63,7 @@ class BuilderPlugin {
         this.fontsLoaded = false;
         this.audioLoaded = false;
         this.spineLoaded = false;
+        this.imagemapsLoaded = false;
         this.inlineSpine = false;
 
         this.currentNetworkCount = 0;
@@ -72,7 +75,7 @@ class BuilderPlugin {
         this.resources += `window.App.isDev=${this.mode === 'development'};`;
         this.resources += `window.App.iosUrl='${config.ios}';window.App.androidUrl='${config.android}';`;
         this.resources += 'window.App.resources={};window.App.resources.textures={};window.App.resources.sheets={};';
-        this.resources += 'window.App.resources.audio={};window.App.resources.spine={};';
+        this.resources += 'window.App.resources.audio={};window.App.resources.spine={};window.App.resources.imagemaps={};';
     }
 
     isCurrentVersionAsset(name, folder) {
@@ -121,7 +124,7 @@ class BuilderPlugin {
     // ─────────────────────────────────────────────────────────────────────────
 
     loadChunck() {
-        if(!this.audioLoaded || !this.fontsLoaded || !this.sheetsLoaded || !this.texturesLoaded || !this.spineLoaded || this.buildComplete) return;
+        if(!this.audioLoaded || !this.fontsLoaded || !this.sheetsLoaded || !this.texturesLoaded || !this.spineLoaded || !this.imagemapsLoaded || this.buildComplete) return;
         
         this.buildComplete = true;
 
@@ -151,7 +154,22 @@ class BuilderPlugin {
         // In development, use base game-settings.json only; do not inject scene-specific settings.
         const scenesData  = this.mode === 'development' ? {} : this._readSceneSettings();
         const levelSelect = versionCfg.levelSelect === true;
-        const fullResources = this.resources
+
+        // AppLovin Axon analytics helper — real implementation for Applovin builds,
+        // silent no-op stub for every other network so game code never throws ReferenceError.
+        const axonHelper = network === 'Applovin'
+            ? 'window.trackAxonEvent=function(eventName){' +
+                  'if(typeof window.ALPlayableAnalytics!==\'undefined\'){' +
+                      'window.ALPlayableAnalytics.trackEvent(eventName);' +
+                      'console.log(\'[Axon] Event: \'+eventName);' +
+                  '}else{' +
+                      'console.warn(\'[Axon local] Event skipped: \'+eventName);' +
+                  '}' +
+              '};'
+            : 'window.trackAxonEvent=function(){};';
+
+        const fullResources = axonHelper
+            + this.resources
             + `window.App.flow=${JSON.stringify(flow)};`
             + `window.App.scenesData=${JSON.stringify(scenesData)};`
             + `window.App.levelSelect=${levelSelect};`;
@@ -272,11 +290,12 @@ class BuilderPlugin {
         this.fonts     = this._cachedFonts;
 
         // Mark all asset loaders as done so loadChunck() fires immediately
-        this.texturesLoaded = true;
-        this.sheetsLoaded   = true;
-        this.fontsLoaded    = true;
-        this.audioLoaded    = true;
-        this.spineLoaded    = true;
+        this.texturesLoaded   = true;
+        this.sheetsLoaded     = true;
+        this.fontsLoaded      = true;
+        this.audioLoaded      = true;
+        this.spineLoaded      = true;
+        this.imagemapsLoaded  = true;
 
         this.loadChunck();
     }

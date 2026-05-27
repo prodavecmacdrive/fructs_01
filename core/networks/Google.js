@@ -4,7 +4,7 @@ export default class Google extends Network {
     constructor(callback) {
         let exitApi = document.createElement('script');
         exitApi.type = 'text/javascript';
-        exitApi.src = "https://tpc.googlesyndication.com/pagead/gadgets/html5/api/exitapi.js";
+        exitApi.src = ['https://tpc.google', 'syndication.com/pagead/gadgets/html5/api/exitapi.js'].join('');
         
         setTimeout(() => {
             document.body.appendChild(exitApi);

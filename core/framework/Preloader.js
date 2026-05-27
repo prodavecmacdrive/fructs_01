@@ -12,6 +12,8 @@ export default class Preloader extends Phaser.Scene {
     }
   
     create() {
+        if (typeof window.trackAxonEvent === 'function') window.trackAxonEvent('LOADING');
+
         this.loaded = 0;
         this.audioLoaded = false;
 
@@ -111,6 +113,8 @@ export default class Preloader extends Phaser.Scene {
         if(this.loaded !== this.loadTotal) return;
         
         this.loadTotal = -1;
+
+        if (typeof window.trackAxonEvent === 'function') window.trackAxonEvent('LOADED');
 
         this.time.addEvent({delay: 250, callback: () => {
             document.getElementById('loader').style.display = 'none';
