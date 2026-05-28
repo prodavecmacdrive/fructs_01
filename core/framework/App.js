@@ -1,13 +1,11 @@
 import Network from '../networks/Network';
 import Applovin from '../networks/Applovin';
 import Facebook from '../networks/Facebook';
-import Moloco from '../networks/Moloco';
 import Google from '../networks/Google';
 import IronSource from '../networks/IronSource';
 import Liftoff from '../networks/Liftoff';
 import TikTok from '../networks/TikTok';
 import UnityAds from '../networks/UnityAds';
-import Mintegral from '../networks/Mintegral';
 import Vungle from '../networks/Vungle';
 
 import Preloader from './Preloader';
@@ -246,8 +244,6 @@ if(networkName === 'Applovin') {
     network = new Applovin(start);
 } else if(networkName === 'Facebook') {
     network = new Facebook(start);
-} else if(networkName === 'Moloco') {
-    network = new Moloco(start);
 } else if(networkName === 'Google') {
     network = new Google(start);
 } else if(networkName === 'IronSource') {
@@ -258,8 +254,6 @@ if(networkName === 'Applovin') {
     network = new TikTok(start);
 } else if(networkName === 'UnityAds') {
     network = new UnityAds(start);
-} else if(networkName === 'Mintegral') {
-    network = new Mintegral(start);
 } else if(networkName === 'Vungle') {
     network = new Vungle(start);
 } else {
