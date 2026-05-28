@@ -1,7 +1,7 @@
 module.exports = {
     'name': 'category-sort',
     // 'networks': ['Applovin', 'Facebook', 'Google', 'IronSource', 'Liftoff', 'TikTok', 'UnityAds', 'Vungle'],
-    'networks': ['Applovin', 'Facebook', 'Google', 'UnityAds'],
+    'networks': ['Applovin', 'Facebook', 'Moloco', 'Google', 'UnityAds', 'Mintegral'],
     'customPhaser': true,
     'compressAtlas': true,
     'compressTexture': true,

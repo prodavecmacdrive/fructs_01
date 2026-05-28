@@ -205,7 +205,7 @@ class BuilderPlugin {
         const folderName = Object.keys(config.versions)[this.currentVersion];
         html = html.replace('{version}', folderName);
 
-        const filenameBase = `${config.name}_${folderName}_${network.toLowerCase()}`;
+        const filenameBase = `${config.name}_${folderName}_timer_${network.toLowerCase()}`;
         const htmlFilename = filenameBase + '.html';
         const zipFilename = filenameBase + '.zip';
 
@@ -258,7 +258,7 @@ class BuilderPlugin {
         } else {
             fs.writeFile(`dist/${folderName}/${htmlFilename}`, html, (err) => {
                 if(network === 'UnityAds') {
-                    const previewBase = `${config.name}_${folderName}`;
+                    const previewBase = `${config.name}_${folderName}_timer`;
                     const previewPath = `dist/preview/${previewBase}.html`;
                     fs.copyFile(`dist/${folderName}/${htmlFilename}`, previewPath, (copyErr) => {
                         if(copyErr) {

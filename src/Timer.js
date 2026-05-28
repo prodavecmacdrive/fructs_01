@@ -18,13 +18,15 @@ import SETTINGS from "../game-timer.json";
  *   timer.stop();        // on any other game-over without resetting visuals
  */
 export default class Timer extends Phaser.GameObjects.Container {
-    constructor({ scene, container, onTimeout }) {
+    constructor({ scene, container, onTimeout, onNearEnd }) {
         super(scene, 0, 0);
 
-        this._onTimeout  = onTimeout;
-        this._elapsedMs  = 0;
-        this._running    = false;
-        this._triggered  = false;
+        this._onTimeout   = onTimeout;
+        this._onNearEnd   = onNearEnd;
+        this._elapsedMs   = 0;
+        this._running     = false;
+        this._triggered   = false;
+        this._nearEndFired = false;
 
         this._build();
 
@@ -150,15 +152,16 @@ export default class Timer extends Phaser.GameObjects.Container {
     // ─────────────────────────────────────────────────────────────────────────
 
     _reset() {
-        this._elapsedMs            = 0;
-        this._triggered            = false;
-        this._running              = false;
-        this._lastDisplayedSeconds = Math.ceil((SETTINGS.gameFinalTime * 10) / 1000);
-        this._arrowS.rotation      = 0;
-        this._arrowMs.rotation     = 0;
-        this.rotation              = 0;
-        this._rotationActive       = false;
-        this._finalZoomActive      = false;
+        this._elapsedMs             = 0;
+        this._triggered             = false;
+        this._running               = false;
+        this._nearEndFired          = false;
+        this._lastDisplayedSeconds  = Math.ceil((SETTINGS.gameFinalTime * 10) / 1000);
+        this._arrowS.rotation       = 0;
+        this._arrowMs.rotation      = 0;
+        this.rotation               = 0;
+        this._rotationActive        = false;
+        this._finalZoomActive       = false;
         this._timeoutSequenceActive = false;
         if (this._rotationTimeline) {
             this._rotationTimeline.stop();
@@ -246,6 +249,13 @@ export default class Timer extends Phaser.GameObjects.Container {
         if (!this._rotationActive && remainingMs <= 2000) {
             this._rotationActive = true;
             this._startFinalRotation();
+        }
+
+        if (!this._nearEndFired && remainingMs <= 2000 && remainingMs > 0) {
+            this._nearEndFired = true;
+            if (this._onNearEnd) {
+                this._onNearEnd();
+            }
         }
 
         // gameFinalTime is stored in centiseconds (* 10 converts to ms)

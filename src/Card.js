@@ -87,7 +87,7 @@ export default class Card extends Phaser.GameObjects.Container {
 
         this.on('pointerdown', (pointer, lx, ly, ev) => {
             ev.stopPropagation();
-            if (this.isLocked || !this.dragEnabled) return;
+            if (this.isLocked || !this.dragEnabled || this.scene.gameOver) return;
             Utils.addAudio(this.scene, 'click', 1.5);
             this._startDrag(pointer);
         });
@@ -119,6 +119,7 @@ export default class Card extends Phaser.GameObjects.Container {
     }
 
     _startDrag(pointer) {
+        if (this.scene.gameOver) return;
         this.scene.helper?.notifyDragStart();
         this.isDragging = true;
         const local = this._toLocal(pointer.x, pointer.y);

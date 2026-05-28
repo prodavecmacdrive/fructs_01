@@ -158,6 +158,45 @@ export default class Helper {
         }
     }
 
+    /**
+     * Hide helper visuals with a fade-out animation.
+     */
+    hideWithFade() {
+        this._running = false;
+        for (const t of this._timers) {
+            if (t) t.remove(false);
+        }
+        this._timers = [];
+        if (this._afkTimer) {
+            this._afkTimer.remove(false);
+            this._afkTimer = null;
+        }
+
+        if (this._ghost) {
+            this._scene.tweens.killTweensOf(this._ghost);
+            this._scene.tweens.add({
+                targets: this._ghost,
+                alpha: 0,
+                duration: 240,
+                ease: 'Power2.Out',
+                onComplete: () => this._destroyGhost()
+            });
+        }
+
+        if (this._finger) {
+            this._scene.tweens.killTweensOf(this._finger);
+            this._scene.tweens.add({
+                targets: this._finger,
+                alpha: 0,
+                duration: 240,
+                ease: 'Power2.Out',
+                onComplete: () => {
+                    this._finger.setScale(0.8);
+                }
+            });
+        }
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // Gameplay hint
     // ─────────────────────────────────────────────────────────────────────────

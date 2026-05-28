@@ -40,10 +40,11 @@ export default class TimerScene extends ParentScene {
      * @param {function} onTimeout  – called when the countdown reaches zero
      * @param {function} [onStarted] – called when the timer is ready/ticking
      */
-    launchTimer(onTimeout, onStarted) {
+    launchTimer(onTimeout, onStarted, onNearEnd) {
         if (this._timer) {
             // Timer already running – wire it to the new scene's callback
             this._timer._onTimeout = onTimeout;
+            this._timer._onNearEnd = onNearEnd;
             if (onStarted) onStarted();
             return;
         }
@@ -51,7 +52,8 @@ export default class TimerScene extends ParentScene {
         this._timer = new Timer({
             scene:     this,
             container: this.mainContainer,
-            onTimeout
+            onTimeout,
+            onNearEnd
         });
         this._timer.start(onStarted);
     }

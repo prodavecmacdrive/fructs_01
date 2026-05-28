@@ -195,8 +195,13 @@ export default class Game extends ParentScene {
                     this.finalWindow.show();
                 }
             };
+            const onNearEnd = () => {
+                if (this.helper) {
+                    this.helper.hideWithFade();
+                }
+            };
             if (timerScene) {
-                timerScene.launchTimer(onTimeout, () => this._flipAllTopCards());
+                timerScene.launchTimer(onTimeout, () => this._flipAllTopCards(), onNearEnd);
             } else {
                 this._flipAllTopCards();
             }
@@ -275,6 +280,13 @@ export default class Game extends ParentScene {
      */
     _revealNextCard(deckIndex) {
         const deck = this._decks[deckIndex];
+        console.debug('[Game] revealNextCard start', {
+            deckIndex,
+            remainingCount: deck.remaining.length,
+            activeCard: deck.activeCard?.iconKey,
+            shadowCount: deck.shadowImages.length,
+            gameOver: this.gameOver
+        });
         const cardData  = deck.remaining.pop();    // matching card definition
         if (!cardData) return; // no more cards in the deck
 
@@ -286,6 +298,14 @@ export default class Game extends ParentScene {
         const anim = this.SETTINGS.animations;
 
         this.time.delayedCall(anim.revealNextCardDelayMs, () => {
+            if (this.gameOver) {
+                if (shadowImg) {
+                    console.debug('[Game] revealNextCard abort cleanup destroying leftover shadow', { deckIndex, card: cardData.icon });
+                    shadowImg.destroy();
+                }
+                console.debug('[Game] revealNextCard aborted because gameOver already true', { deckIndex, card: cardData.icon });
+                return;
+            }
             const newCard = new Card({
                 scene: this,
                 type: cardData.type, icon: cardData.icon,
@@ -336,6 +356,12 @@ export default class Game extends ParentScene {
                 Utils.addAudio(this, 'pop', 0.8);
                 card.disableDrag();
                 this._acceptedCards.push(card);
+                console.debug('[Game] accepted card', {
+                    icon: card.iconKey,
+                    type: card.type,
+                    deckIndex: card.deckIndex,
+                    acceptedCount: this._acceptedCards.length
+                });
                 zone.acceptCard(card);
                 // Flip the next card in this deck
                 if (card.deckIndex !== undefined) this._revealNextCard(card.deckIndex);
@@ -399,6 +425,15 @@ export default class Game extends ParentScene {
 
     _checkWin() {
         if (this._dropZones.every((zone) => zone.isComplete) && !this.gameOver) {
+            console.debug('[Game] win condition met', {
+                acceptedCards: this._acceptedCards.length,
+                decks: this._decks.map((deck, idx) => ({
+                    idx,
+                    remaining: deck.remaining.length,
+                    activeCard: deck.activeCard?.iconKey,
+                    shadowCount: deck.shadowImages.length
+                }))
+            });
             this.gameOver = true;
             Utils.addAudio(this, 'win', 1);
             this._runBubblePopSequence(() => this._triggerEnd());
@@ -425,6 +460,15 @@ export default class Game extends ParentScene {
         targets.push(...this._acceptedCards);
 
         if (targets.length === 0) { onComplete(); return; }
+
+        console.debug('[Game] bubble pop sequence targets', {
+            count: targets.length,
+            entries: targets.map((target) => ({
+                key: target.texture?.key || target.iconKey || 'unknown',
+                visible: target.visible !== false,
+                hasScene: !!target.scene
+            }))
+        });
 
         let index = 0;
         const next = () => {

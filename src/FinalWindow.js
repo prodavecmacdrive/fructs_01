@@ -53,6 +53,10 @@ export default class FinalWindow {
         this._overlay.setCustomPosition(0, 0);
         this._overlay.setDepth(cfg.depth);
         this._overlay.setAlpha(0);
+        this._overlay.setInteractive();
+        this._overlay.on('pointerdown', (pointer) => {
+            pointer.event.stopPropagation();
+        });
 
         this._container.add(this._overlay);
     }
