@@ -1,7 +1,7 @@
 {
   "container": {
     "portraitAlign": "Top",
-    "portraitCx": 0,
+    "portraitCx": -6,
     "portraitCy": 0,
     "landscapeAlign": "Left",
     "landscapeCx": 0,
@@ -19,21 +19,21 @@
   },
   "staticBg": {
     "image": "stress_scale_bg",
-    "px": 0,
-    "py": 430,
-    "lx": 420,
-    "ly": -94,
-    "scaleX": 1.4,
-    "scaleY": 1.4,
+    "px": 6,
+    "py": 90,
+    "lx": 140,
+    "ly": -30,
+    "scaleX": 0.45,
+    "scaleY": 0.45,
     "depth": 1
   },
   "dial": {
-    "px": 0,
-    "py": 600,
-    "lx": 420,
-    "ly": 76,
-    "scaleX": 1.4,
-    "scaleY": 1.4,
+    "px": 6,
+    "py": 145,
+    "lx": 140,
+    "ly": 26,
+    "scaleX": 0.45,
+    "scaleY": 0.45,
     "depth": 2
   },
   "rotation": {
