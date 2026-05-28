@@ -45,8 +45,11 @@ export default class Background extends Phaser.GameObjects.Container {
 
     _updateColorFill() {
         if (!this.scene || !this._colorFill) return;
-        const width = (this.scene.game?.size?.x ?? 0) * 2;
-        const height = (this.scene.game?.size?.y ?? 0) * 2;
+        // The background lives inside the scaled main container, so convert the
+        // screen size back into container-local space before drawing the fill.
+        const containerScale = Number(this.scene.game?.size?.scale) || 1;
+        const width = (this.scene.scale?.width ?? 0) / containerScale;
+        const height = (this.scene.scale?.height ?? 0) / containerScale;
         this._colorFill.clear();
         const hex = this.color.replace('#', '');
         const colorInt = parseInt(hex.length === 6 ? hex : hex.split('').map((c) => c + c).join(''), 16);
