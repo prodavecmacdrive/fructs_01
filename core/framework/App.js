@@ -16,6 +16,18 @@ import StateManager from '../../src/StateManager';
 
 import Utils from './Utils';
 
+const getConfiguredNetworkName = () => {
+    if (typeof window.App.networkName === 'string' && window.App.networkName.length > 0) {
+        return window.App.networkName;
+    }
+
+    if (typeof window.App.network === 'string' && window.App.network.length > 0) {
+        return window.App.network;
+    }
+
+    return '';
+};
+
 class App extends Phaser.Game {
     constructor() {
         const config = {
@@ -51,8 +63,12 @@ class App extends Phaser.Game {
 
         if(!window.dapi) window.addEventListener('resize', this.resize.bind(this), true);
 
+        const networkName = getConfiguredNetworkName();
+
         this.network = network;
         this.network.game = this;
+        window.App.networkName = networkName;
+        window.App.network = this.network;
         this.size = {resize: this.resize.bind(this)};
 
         // Initialise the state manager with the level flow injected by the builder
@@ -123,7 +139,7 @@ class App extends Phaser.Game {
 
             deviceWidth = window.dapi.getScreenSize().width * window.devicePixelRatio;
             deviceHeight = window.dapi.getScreenSize().height * window.devicePixelRatio;
-        } else if (window.App.network === 'Applovin') {
+        } else if (getConfiguredNetworkName() === 'Applovin') {
             width = window.mraid.getScreenSize().width;
             height = window.mraid.getScreenSize().height;
 
@@ -222,21 +238,27 @@ const start = () => {
     new App();
 }
 
-if(window.App.network === 'Applovin') {
+const networkName = getConfiguredNetworkName();
+
+if(networkName === 'Applovin') {
     network = new Applovin(start);
-} else if(window.App.network === 'Facebook') {
+} else if(networkName === 'Facebook') {
     network = new Facebook(start);
-} else if(window.App.network === 'Google') {
+} else if(networkName === 'Moloco') {
+    network = new Moloco(start);
+} else if(networkName === 'Google') {
     network = new Google(start);
-} else if(window.App.network === 'IronSource') {
+} else if(networkName === 'IronSource') {
     network = new IronSource(start);
-} else if(window.App.network === 'Liftoff') {
+} else if(networkName === 'Liftoff') {
     network = new Liftoff(start);
-} else if(window.App.network === 'TikTok') {
+} else if(networkName === 'TikTok') {
     network = new TikTok(start);
-} else if(window.App.network === 'UnityAds') {
+} else if(networkName === 'UnityAds') {
     network = new UnityAds(start);
-} else if(window.App.network === 'Vungle') {
+} else if(networkName === 'Mintegral') {
+    network = new Mintegral(start);
+} else if(networkName === 'Vungle') {
     network = new Vungle(start);
 } else {
     network = new Network(start);
