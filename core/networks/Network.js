@@ -6,7 +6,11 @@ export default class Network {
     }
 
     addClickToStore(obj) {
-        obj.setInteractive().on("pointerdown", this.openStore, this);
+        obj.setInteractive().on("pointerdown", this.ctaClick, this);
+    }
+
+    ctaClick() {
+        this.openStore();
     }
 
     openStore() {

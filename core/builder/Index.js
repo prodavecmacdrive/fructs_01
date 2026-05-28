@@ -71,7 +71,7 @@ class BuilderPlugin {
         this.fonts = '';
 
         // Base resource string — flow and scenesData are appended per-version in makeHtml()
-        this.resources = `window.App={};window.App.CORE_VERSION;window.App.network='{network}';window.App.version='{version}';`;
+        this.resources = `window.App={};window.App.CORE_VERSION;window.App.networkName='{network}';window.App.network=null;window.App.version='{version}';`;
         this.resources += `window.App.isDev=${this.mode === 'development'};`;
         this.resources += `window.App.iosUrl='${config.ios}';window.App.androidUrl='${config.android}';`;
         this.resources += 'window.App.resources={};window.App.resources.textures={};window.App.resources.sheets={};';
