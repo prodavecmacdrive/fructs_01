@@ -32,7 +32,7 @@ export default class DropZone extends Phaser.GameObjects.Container {
 
         // Head group – added BEFORE bg so it starts hidden behind bg.
         // It slides upward on first card drop, emerging from beneath the bg.
-        this.head = scene.add.image(0, dz.bgOffsetY, 'merge_head').setScale(S);
+        this.head = scene.add.image(0, dz.bgOffsetY, 'merge_head').setScale(S).setDepth(0);
         this.add(this.head);
 
         this.headLabel = scene.add.text(0, dz.bgOffsetY, label, {
@@ -41,11 +41,11 @@ export default class DropZone extends Phaser.GameObjects.Container {
             fontStyle:  dz.headTextFontStyle,
             color:      dz.headTextColor,
             align:      'center'
-        }).setOrigin(0.5, 0.5);
+        }).setOrigin(0.5, 0.5).setDepth(0);
         this.add(this.headLabel);
 
         // bg added AFTER head → renders in front, covering head until it slides out
-        this.bg = scene.add.image(0, dz.bgOffsetY, 'merge_bg').setScale(S);
+        this.bg = scene.add.image(0, dz.bgOffsetY, 'merge_bg').setScale(S).setDepth(1);
         this.add(this.bg);
 
         this.counterText = scene.add.text(dz.counterOffsetX ?? 0, dz.counterOffsetY, `0/${target}`, {
@@ -55,7 +55,7 @@ export default class DropZone extends Phaser.GameObjects.Container {
             color:      dz.counterTextColor,
             stroke:     dz.counterTextStroke,
             strokeThickness: dz.counterTextStrokeThickness
-        }).setOrigin(0.5, 0.5).setDepth(1);
+        }).setOrigin(0.5, 0.5).setDepth(2);
         this.add(this.counterText);
 
         const displayLabel = label.replace(' ', '\n');
@@ -65,7 +65,7 @@ export default class DropZone extends Phaser.GameObjects.Container {
             fontStyle:  dz.labelTextFontStyle,
             color:      dz.labelTextColor,
             align:      'center'
-        }).setOrigin(0.5, 0.5).setDepth(1);
+        }).setOrigin(0.5, 0.5).setDepth(2);
         this.add(this.labelText);
 
         // Wire into the responsive system
@@ -77,7 +77,10 @@ export default class DropZone extends Phaser.GameObjects.Container {
         this.setCustomPosition(0, 0).setAlign('Center');
 
         container.add(this);
-        this.setDepth(3);
+        this.setDepth(4);
+        if (typeof this.sort === 'function') {
+            this.sort('depth');
+        }
     }
 
     /** Returns true if the given mainContainer-local point is within the zone's hit area. */

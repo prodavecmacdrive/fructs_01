@@ -1,0 +1,44 @@
+{
+  "container": {
+    "portraitAlign": "Top",
+    "portraitCx": 0,
+    "portraitCy": 0,
+    "landscapeAlign": "Left",
+    "landscapeCx": 0,
+    "landscapeCy": 0,
+    "depth": 1
+  },
+  "background": {
+    "pImage": "stress_bg_p",
+    "lImage": "stress_bg_l",
+    "pOriginX": 0.5,
+    "pOriginY": 0,
+    "lOriginX": 0,
+    "lOriginY": 0.5,
+    "depth": 3
+  },
+  "staticBg": {
+    "image": "stress_scale_bg",
+    "px": 0,
+    "py": 430,
+    "lx": 420,
+    "ly": -94,
+    "scaleX": 1.4,
+    "scaleY": 1.4,
+    "depth": 1
+  },
+  "dial": {
+    "px": 0,
+    "py": 600,
+    "lx": 420,
+    "ly": 76,
+    "scaleX": 1.4,
+    "scaleY": 1.4,
+    "depth": 2
+  },
+  "rotation": {
+    "step": 15,
+    "durationMs": 250,
+    "ease": "Power2.Out"
+  }
+}

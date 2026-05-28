@@ -4,7 +4,7 @@ import Background    from "./Background";
 import Card          from "./Card";
 import DropZone      from "./DropZone";
 import FinalWindow   from "./FinalWindow";
-import MovesCounter  from "./MovesCounter";
+import StressScale   from "./StressScale";
 import Helper        from "./Helper";
 import BASE_SETTINGS from "../game-settings.json";
 
@@ -76,10 +76,9 @@ export default class Game extends ParentScene {
             });
         });
 
-        // Moves counter
-        this.movesCounter = new MovesCounter({
-            scene: this, moves: this.SETTINGS.game.startingMoves,
-            cx: L.movesCounter.cx, cy: L.movesCounter.cy,
+        // Stress scale (performance indicator)
+        this.stressScale = new StressScale({
+            scene: this,
             container: this.mainContainer
         });
 
@@ -327,8 +326,7 @@ export default class Game extends ParentScene {
             return;
         }
 
-        const remaining = this.movesCounter.decrement();
-        const zone      = this._hitZone(card);
+        const zone = this._hitZone(card);
 
         if (zone) {
             if (card.type === zone.type) {
@@ -340,18 +338,17 @@ export default class Game extends ParentScene {
                 // Flip the next card in this deck
                 if (card.deckIndex !== undefined) this._revealNextCard(card.deckIndex);
                 this.helper?.notifyCorrectMove();
+                this.stressScale?.notifyCorrect();
             } else {
                 // ── Wrong zone ──
                 Utils.addAudio(this, 'fail', 0.8);
                 card.shakeAndReturn();
+                this.stressScale?.notifyIncorrect();
             }
         } else {
             card.shakeAndReturn();
         }
 
-        if (remaining <= 0 && !this.gameOver) {
-            this.time.delayedCall(this.SETTINGS.animations.lossDelayMs, () => this._triggerEnd());
-        }
     }
 
     /** Returns the zone with the highest overlap score, or null. */

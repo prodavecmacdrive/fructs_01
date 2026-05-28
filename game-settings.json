@@ -7,16 +7,30 @@
 
   "cardTypes": [
     {
-      "type": "edible",
-      "label": "Edible",
-      "iconPrefix": "edible_",
+      "type": "biological",
+      "label": "Biological evidence",
+      "iconPrefix": "biological_",
       "iconCount": 4,
       "target": 4
     },
     {
-      "type": "not_edible",
-      "label": "Not Edible",
-      "iconPrefix": "not_edible_",
+      "type": "digital",
+      "label": "Digital evidence",
+      "iconPrefix": "digital_",
+      "iconCount": 4,
+      "target": 4
+    },
+    {
+      "type": "impression",
+      "label": "Impression evidence",
+      "iconPrefix": "impression_",
+      "iconCount": 4,
+      "target": 4
+    },
+    {
+      "type": "physical",
+      "label": "Physical evidence",
+      "iconPrefix": "physical_",
       "iconCount": 4,
       "target": 4
     }
@@ -24,7 +38,7 @@
 
   "background": {
     "mode": "color",
-    "color": "#ff9564",
+    "color": "#9c65e2",
     "pImage": "main_bg",
     "lImage": "main_bg",
     "pScaleX": 1.05,
@@ -37,8 +51,10 @@
     "deckCount": 8,
     "movesCounter": { "cx": 0, "cy": -400 },
     "dropZones": [
-      { "type": "edible",     "cx": 0, "cy": -70 },
-      { "type": "not_edible", "cx": 0, "cy": 124 }
+      { "type": "biological", "cx": 0, "cy": -266 },
+      { "type": "digital", "cx": 0, "cy": -76 },
+      { "type": "impression", "cx": 0, "cy": 124 },
+      { "type": "physical", "cx": 0, "cy": 316 }
     ],
 
     "ctaButton": {
@@ -50,66 +66,114 @@
     "decks": [
       {
         "name": 1,
-        "cx": -82, "cy": -272,
+        "cx": -234, "cy": -272,
         "cards": [
-          { "type": "edible",     "icon": "edible_2"     },
-          { "type": "not_edible", "icon": "not_edible_1" }
+          { "type": "digital", "icon": "digital_1" }
         ]
       },
       {
         "name": 2,
-        "cx": 82, "cy": -272,
+        "cx": -118, "cy": -272,
         "cards": [
-          { "type": "not_edible", "icon": "not_edible_6" },
-          { "type": "edible",     "icon": "edible_3"     }
+          { "type": "physical", "icon": "physical_1" }
         ]
       },
       {
         "name": 3,
-        "cx": -162, "cy": -82,
+        "cx": 118, "cy": -272,
         "cards": [
-          { "type": "edible",     "icon": "edible_4"     },
-          { "type": "edible",     "icon": "edible_5"     }
+          { "type": "biological", "icon": "biological_4" }
         ]
       },
       {
         "name": 4,
-        "cx": 162, "cy": -82,
+        "cx": 234, "cy": -272,
         "cards": [
-          { "type": "not_edible", "icon": "not_edible_5" },
-          { "type": "not_edible", "icon": "not_edible_2" }
+          { "type": "impression", "icon": "impression_2" }
         ]
       },
       {
         "name": 5,
-        "cx": -162, "cy": 118,
+        "cx": -234, "cy": -82,
         "cards": [
-          { "type": "not_edible", "icon": "not_edible_8" },
-          { "type": "not_edible", "icon": "not_edible_3" }
+          { "type": "biological", "icon": "biological_1" }
         ]
       },
       {
         "name": 6,
-        "cx": 162, "cy": 118,
+        "cx": -118, "cy": -82,
         "cards": [
-          { "type": "edible",     "icon": "edible_1"     },
-          { "type": "edible",     "icon": "edible_8"     }
+          { "type": "digital", "icon": "digital_2" }
         ]
       },
       {
         "name": 7,
-        "cx": -82, "cy": 310,
+        "cx": 118, "cy": -82,
         "cards": [
-          { "type": "not_edible", "icon": "not_edible_7" },
-          { "type": "edible",     "icon": "edible_6"     }
+          { "type": "biological", "icon": "biological_3" }
         ]
       },
       {
         "name": 8,
-        "cx": 82, "cy": 310,
+        "cx": 234, "cy": -82,
         "cards": [
-          { "type": "edible",     "icon": "edible_7"     },
-          { "type": "not_edible", "icon": "not_edible_4" }
+          { "type": "biological", "icon": "biological_2" }
+        ]
+      },
+      {
+        "name": 9,
+        "cx": -234, "cy": 118,
+        "cards": [
+          { "type": "physical", "icon": "physical_2" }
+        ]
+      },
+      {
+        "name": 10,
+        "cx": -118, "cy": 118,
+        "cards": [
+          { "type": "digital", "icon": "digital_4" }
+        ]
+      },
+      {
+        "name": 11,
+        "cx": 234, "cy": 118,
+        "cards": [
+          { "type": "physical", "icon": "physical_3" }
+        ]
+      },
+      {
+        "name": 12,
+        "cx": 118, "cy": 118,
+        "cards": [
+          { "type": "digital", "icon": "digital_3" }
+        ]
+      },
+      {
+        "name": 13,
+        "cx": -234, "cy": 310,
+        "cards": [
+          { "type": "impression", "icon": "impression_4" }
+        ]
+      },
+      {
+        "name": 14,
+        "cx": -118, "cy": 310,
+        "cards": [
+          { "type": "impression", "icon": "impression_1" }
+        ]
+      },
+      {
+        "name": 15,
+        "cx": 118, "cy": 310,
+        "cards": [
+          { "type": "physical", "icon": "physical_4" }
+        ]
+      },
+      {
+        "name": 16,
+        "cx": 234, "cy": 310,
+        "cards": [
+          { "type": "impression", "icon": "impression_3" }
         ]
       }
     ]
@@ -128,8 +192,8 @@
   },
 
   "card": {
-    "faceScale": 0.5,
-    "iconScale": 0.5,
+    "faceScale": 0.46,
+    "iconScale": 0.46,
     "iconOffsetY": 0
   },
 
@@ -150,7 +214,7 @@
     "counterTextFontStyle": "bold",
     "counterTextColor": "#5c3a00",
     "counterTextStroke": "#ffffff",
-    "counterTextStrokeThickness": 0,
+    "counterTextStrokeThickness": 3,
     "counterFontSize": 24,
     "labelOffsetY": 25,
     "labelTextFontFamily": "LilitaOne-Regular, Arial",
@@ -160,7 +224,7 @@
     "bodyLabelFadeDurationMs": 150,
     "highlightDurationMs": 100,
     "highlightEase": "Power2",
-    "hitHalfWidth": 65,
+    "hitHalfWidth": 125,
     "hitHalfHeight": 120,
     "acceptedCardScale": 0.82,
     "acceptedCardOffsetY": 10,

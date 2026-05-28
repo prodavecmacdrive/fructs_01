@@ -1,6 +1,6 @@
 export default class MovesCounter extends Phaser.GameObjects.Container {
     /**
-     * Top-panel moves counter.  Visual: moves_bg pill + "Moves : N" text.
+     * Top-panel moves counter.  Visual: "Moves : N" text only.
      * @param {object} opts
      * @param {Phaser.Scene} opts.scene
      * @param {number}  opts.moves    – starting move count
@@ -14,9 +14,6 @@ export default class MovesCounter extends Phaser.GameObjects.Container {
         this.remaining = moves;
 
         const mc = this.scene.SETTINGS.movesCounter;
-
-        this.bg = scene.add.image(0, 0, 'moves_bg').setScale(mc.backgroundScale);
-        this.add(this.bg);
 
         this.label = scene.add.text(mc.textOffsetX, mc.textOffsetY, this._buildText(), {
             fontFamily: mc.textFontFamily,
