@@ -11,6 +11,7 @@ import Vungle from '../networks/Vungle';
 import Preloader from './Preloader';
 import Game from '../../src/Game';
 import TransitionScene from '../../src/TransitionScene';
+import TimerScene from '../../src/TimerScene';
 import StateManager from '../../src/StateManager';
 
 import Utils from './Utils';
@@ -27,7 +28,7 @@ class App extends Phaser.Game {
             },
             title: 'Core Version: ' + window.App.CORE_VERSION,
             backgroundColor: '#1e1e1e',
-            scene: [Preloader, Game, TransitionScene]
+            scene: [Preloader, Game, TransitionScene, TimerScene]
         };
 
         if(window.SpinePlugin) {

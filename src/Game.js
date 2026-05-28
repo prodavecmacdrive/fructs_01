@@ -1,12 +1,12 @@
-import ParentScene  from "../core/framework/components/Scene";
-import Utils        from "../core/framework/Utils";
-import Background   from "./Background";
-import Card         from "./Card";
-import DropZone     from "./DropZone";
-import FinalWindow  from "./FinalWindow";
-import MovesCounter from "./MovesCounter";
+import ParentScene   from "../core/framework/components/Scene";
+import Utils         from "../core/framework/Utils";
+import Background    from "./Background";
+import Card          from "./Card";
+import DropZone      from "./DropZone";
+import FinalWindow   from "./FinalWindow";
+import MovesCounter  from "./MovesCounter";
+import Helper        from "./Helper";
 import BASE_SETTINGS from "../game-settings.json";
-import Helper       from "./Helper";
 
 export default class Game extends ParentScene {
     init(data) {
@@ -161,7 +161,12 @@ export default class Game extends ParentScene {
             onCta:     () => this._onCta()
         });
 
-        // Trigger resize, set up listener, then show start screen
+        // Launch the persistent TimerScene (no-op if already active from a prior scene)
+        if (!this.scene.isActive('TimerScene')) {
+            this.scene.launch('TimerScene');
+        }
+
+        // Trigger resize, set up listener, then start timer / flip cards
         setTimeout(() => {
             if (!this.scene || !this.scene.key) return; // Scene already shutdown
 
@@ -177,7 +182,24 @@ export default class Game extends ParentScene {
             if (!window.App.hasGameStarted) {
                 window.App.hasGameStarted = true;
             }
-            this._flipAllTopCards();
+
+            // Timer lives in TimerScene for the full session.
+            // First scene: creates + plays intro, then flips cards.
+            // Later scenes: timer is already running, cards flip immediately.
+            const timerScene = this.scene.get('TimerScene');
+            const onTimeout = () => {
+                if (!this.gameOver) {
+                    this.gameOver = true;
+                    this.helper?.kill();
+                    this.helper = null;
+                    this.finalWindow.show();
+                }
+            };
+            if (timerScene) {
+                timerScene.launchTimer(onTimeout, () => this._flipAllTopCards());
+            } else {
+                this._flipAllTopCards();
+            }
         }, anim.resizeDebounceMs);
 
         this.events.once('shutdown', () => {
@@ -439,10 +461,13 @@ export default class Game extends ParentScene {
             this.helper = null;
             window.App.stateManager.markCompleted(this._sceneId);
             if (window.App.stateManager.isFlowComplete()) {
+                window.App.timerScene?.stopTimer();
+                window.App.timerScene?.hideTimer();
                 this.finalWindow.show();
                 this.helper = new Helper({ scene: this, container: this.mainContainer });
                 this.helper.startFinalScreen(this.finalWindow.btnFin);
             } else {
+                // Timer keeps running in TimerScene through the transition
                 this.scene.stop();
                 this.scene.start('TransitionScene');
             }
