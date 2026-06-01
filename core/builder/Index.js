@@ -189,12 +189,16 @@ class BuilderPlugin {
         html = html.replace('{code}', '');
         html = html.replace('{version}', config.currentVersion);
 
-        fs.writeFile('./dist/index.html', html, (err) => {
+        // Write to a secondary file to avoid Windows lock collisions on dist/index.html.
+        fs.writeFile('./dist/index-live.html', html, () => {
             if(!this.isOpenTab) {
-                open('http://localhost:3080/index.html');
+                open('http://localhost:3080/index-live.html');
                 this.isOpenTab = true;
             }
         });
+
+        // Keep backward compatibility for existing workflows using index.html.
+        fs.writeFile('./dist/index.html', html, () => {});
     }
 
     buildProd(html, network) {

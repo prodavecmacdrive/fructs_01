@@ -133,6 +133,22 @@ export default class Card extends Phaser.GameObjects.Container {
         this.dragTargetY = this.y;
         this.dragVx = 0;
 
+        if (this.parentContainer && this.parentContainer !== this.scene.boardContainer) {
+            if (this.parentContainer.type === 'hold') {
+                this.parentContainer.isOccupied = false;
+            }
+            const worldPoint = this.getWorldTransformMatrix().transformPoint(0, 0);
+            const localPoint = this.scene.boardContainer.getLocalPoint(worldPoint.x, worldPoint.y);
+            this.parentContainer.remove(this);
+            this.scene.boardContainer.add(this);
+            this.x = localPoint.x;
+            this.y = localPoint.y;
+            this.homeX = localPoint.x;
+            this.homeY = localPoint.y;
+            this._cx = this.x - Utils.getAlignX(this);
+            this._cy = this.y - Utils.getAlignY(this);
+        }
+
         this._onMove = (ptr) => { if (this.isDragging) this._moveDrag(ptr); };
         this._onUp   = ()    => { if (this.isDragging) this._endDrag();     };
         this.scene.input.on('pointermove', this._onMove);

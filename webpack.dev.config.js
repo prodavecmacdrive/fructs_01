@@ -1,6 +1,4 @@
 const path = require('path');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-
 const BuilderPlugin = require('./core/builder/Index');
 
 module.exports = {
@@ -17,7 +15,6 @@ module.exports = {
         port: 3080
     },
     plugins: [
-        new CleanWebpackPlugin(),
         new BuilderPlugin({ mode: 'development' }),
     ],
 }

@@ -7,38 +7,20 @@
 
   "cardTypes": [
     {
-      "type": "biological",
-      "label": "Biological evidence",
-      "headText": { "text": "Biological", "fontSize": 18 },
-      "bodyText": { "text": "Biological\\s evidence", "fontSize": 21 },
-      "iconPrefix": "biological_",
+      "type": "cold",
+      "label": "Cold",
+      "headText": { "text": "Cold", "fontSize": 32 },
+      "bodyText": { "text": "Cold", "fontSize": 38 },
+      "iconPrefix": "cold_",
       "iconCount": 4,
       "target": 4
     },
     {
-      "type": "digital",
-      "label": "Digital evidence",
-      "headText": { "text": "Digital", "fontSize": 18 },
-      "bodyText": { "text": "Digital\\s evidence", "fontSize": 21 },
-      "iconPrefix": "digital_",
-      "iconCount": 4,
-      "target": 4
-    },
-    {
-      "type": "impression",
-      "label": "Impression evidence",
-      "headText": { "text": "Impression", "fontSize": 18 },
-      "bodyText": { "text": "Impression\\s evidence", "fontSize": 18 },
-      "iconPrefix": "impression_",
-      "iconCount": 4,
-      "target": 4
-    },
-    {
-      "type": "physical",
-      "label": "Physical evidence",
-      "headText": { "text": "Physical", "fontSize": 18 },
-      "bodyText": { "text": "Physical\\s evidence", "fontSize": 21 },
-      "iconPrefix": "physical_",
+      "type": "hot",
+      "label": "Hot",
+      "headText": { "text": "Hot", "fontSize": 32 },
+      "bodyText": { "text": "Hot", "fontSize": 38 },
+      "iconPrefix": "hot_",
       "iconCount": 4,
       "target": 4
     }
@@ -46,7 +28,7 @@
 
   "background": {
     "mode": "color",
-    "color": "#804019",
+    "color": "#ff9564",
     "pImage": "main_bg",
     "lImage": "main_bg",
     "pScaleX": 1.0,
@@ -66,8 +48,8 @@
       "pOffsetY": 1.1,
       "lOffsetX": 1.2,
       "lOffsetY": 0,
-      "maxHeightP": 0.6,
-      "maxWidthL": 0.6,
+      "maxHeightP": 0.65,
+      "maxWidthL": 0.65,
       "pScaleX": 1,
       "pScaleY": 1,
       "lScaleX": 1,
@@ -77,10 +59,8 @@
     },
     "movesCounter": { "cx": 0, "cy": -400 },
     "dropZones": [
-      { "type": "biological", "cx": 0, "cy": -266 },
-      { "type": "digital", "cx": 0, "cy": -76 },
-      { "type": "impression", "cx": 0, "cy": 124 },
-      { "type": "physical", "cx": 0, "cy": 316 }
+      { "type": "cold", "cx": 0, "cy": -226 },
+      { "type": "hot", "cx": 0, "cy": 42 }
     ],
 
     "ctaButton": {
@@ -92,115 +72,71 @@
     "decks": [
       {
         "name": 1,
-        "cx": -234, "cy": -272,
+        "cx": -182, "cy": -312,
         "cards": [
-          { "type": "digital", "icon": "digital_1" }
+          { "type": "cold",     "icon": "cold_2"     },
+          { "type": "hot", "icon": "hot_1" }
         ]
       },
       {
         "name": 2,
-        "cx": -118, "cy": -272,
+        "cx": 182, "cy": -312,
         "cards": [
-          { "type": "physical", "icon": "physical_1" }
+          { "type": "hot", "icon": "hot_6" },
+          { "type": "cold",     "icon": "cold_3"     }
         ]
       },
       {
         "name": 3,
-        "cx": 118, "cy": -272,
+        "cx": -182, "cy": -82,
         "cards": [
-          { "type": "biological", "icon": "biological_4" }
+          { "type": "cold",     "icon": "cold_4"     },
+          { "type": "cold",     "icon": "cold_5"     }
         ]
       },
       {
         "name": 4,
-        "cx": 234, "cy": -272,
+        "cx": 182, "cy": -82,
         "cards": [
-          { "type": "impression", "icon": "impression_2" }
+          { "type": "hot", "icon": "hot_5" },
+          { "type": "hot", "icon": "hot_2" }
         ]
       },
       {
         "name": 5,
-        "cx": -234, "cy": -82,
+        "cx": -182, "cy": 148,
         "cards": [
-          { "type": "biological", "icon": "biological_1" }
+          { "type": "hot", "icon": "hot_8" },
+          { "type": "hot", "icon": "hot_3" }
         ]
       },
       {
         "name": 6,
-        "cx": -118, "cy": -82,
+        "cx": 182, "cy": 148,
         "cards": [
-          { "type": "digital", "icon": "digital_2" }
+          { "type": "cold",     "icon": "cold_1"     },
+          { "type": "cold",     "icon": "cold_8"     }
         ]
       },
       {
         "name": 7,
-        "cx": 118, "cy": -82,
-        "cards": [
-          { "type": "biological", "icon": "biological_3" }
-        ]
+        "type": "hold",
+        "cx": -282, "cy": 382
       },
       {
         "name": 8,
-        "cx": 234, "cy": -82,
-        "cards": [
-          { "type": "biological", "icon": "biological_2" }
-        ]
+        "type": "hold",
+        "cx": -98, "cy": 382
       },
       {
         "name": 9,
-        "cx": -234, "cy": 118,
-        "cards": [
-          { "type": "physical", "icon": "physical_2" }
-        ]
+        "type": "hold",
+        "cx": 98, "cy": 382
       },
       {
         "name": 10,
-        "cx": -118, "cy": 118,
-        "cards": [
-          { "type": "digital", "icon": "digital_4" }
-        ]
-      },
-      {
-        "name": 11,
-        "cx": 234, "cy": 118,
-        "cards": [
-          { "type": "physical", "icon": "physical_3" }
-        ]
-      },
-      {
-        "name": 12,
-        "cx": 118, "cy": 118,
-        "cards": [
-          { "type": "digital", "icon": "digital_3" }
-        ]
-      },
-      {
-        "name": 13,
-        "cx": -234, "cy": 310,
-        "cards": [
-          { "type": "impression", "icon": "impression_4" }
-        ]
-      },
-      {
-        "name": 14,
-        "cx": -118, "cy": 310,
-        "cards": [
-          { "type": "impression", "icon": "impression_1" }
-        ]
-      },
-      {
-        "name": 15,
-        "cx": 118, "cy": 310,
-        "cards": [
-          { "type": "physical", "icon": "physical_4" }
-        ]
-      },
-      {
-        "name": 16,
-        "cx": 234, "cy": 310,
-        "cards": [
-          { "type": "impression", "icon": "impression_3" }
-        ]
+        "type": "hold",
+        "cx": 282, "cy": 382
       }
     ]
   },
@@ -218,16 +154,16 @@
   },
 
   "card": {
-    "faceScale": 0.46,
-    "iconScale": 0.46,
+    "faceScale": 0.6,
+    "iconScale": 0.6,
     "iconOffsetY": 0
   },
 
   "dropZone": {
-    "scale": 0.5,
+    "scale": 0.65,
     "bgOffsetY": 12,
-    "headOffsetY": -68,
-    "headTextFOffsetY": -82,
+    "headOffsetY": -94,
+    "headTextFOffsetY": -105,
     "headRevealDurationMs": 350,
     "headRevealEase": "Back.Out",
     "headTextFontFamily": "LilitaOne-Regular, Arial",

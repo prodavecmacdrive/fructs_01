@@ -114,6 +114,10 @@ export default class DropZone extends Phaser.GameObjects.Container {
      * @param {Card} card
      */
     acceptCard(card) {
+        if (this.isComplete) {
+            return false;
+        }
+
         this.count++;
         const dz = this.scene.SETTINGS.dropZone;
         card.flyTo(this.x, this.y + dz.acceptedCardOffsetY, dz.acceptedCardScale, () => {
@@ -126,6 +130,7 @@ export default class DropZone extends Phaser.GameObjects.Container {
                 if (this.onCompleteCb) this.onCompleteCb();
             }
         });
+        return true;
     }
 
     _attachAcceptedCard(card) {
@@ -177,10 +182,31 @@ export default class DropZone extends Phaser.GameObjects.Container {
 
     _playComplete() {
         const dz = this.scene.SETTINGS.dropZone;
-        this.scene.tweens.add({
+        this.scene.tweens.killTweensOf(this);
+        this.scene.tweens.timeline({
             targets: this,
-            scaleX: dz.completeBounceScale, scaleY: dz.completeBounceScale,
-            duration: dz.completeBounceMs, yoyo: true, ease: 'Power2'
+            tweens: [
+                {
+                    scaleX: dz.completeBounceScale,
+                    scaleY: dz.completeBounceScale,
+                    duration: dz.completeBounceMs,
+                    ease: 'Power2'
+                },
+                {
+                    scaleX: 0,
+                    scaleY: 0,
+                    alpha: 0,
+                    duration: dz.completeBounceMs * 2,
+                    ease: 'Power2.Out',
+                    onComplete: () => {
+                        this.setVisible(false);
+                        this.setActive(false);
+                        this._highlighted = false;
+                        this.pScaleX = this.pScaleY = 0;
+                        this.lScaleX = this.lScaleY = 0;
+                    }
+                }
+            ]
         });
     }
 

@@ -3,6 +3,7 @@ import Utils         from "../core/framework/Utils";
 import Background    from "./Background";
 import Card          from "./Card";
 import DropZone      from "./DropZone";
+import HoldCell      from "./HoldCell";
 import FinalWindow   from "./FinalWindow";
 import StressScale   from "./StressScale";
 import Helper        from "./Helper";
@@ -209,6 +210,15 @@ export default class Game extends ParentScene {
             });
         });
 
+        this._holdCells = (L.decks || [])
+            .filter((deckData) => deckData.type === 'hold')
+            .map((deckData) => new HoldCell({
+                scene: this,
+                cx: deckData.cx,
+                cy: deckData.cy,
+                container: this.boardContainer
+            }));
+
         // Stress scale (performance indicator)
         this.stressScale = new StressScale({
             scene: this,
@@ -220,6 +230,10 @@ export default class Game extends ParentScene {
         this._initialTopCards = [];
 
         for (const deckData of L.decks) {
+            if (deckData.type === 'hold') {
+                continue;
+            }
+
             const { cx, cy, cards = [] } = deckData;
             const totalCards = cards.length;
             const topIndex = Math.max(0, totalCards - 1);
@@ -455,26 +469,35 @@ export default class Game extends ParentScene {
     _onCardDragMove(card) {
         const bestZone = this._bestHoverZone(card);
         this._dropZones.forEach((zone) => zone.setHighlight(zone === bestZone));
+        (this._holdCells || []).forEach((cell) => cell.setHighlight(cell === bestZone));
     }
 
     _onCardDrop(card) {
         // Clear hover highlights whenever a drag ends
         this._dropZones.forEach((zone) => zone.setHighlight(false));
+        (this._holdCells || []).forEach((cell) => cell.setHighlight(false));
 
         if (this.gameOver) {
             card.shakeAndReturn();
             return;
         }
 
-        const zone = this._hitZone(card);
+        const target = this._hitZone(card);
 
-        if (zone) {
-            if (card.type === zone.type) {
+        if (target) {
+            if (target.type === 'hold') {
+                Utils.addAudio(this, 'pop', 0.8);
+                target.acceptCard(card);
+                if (card.deckIndex !== undefined) this._revealNextCard(card.deckIndex);
+                return;
+            }
+
+            if (card.type === target.type) {
                 // ── Correct sort ──
                 Utils.addAudio(this, 'pop', 0.8);
                 card.disableDrag();
                 this._acceptedCards.push(card);
-                zone.acceptCard(card);
+                target.acceptCard(card);
                 // Flip the next card in this deck
                 if (card.deckIndex !== undefined) this._revealNextCard(card.deckIndex);
                 this.helper?.notifyCorrectMove();
@@ -495,8 +518,18 @@ export default class Game extends ParentScene {
     _bestHoverZone(card) {
         let bestZone = null;
         let bestScore = 0;
+        const targets = [
+            ...this._dropZones,
+            ...(this._holdCells || [])
+        ];
 
-        for (const zone of this._dropZones) {
+        for (const zone of targets) {
+            if (zone.isComplete) {
+                continue;
+            }
+            if (zone.type === 'hold' && zone.isOccupied) {
+                continue;
+            }
             const score = this._zoneOverlapScore(zone, card);
             if (score > bestScore) {
                 bestScore = score;

@@ -1,0 +1,48 @@
+
+Einstein.png
+size: 3330,895
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body
+  rotate: false
+  xy: 2, 2
+  size: 1084, 891
+  orig: 2762, 1506
+  offset: 877, 0
+  index: -1
+Eye_L
+  rotate: true
+  xy: 1088, 21
+  size: 94, 46
+  orig: 94, 46
+  offset: 0, 0
+  index: -1
+Eye_R
+  rotate: true
+  xy: 1136, 23
+  size: 92, 43
+  orig: 92, 43
+  offset: 0, 0
+  index: -1
+Head
+  rotate: true
+  xy: 1088, 117
+  size: 776, 754
+  orig: 1160, 754
+  offset: 204, 0
+  index: -1
+Head_Idle
+  rotate: false
+  xy: 1844, 148
+  size: 741, 745
+  orig: 1160, 754
+  offset: 223, 1
+  index: -1
+Head_smile
+  rotate: false
+  xy: 2587, 148
+  size: 741, 745
+  orig: 1160, 754
+  offset: 223, 1
+  index: -1
