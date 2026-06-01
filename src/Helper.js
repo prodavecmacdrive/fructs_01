@@ -34,7 +34,7 @@ export default class Helper {
     /**
      * @param {object}                          opts
      * @param {Phaser.Scene}                    opts.scene
-     * @param {Phaser.GameObjects.Container}    opts.container – mainContainer
+    * @param {Phaser.GameObjects.Container}    opts.container – render container for hint visuals
      */
     constructor({ scene, container }) {
         this._scene     = scene;

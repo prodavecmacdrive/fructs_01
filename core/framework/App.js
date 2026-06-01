@@ -39,7 +39,7 @@ class App extends Phaser.Game {
                 height: window.innerHeight * window.devicePixelRatio,
             },
             title: 'Core Version: ' + window.App.CORE_VERSION,
-            backgroundColor: '#1e1e1e',
+            backgroundColor: '#804019',
             scene: [Preloader, Game, TransitionScene, TimerScene]
         };
 

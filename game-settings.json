@@ -9,6 +9,8 @@
     {
       "type": "biological",
       "label": "Biological evidence",
+      "headText": { "text": "Biological", "fontSize": 18 },
+      "bodyText": { "text": "Biological\\s evidence", "fontSize": 21 },
       "iconPrefix": "biological_",
       "iconCount": 4,
       "target": 4
@@ -16,6 +18,8 @@
     {
       "type": "digital",
       "label": "Digital evidence",
+      "headText": { "text": "Digital", "fontSize": 18 },
+      "bodyText": { "text": "Digital\\s evidence", "fontSize": 21 },
       "iconPrefix": "digital_",
       "iconCount": 4,
       "target": 4
@@ -23,6 +27,8 @@
     {
       "type": "impression",
       "label": "Impression evidence",
+      "headText": { "text": "Impression", "fontSize": 18 },
+      "bodyText": { "text": "Impression\\s evidence", "fontSize": 18 },
       "iconPrefix": "impression_",
       "iconCount": 4,
       "target": 4
@@ -30,6 +36,8 @@
     {
       "type": "physical",
       "label": "Physical evidence",
+      "headText": { "text": "Physical", "fontSize": 18 },
+      "bodyText": { "text": "Physical\\s evidence", "fontSize": 21 },
       "iconPrefix": "physical_",
       "iconCount": 4,
       "target": 4
@@ -38,17 +46,35 @@
 
   "background": {
     "mode": "color",
-    "color": "#9c65e2",
+    "color": "#804019",
     "pImage": "main_bg",
     "lImage": "main_bg",
-    "pScaleX": 1.05,
-    "pScaleY": 1.05,
-    "lScaleX": 2.1,
-    "lScaleY": 2.1
+    "pScaleX": 1.0,
+    "pScaleY": 1.0,
+    "lScaleX": 1.0,
+    "lScaleY": 1.0
   },
 
   "layout": {
     "deckCount": 8,
+    "boardContainer": {
+      "px": 0,
+      "py": 0,
+      "lx": 0,
+      "ly": 0,
+      "pOffsetX": 0,
+      "pOffsetY": 1.1,
+      "lOffsetX": 1.2,
+      "lOffsetY": 0,
+      "maxHeightP": 0.6,
+      "maxWidthL": 0.6,
+      "pScaleX": 1,
+      "pScaleY": 1,
+      "lScaleX": 1,
+      "lScaleY": 1,
+      "pAlign": "Bottom",
+      "lAlign": "Right"
+    },
     "movesCounter": { "cx": 0, "cy": -400 },
     "dropZones": [
       { "type": "biological", "cx": 0, "cy": -266 },

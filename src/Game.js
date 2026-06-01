@@ -7,6 +7,7 @@ import FinalWindow   from "./FinalWindow";
 import StressScale   from "./StressScale";
 import Helper        from "./Helper";
 import BASE_SETTINGS from "../game-settings.json";
+import TIMER_SETTINGS from "../game-timer.json";
 
 export default class Game extends ParentScene {
     init(data) {
@@ -56,6 +57,136 @@ export default class Game extends ParentScene {
         const L   = this.SETTINGS.layout;
         const cfg = this.SETTINGS.deckStack;
         const anim = this.SETTINGS.animations;
+        const boardCfg = L.boardContainer || {};
+
+        this.boardContainer = this.add.container(0, 0);
+        this.boardContainer.addProperties(['pos', 'scale', 'align']);
+        this.boardContainer.px = boardCfg.px ?? 0;
+        this.boardContainer.py = boardCfg.py ?? 0;
+        this.boardContainer.lx = boardCfg.lx ?? 0;
+        this.boardContainer.ly = boardCfg.ly ?? 0;
+        this.boardContainer.pOffsetX = boardCfg.pOffsetX ?? 0;
+        this.boardContainer.pOffsetY = boardCfg.pOffsetY ?? 0;
+        this.boardContainer.lOffsetX = boardCfg.lOffsetX ?? 0;
+        this.boardContainer.lOffsetY = boardCfg.lOffsetY ?? 0;
+        this.boardContainer.pScaleX = boardCfg.pScaleX ?? 1;
+        this.boardContainer.pScaleY = boardCfg.pScaleY ?? 1;
+        this.boardContainer.lScaleX = boardCfg.lScaleX ?? 1;
+        this.boardContainer.lScaleY = boardCfg.lScaleY ?? 1;
+        this.boardContainer.pAlign = boardCfg.pAlign ?? 'Center';
+        this.boardContainer.lAlign = boardCfg.lAlign ?? 'Center';
+
+        const originalSetAlign = this.boardContainer.setAlign.bind(this.boardContainer);
+        const measureBoardLocalBounds = () => {
+            const bounds = this.boardContainer.getBounds();
+            if (bounds.width <= 0 || bounds.height <= 0) {
+                return null;
+            }
+
+            const topLeft = this.boardContainer.getLocalPoint(bounds.x, bounds.y);
+            const bottomRight = this.boardContainer.getLocalPoint(bounds.x + bounds.width, bounds.y + bounds.height);
+
+            return {
+                left: topLeft.x,
+                top: topLeft.y,
+                right: bottomRight.x,
+                bottom: bottomRight.y,
+                width: bottomRight.x - topLeft.x,
+                height: bottomRight.y - topLeft.y
+            };
+        };
+
+        const getBoardLayoutBounds = () => {
+            return this.boardContainer._layoutBounds || measureBoardLocalBounds();
+        };
+
+        const getBoardFractionalOffset = () => {
+            const isPortrait = this.game.size.isPortrait;
+            const offsetX = isPortrait ? (boardCfg.pOffsetX ?? 0) : (boardCfg.lOffsetX ?? 0);
+            const offsetY = isPortrait ? (boardCfg.pOffsetY ?? 0) : (boardCfg.lOffsetY ?? 0);
+            const layoutBounds = getBoardLayoutBounds();
+
+            if (!layoutBounds) {
+                return { x: 0, y: 0 };
+            }
+
+            const parentScaleX = Number(this.boardContainer.parentContainer?.scaleX) || 1;
+            const parentScaleY = Number(this.boardContainer.parentContainer?.scaleY) || 1;
+            const leftExtent = layoutBounds.left * this.boardContainer.scaleX * parentScaleX;
+            const rightExtent = layoutBounds.right * this.boardContainer.scaleX * parentScaleX;
+            const topExtent = layoutBounds.top * this.boardContainer.scaleY * parentScaleY;
+            const bottomExtent = layoutBounds.bottom * this.boardContainer.scaleY * parentScaleY;
+
+            const deltaWorldX = offsetX >= 0
+                ? -rightExtent * offsetX
+                : leftExtent * offsetX;
+            const deltaWorldY = offsetY >= 0
+                ? -bottomExtent * offsetY
+                : topExtent * offsetY;
+
+            return {
+                x: deltaWorldX / parentScaleX,
+                y: deltaWorldY / parentScaleY
+            };
+        };
+
+        const clampBoardContainerToViewport = () => {
+            const isPortrait = this.game.size.isPortrait;
+            const layoutBounds = getBoardLayoutBounds();
+            if (!layoutBounds) {
+                return;
+            }
+
+            const parentScaleX = Number(this.boardContainer.parentContainer?.scaleX) || 1;
+            const parentScaleY = Number(this.boardContainer.parentContainer?.scaleY) || 1;
+            const currentWidth = layoutBounds.width * this.boardContainer.scaleX * parentScaleX;
+            const currentHeight = layoutBounds.height * this.boardContainer.scaleY * parentScaleY;
+
+            if (isPortrait && typeof boardCfg.maxHeightP === 'number' && boardCfg.maxHeightP > 0) {
+                const maxHeight = this.game.scale.height * boardCfg.maxHeightP;
+                if (currentHeight > maxHeight) {
+                    const clamp = maxHeight / currentHeight;
+                    this.boardContainer.setScale(this.boardContainer.scaleX * clamp, this.boardContainer.scaleY * clamp);
+                }
+            }
+
+            if (!isPortrait && typeof boardCfg.maxWidthL === 'number' && boardCfg.maxWidthL > 0) {
+                const maxWidth = this.game.scale.width * boardCfg.maxWidthL;
+                if (currentWidth > maxWidth) {
+                    const clamp = maxWidth / currentWidth;
+                    this.boardContainer.setScale(this.boardContainer.scaleX * clamp, this.boardContainer.scaleY * clamp);
+                }
+            }
+        };
+
+        const applyBoardContainerAlign = (align) => {
+            const isPortrait = this.game.size.isPortrait;
+            this.boardContainer.px = boardCfg.px ?? 0;
+            this.boardContainer.py = boardCfg.py ?? 0;
+            this.boardContainer.lx = boardCfg.lx ?? 0;
+            this.boardContainer.ly = boardCfg.ly ?? 0;
+
+            const baseScaleX = isPortrait ? this.boardContainer.pScaleX : this.boardContainer.lScaleX;
+            const baseScaleY = isPortrait ? this.boardContainer.pScaleY : this.boardContainer.lScaleY;
+            this.boardContainer.setScale(baseScaleX, baseScaleY);
+
+            originalSetAlign(align);
+            clampBoardContainerToViewport();
+
+            const offset = getBoardFractionalOffset();
+            this.boardContainer.x += offset.x;
+            this.boardContainer.y += offset.y;
+
+            return this.boardContainer;
+        };
+
+        this.boardContainer.setAlign = (align) => applyBoardContainerAlign(align);
+
+        this.boardContainer.setDepth(4);
+        this.mainContainer.add(this.boardContainer);
+        if (typeof this.mainContainer.sort === 'function') {
+            this.mainContainer.sort('depth');
+        }
 
         // Drop zones are derived from cardTypes and layout dropZone positions.
         const zonePositions = new Map(L.dropZones.map((dz) => [dz.type, dz]));
@@ -67,11 +198,13 @@ export default class Game extends ParentScene {
             return new DropZone({
                 scene: this,
                 label: typeDef.label,
+                headText: typeDef.headText,
+                bodyText: typeDef.bodyText,
                 type: typeDef.type,
                 cx: zoneLayout.cx,
                 cy: zoneLayout.cy,
                 target: typeDef.target,
-                container: this.mainContainer,
+                container: this.boardContainer,
                 onComplete: () => this._checkWin()
             });
         });
@@ -137,7 +270,7 @@ export default class Game extends ParentScene {
                 type: topData.type, icon: topData.icon,
                 cx: topCardCx, cy: topCardCy,
                 isFaceUp: false,
-                container: this.mainContainer,
+                container: this.boardContainer,
                 onDrop:     (dropped) => this._onCardDrop(dropped),
                 onDragMove: (dragged) => this._onCardDragMove(dragged)
             });
@@ -153,6 +286,10 @@ export default class Game extends ParentScene {
             this._initialTopCards.push(topCard);
         }
 
+        this.boardContainer._layoutBounds = measureBoardLocalBounds();
+
+        applyBoardContainerAlign(this.game.size.isPortrait ? this.boardContainer.pAlign : this.boardContainer.lAlign);
+
         // Final window (hidden until end-state)
         this.finalWindow = new FinalWindow({
             scene:     this,
@@ -160,8 +297,10 @@ export default class Game extends ParentScene {
             onCta:     () => this._onCta()
         });
 
-        // Launch the persistent TimerScene (no-op if already active from a prior scene)
-        if (!this.scene.isActive('TimerScene')) {
+        const useTimer = typeof TIMER_SETTINGS.gameFinalTime === 'number' && TIMER_SETTINGS.gameFinalTime > 0;
+
+        // Launch the persistent TimerScene only when a countdown timer is configured.
+        if (useTimer && !this.scene.isActive('TimerScene')) {
             this.scene.launch('TimerScene');
         }
 
@@ -194,7 +333,7 @@ export default class Game extends ParentScene {
                     this.finalWindow.show();
                 }
             };
-            if (timerScene) {
+            if (useTimer && timerScene) {
                 timerScene.launchTimer(onTimeout, () => this._flipAllTopCards());
             } else {
                 this._flipAllTopCards();
@@ -219,9 +358,10 @@ export default class Game extends ParentScene {
         const img = this.add.image(0, 0, 'card_back_bg')
             .setScale(this.SETTINGS.card.faceScale)
             .setDepth(depth);
+        img.align = 'Local';
         img.cx = cx;
         img.cy = cy;
-        this.mainContainer.add(img);
+        this.boardContainer.add(img);
         return img;
     }
 
@@ -248,7 +388,7 @@ export default class Game extends ParentScene {
                     completed += 1;
                     const flipEnd = performance.now();
                     if (completed === totalCards) {
-                        this.helper = new Helper({ scene: this, container: this.mainContainer });
+                        this.helper = new Helper({ scene: this, container: this.boardContainer });
                         this.helper.startGameplay(
                             () => this._decks.map(d => d.activeCard).filter(Boolean),
                             this._dropZones
@@ -290,7 +430,7 @@ export default class Game extends ParentScene {
                 type: cardData.type, icon: cardData.icon,
                 cx: spawnCx, cy: spawnCy,
                 isFaceUp: false,
-                container: this.mainContainer,
+                container: this.boardContainer,
                 onDrop:     (dropped) => this._onCardDrop(dropped),
                 onDragMove: (dragged) => this._onCardDragMove(dragged)
             });

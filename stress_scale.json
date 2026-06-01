@@ -1,11 +1,13 @@
 {
   "container": {
     "portraitAlign": "Top",
-    "portraitCx": -6,
+    "portraitCx": 0,
     "portraitCy": 0,
     "landscapeAlign": "Left",
     "landscapeCx": 0,
     "landscapeCy": 0,
+    "maxHeightP": 1,
+    "maxWidthL": 1,
     "depth": 1
   },
   "background": {
@@ -19,26 +21,76 @@
   },
   "staticBg": {
     "image": "stress_scale_bg",
-    "px": 6,
-    "py": 90,
-    "lx": 140,
-    "ly": -30,
-    "scaleX": 0.45,
-    "scaleY": 0.45,
-    "depth": 1
+    "px": -1,
+    "py": 62,
+    "lx": 110,
+    "ly": -60,
+    "pScaleX": 0.41,
+    "pScaleY": 0.41,
+    "lScaleX": 0.36,
+    "lScaleY": 0.36,
+    "depth": -26
   },
   "dial": {
-    "px": 6,
-    "py": 145,
-    "lx": 140,
-    "ly": 26,
-    "scaleX": 0.45,
-    "scaleY": 0.45,
-    "depth": 2
+    "px": -1,
+    "py": 112,
+    "lx": 110,
+    "ly": -16,
+    "pScaleX": 0.41,
+    "pScaleY": 0.41,
+    "lScaleX": 0.36,
+    "lScaleY": 0.36,
+    "depth": -5
   },
   "rotation": {
     "step": 15,
     "durationMs": 250,
     "ease": "Power2.Out"
+  },
+  "emotion": {
+    "defaultImage": "emo_0",
+    "minRotation": 0,
+    "maxRotation": 170,
+    "px": 0,
+    "py": 110,
+    "lx": 110,
+    "ly": -10,
+    "pScaleX": 0.45,
+    "pScaleY": 0.45,
+    "lScaleX": 0.45,
+    "lScaleY": 0.45,
+    "stressedText": {
+      "text": "Stressed",
+      "px": -82,
+      "py": 124,
+      "lx": 40,
+      "ly": 0,
+      "fontSize": 14,
+      "color": "#ffffff",
+      "outline": 2,
+      "outlineColor": "#000000"
+    },
+    "happyText": {
+      "text": "Happy",
+      "px": 83,
+      "py": 124,
+      "lx": 186,
+      "ly": 0,
+      "fontSize": 14,
+      "color": "#ffffff",
+      "outline": 2,
+      "outlineColor": "#000000"
+    },
+    "transitionMs": 86,
+    "holdOnDecreaseMs": 1100,
+    "levels": [
+      { "image": "emo_1", "minRotation": 0, "maxRotation": 24 },
+      { "image": "emo_2", "minRotation": 25, "maxRotation": 49 },
+      { "image": "emo_3", "minRotation": 50, "maxRotation": 74 },
+      { "image": "emo_4", "minRotation": 75, "maxRotation": 99 },
+      { "image": "emo_5", "minRotation": 100, "maxRotation": 124 },
+      { "image": "emo_6", "minRotation": 125, "maxRotation": 149 },
+      { "image": "emo_7", "minRotation": 150, "maxRotation": 170 }
+    ]
   }
 }

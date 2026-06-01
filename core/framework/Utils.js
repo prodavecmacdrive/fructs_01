@@ -122,6 +122,8 @@ export default class Utils {
 
             return this;
         };
+
+        return obj;
     }
 
     static addProperty(obj, prop, getter, setter) {
@@ -134,16 +136,18 @@ export default class Utils {
 
     static getAlignX(obj) {
         if (!obj.scene?.game?.size) return 0;
+        if(obj.align === 'Local') return 0;
         if(obj.align === 'Top Left' || obj.align === 'Left' || obj.align === 'Bottom Left') return obj.scene.game.size.left;
-        if(obj.align === 'Top Rigth' || obj.align === 'Rigth' || obj.align === 'Bottom Rigth') return obj.scene.game.size.right;
+        if(obj.align === 'Top Rigth' || obj.align === 'Rigth' || obj.align === 'Bottom Rigth' || obj.align === 'Top Right' || obj.align === 'Right' || obj.align === 'Bottom Right') return obj.scene.game.size.right;
 
         return obj.scene.game.size.x;
     }
 
     static getAlignY(obj) {
         if (!obj.scene?.game?.size) return 0;
-        if(obj.align === 'Top Left' || obj.align === 'Top' || obj.align === 'Top Rigth') return obj.scene.game.size.top;
-        if(obj.align === 'Bottom Left' || obj.align === 'Bottom' || obj.align === 'Bottom Rigth') return obj.scene.game.size.bottom;
+        if(obj.align === 'Local') return 0;
+        if(obj.align === 'Top Left' || obj.align === 'Top' || obj.align === 'Top Rigth' || obj.align === 'Top Right') return obj.scene.game.size.top;
+        if(obj.align === 'Bottom Left' || obj.align === 'Bottom' || obj.align === 'Bottom Rigth' || obj.align === 'Bottom Right') return obj.scene.game.size.bottom;
         
         return obj.scene.game.size.y;
     }

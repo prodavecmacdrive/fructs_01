@@ -39,7 +39,7 @@ module.exports.load = function() {
                         plugins: [
                             imageminMozjpeg(),
                             imageminPngquant({
-                                quality: [0.5, 0.5]
+                                quality: [0.8, 0.8]
                             })
                         ]
                     });

@@ -10,7 +10,7 @@ export default class Card extends Phaser.GameObjects.Container {
      * @param {number}  opts.cx        – design-space x offset from screen centre
      * @param {number}  opts.cy        – design-space y offset from screen centre
      * @param {boolean} opts.isFaceUp
-     * @param {Phaser.GameObjects.Container} opts.container – mainContainer
+    * @param {Phaser.GameObjects.Container} opts.container – gameplay container
      * @param {function} opts.onDrop     – callback(card) when pointer is released
      * @param {function} [opts.onDragMove] – callback(card) on every drag-move tick
      */
@@ -30,7 +30,8 @@ export default class Card extends Phaser.GameObjects.Container {
         this.dragVx      = 0;
         this.isFlipping  = false;
 
-        // Position in mainContainer local-space (same coordinate system as cx/cy setters)
+        // Position in gameplay-container local-space.
+        this.align = 'Local';
         this.cx = cx;
         this.cy = cy;
         this.homeX = this.x;
@@ -109,8 +110,12 @@ export default class Card extends Phaser.GameObjects.Container {
         }
     }
 
-    /** Convert screen-space pointer coords to mainContainer local coords. */
+    /** Convert screen-space pointer coords to the parent container's local coords. */
     _toLocal(px, py) {
+        if (this.parentContainer && typeof this.parentContainer.getLocalPoint === 'function') {
+            return this.parentContainer.getLocalPoint(px, py);
+        }
+
         const gip = Utils.getInputPoint(this, px, py);
         return {
             x: gip.x + this.scene.game.size.x,
@@ -146,7 +151,7 @@ export default class Card extends Phaser.GameObjects.Container {
     }
 
     _bringToFront() {
-        const container = this.scene.mainContainer;
+        const container = this.parentContainer || this.scene.mainContainer;
         if (!container || !container.list) {
             this.scene.children.bringToTop(this);
             return;

@@ -41,6 +41,13 @@ export default class TimerScene extends ParentScene {
      * @param {function} [onStarted] – called when the timer is ready/ticking
      */
     launchTimer(onTimeout, onStarted) {
+        if (typeof SETTINGS.gameFinalTime !== 'number' || SETTINGS.gameFinalTime <= 0) {
+            this._timer?.stop();
+            if (this._timer) this._timer.setVisible(false);
+            if (onStarted) onStarted();
+            return;
+        }
+
         if (this._timer) {
             // Timer already running – wire it to the new scene's callback
             this._timer._onTimeout = onTimeout;

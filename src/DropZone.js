@@ -3,15 +3,17 @@ export default class DropZone extends Phaser.GameObjects.Container {
      * A sorting drop zone.  Visual: merge_bg + merge_head + counter + label.
      * @param {object} opts
      * @param {Phaser.Scene} opts.scene
-     * @param {string}  opts.label     – display label, e.g. 'Edible'
+     * @param {string}  opts.label     – fallback label, e.g. 'Edible'
+     * @param {object|string} opts.headText – head text config or text value
+     * @param {object|string} opts.bodyText – body text config or text value
      * @param {string}  opts.type      – 'edible' | 'not_edible'
-     * @param {number}  opts.cx        – design-space x offset from screen centre
-     * @param {number}  opts.cy        – design-space y offset from screen centre
+    * @param {number}  opts.cx        – design-space x offset within the gameplay container
+     * @param {number}  opts.cy        – design-space y offset within the gameplay container
      * @param {number}  opts.target    – cards required to complete (default 4)
      * @param {Phaser.GameObjects.Container} opts.container
      * @param {function} opts.onComplete – called when all cards accepted
      */
-    constructor({ scene, label, type, cx, cy, target = 4, container, onComplete }) {
+    constructor({ scene, label, headText, bodyText, type, cx, cy, target = 4, container, onComplete }) {
         super(scene, 0, 0);
 
         this.label      = label;
@@ -24,9 +26,22 @@ export default class DropZone extends Phaser.GameObjects.Container {
         this._headRevealed = false;
 
         const dz = this.scene.SETTINGS.dropZone;
-
         this.hitHalfW = dz.hitHalfWidth;
         this.hitHalfH = dz.hitHalfHeight;
+
+        const headTextCfg = typeof headText === 'object' && headText !== null
+            ? headText
+            : { text: headText ?? label };
+        const bodyTextCfg = typeof bodyText === 'object' && bodyText !== null
+            ? bodyText
+            : { text: bodyText ?? label };
+
+        this._headDisplayText = headTextCfg.text ?? label;
+        this._headDisplayFontSize = headTextCfg.fontSize ?? dz.headTextFontSize;
+        this._bodyDisplayText = typeof bodyTextCfg.text === 'string'
+            ? bodyTextCfg.text
+            : label;
+        this._bodyDisplayFontSize = bodyTextCfg.fontSize ?? dz.labelFontSize;
 
         const S = dz.scale;
 
@@ -35,9 +50,9 @@ export default class DropZone extends Phaser.GameObjects.Container {
         this.head = scene.add.image(0, dz.bgOffsetY, 'merge_head').setScale(S).setDepth(0);
         this.add(this.head);
 
-        this.headLabel = scene.add.text(0, dz.bgOffsetY, label, {
+        this.headLabel = scene.add.text(0, dz.bgOffsetY, this._headDisplayText, {
             fontFamily: dz.headTextFontFamily,
-            fontSize:   dz.headTextFontSize,
+            fontSize:   this._headDisplayFontSize,
             fontStyle:  dz.headTextFontStyle,
             color:      dz.headTextColor,
             align:      'center'
@@ -58,10 +73,12 @@ export default class DropZone extends Phaser.GameObjects.Container {
         }).setOrigin(0.5, 0.5).setDepth(2);
         this.add(this.counterText);
 
-        const displayLabel = label.replace(' ', '\n');
+        const displayLabel = typeof this._bodyDisplayText === 'string'
+            ? this._bodyDisplayText.replace(/\\s/g, '\n')
+            : label.replace(' ', '\n');
         this.labelText = scene.add.text(0, dz.labelOffsetY, displayLabel, {
             fontFamily: dz.labelTextFontFamily,
-            fontSize:   dz.labelFontSize,
+            fontSize:   this._bodyDisplayFontSize,
             fontStyle:  dz.labelTextFontStyle,
             color:      dz.labelTextColor,
             align:      'center'
@@ -69,12 +86,13 @@ export default class DropZone extends Phaser.GameObjects.Container {
         this.add(this.labelText);
 
         // Wire into the responsive system
+        this.align = 'Local';
         this.addProperties(['pos', 'scale']);
         this.px = cx; this.py = cy;
         this.lx = cx; this.ly = cy;
         this.pScaleX = 1; this.pScaleY = 1;
         this.lScaleX = 1; this.lScaleY = 1;
-        this.setCustomPosition(0, 0).setAlign('Center');
+        this.setCustomPosition(cx, cy);
 
         container.add(this);
         this.setDepth(4);
@@ -83,7 +101,7 @@ export default class DropZone extends Phaser.GameObjects.Container {
         }
     }
 
-    /** Returns true if the given mainContainer-local point is within the zone's hit area. */
+    /** Returns true if the given gameplay-container-local point is within the zone's hit area. */
     isOver(cardX, cardY) {
         return (
             Math.abs(cardX - this.x) < this.hitHalfW &&
