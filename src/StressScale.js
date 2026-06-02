@@ -1,5 +1,6 @@
 import SETTINGS from '../stress_scale.json';
 import Utils from '../core/framework/Utils';
+import SpineCharacter from './SpineCharacter';
 
 /**
  * StressScale – game-performance indicator.
@@ -26,13 +27,17 @@ export default class StressScale extends Phaser.GameObjects.Container {
 
         const cfg = SETTINGS;
         const containerCfg = cfg.container;
-        const bgCfg = cfg.background;
+        const sceneBgCfg = scene.SETTINGS?.stressScale?.background || {};
+        const bgCfg = { ...cfg.background, ...sceneBgCfg };
         const dialCfg = cfg.dial;
         const staticBgCfg = cfg.staticBg;
         this._rotationCfg = cfg.rotation;
         this._currentAngle = 0;
         this._maxHeightP = containerCfg.maxHeightP ?? 0;
         this._maxWidthL = containerCfg.maxWidthL ?? 0;
+
+        this._displayType = cfg.displayType || 'emotion';
+        this._spineCfg = cfg.spineCharacter || {};
 
         const emotionCfg = cfg.emotion || {};
         this._emotionCfg = emotionCfg;
@@ -46,6 +51,7 @@ export default class StressScale extends Phaser.GameObjects.Container {
         this._emotionPortraitScaleY = emotionCfg.pScaleY ?? 1;
         this._emotionLandscapeScaleX = emotionCfg.lScaleX ?? 1;
         this._emotionLandscapeScaleY = emotionCfg.lScaleY ?? 1;
+        this._emotionTextScaleCoefficient = emotionCfg.textScaleCoefficient ?? 1;
 
         const stressedTextCfg = typeof emotionCfg.stressedText === 'object'
             ? emotionCfg.stressedText
@@ -101,7 +107,11 @@ export default class StressScale extends Phaser.GameObjects.Container {
         this._lBgScaleY = bgCfg.lScaleY ?? 1;
         this._bg.setOrigin(this._pBgOriginX, this._pBgOriginY);
 
-        this._buildEmoImages(scene);
+        if (this._displayType === 'spineCharacter' && this._spineCfg.enabled) {
+            this._buildSpineCharacter(scene);
+        } else {
+            this._buildEmoImages(scene);
+        }
         this._buildEmotionText(scene);
 
         // ── Static scale background image ─────────────────────────────────────
@@ -151,6 +161,7 @@ export default class StressScale extends Phaser.GameObjects.Container {
         this._applyStaticBgOrientation(isPortrait);
         this._applyDialOrientation(isPortrait);
         this._applyEmotionOrientation(isPortrait);
+        this._applySpineOrientation(isPortrait);
         this.sort('depth');
 
         // Align – set after px/py/lx/ly so setAlign() has the right offsets
@@ -158,8 +169,10 @@ export default class StressScale extends Phaser.GameObjects.Container {
         this.lAlign = containerCfg.landscapeAlign;
 
         container.add(this);
-        const initialEmotion = this._getEmotionForAngle(this._currentAngle);
-        this._setEmotionNow(initialEmotion);
+        if (this._displayType === 'emotion') {
+            const initialEmotion = this._getEmotionForAngle(this._currentAngle);
+            this._setEmotionNow(initialEmotion);
+        }
         this.setDepth(containerCfg.depth ?? 1);
         if (typeof container.sort === 'function') {
             container.sort('depth');
@@ -174,6 +187,12 @@ export default class StressScale extends Phaser.GameObjects.Container {
 
     /** Call when a card is placed in the correct drop zone (+15° clockwise). */
     notifyCorrect() {
+        if (this._displayType === 'spineCharacter' && this._spineCharacter) {
+            this._spineCharacter.notifyCorrect();
+            this._rotate(this._rotationCfg.step, false);
+            return;
+        }
+
         this._clearEmotionTimer();
         this._rotate(this._rotationCfg.step, false);
     }
@@ -186,6 +205,13 @@ export default class StressScale extends Phaser.GameObjects.Container {
 
         const delta = -this._rotationCfg.step;
         const nextAngle = Math.max(0, this._currentAngle + delta);
+
+        if (this._displayType === 'spineCharacter' && this._spineCharacter) {
+            this._spineCharacter.notifyIncorrect();
+            this._rotate(nextAngle - this._currentAngle, true);
+            return;
+        }
+
         const targetEmotion = this._getEmotionForAngle(nextAngle);
         this._setEmotionNow(this._emotionCfg.defaultImage || 'emo_0');
         this._clearEmotionTimer();
@@ -234,28 +260,72 @@ export default class StressScale extends Phaser.GameObjects.Container {
     }
 
     _applyEmotionOrientation(isPortrait) {
-        if (!this._emoPrev || !this._emoActive || !this._emoNext) return;
+        const bgScaleX = isPortrait ? this._pBgScaleX : this._lBgScaleX;
+        const bgScaleY = isPortrait ? this._pBgScaleY : this._lBgScaleY;
 
-        const x = isPortrait ? this._emotionPortraitX : this._emotionLandscapeX;
-        const y = isPortrait ? this._emotionPortraitY : this._emotionLandscapeY;
-        const scaleX = isPortrait ? this._emotionPortraitScaleX : this._emotionLandscapeScaleX;
-        const scaleY = isPortrait ? this._emotionPortraitScaleY : this._emotionLandscapeScaleY;
+        if (this._emoPrev && this._emoActive && this._emoNext) {
+            const x = (isPortrait ? this._emotionPortraitX : this._emotionLandscapeX) * bgScaleX;
+            const y = (isPortrait ? this._emotionPortraitY : this._emotionLandscapeY) * bgScaleY;
+            const scaleX = (isPortrait ? this._emotionPortraitScaleX : this._emotionLandscapeScaleX) * bgScaleX;
+            const scaleY = (isPortrait ? this._emotionPortraitScaleY : this._emotionLandscapeScaleY) * bgScaleY;
 
-        [this._emoPrev, this._emoActive, this._emoNext].forEach((img) => {
-            img.setPosition(x, y);
-            img.setScale(scaleX, scaleY);
-        });
+            [this._emoPrev, this._emoActive, this._emoNext].forEach((img) => {
+                img.setPosition(x, y);
+                img.setScale(scaleX, scaleY);
+            });
+        }
 
         if (this._stressedText) {
-            const stressedX = isPortrait ? this._emotionStressedTextPortraitX : this._emotionStressedTextLandscapeX;
-            const stressedY = isPortrait ? this._emotionStressedTextPortraitY : this._emotionStressedTextLandscapeY;
+            const stressedX = (isPortrait ? this._emotionStressedTextPortraitX : this._emotionStressedTextLandscapeX) * bgScaleX;
+            const stressedY = (isPortrait ? this._emotionStressedTextPortraitY : this._emotionStressedTextLandscapeY) * bgScaleY;
+            const bgTextScale = (bgScaleX + bgScaleY) / 2;
+            const fontSize = Math.max(1, Math.round(this._emotionStressedTextFontSize * bgTextScale * this._emotionTextScaleCoefficient));
             this._stressedText.setPosition(stressedX, stressedY);
+            this._stressedText.setFontSize(fontSize);
+            this._stressedText.setScale(1 / (this.scaleX || 1));
         }
         if (this._happyText) {
-            const happyX = isPortrait ? this._emotionHappyTextPortraitX : this._emotionHappyTextLandscapeX;
-            const happyY = isPortrait ? this._emotionHappyTextPortraitY : this._emotionHappyTextLandscapeY;
+            const happyX = (isPortrait ? this._emotionHappyTextPortraitX : this._emotionHappyTextLandscapeX) * bgScaleX;
+            const happyY = (isPortrait ? this._emotionHappyTextPortraitY : this._emotionHappyTextLandscapeY) * bgScaleY;
+            const bgTextScale = (bgScaleX + bgScaleY) / 2;
+            const fontSize = Math.max(1, Math.round(this._emotionHappyTextFontSize * bgTextScale * this._emotionTextScaleCoefficient));
             this._happyText.setPosition(happyX, happyY);
+            this._happyText.setFontSize(fontSize);
+            this._happyText.setScale(1 / (this.scaleX || 1));
         }
+    }
+
+    _buildSpineCharacter(scene) {
+        if (!this._spineCfg || !this._spineCfg.enabled) {
+            return;
+        }
+
+        this._spineCharacter = new SpineCharacter({
+            scene,
+            container: this,
+            cfg: this._spineCfg
+        });
+
+        // The spine character is rendered inside this StressScale container,
+        // so position it using local coordinates rather than screen-level alignment.
+        this._spineCharacter.pAlign = 'Local';
+        this._spineCharacter.lAlign = 'Local';
+    }
+
+    _applySpineOrientation(isPortrait) {
+        if (!this._spineCharacter) {
+            return;
+        }
+
+        const bgScaleX = isPortrait ? this._pBgScaleX : this._lBgScaleX;
+        const bgScaleY = isPortrait ? this._pBgScaleY : this._lBgScaleY;
+        const x = (isPortrait ? this._spineCharacter.px : this._spineCharacter.lx) * bgScaleX;
+        const y = (isPortrait ? this._spineCharacter.py : this._spineCharacter.ly) * bgScaleY;
+        const scaleX = (isPortrait ? this._spineCharacter.pScaleX : this._spineCharacter.lScaleX) * bgScaleX;
+        const scaleY = (isPortrait ? this._spineCharacter.pScaleY : this._spineCharacter.lScaleY) * bgScaleY;
+
+        this._spineCharacter.setPosition(x, y);
+        this._spineCharacter.setScale(scaleX, scaleY);
     }
 
     _clearEmotionTimer() {
@@ -361,13 +431,15 @@ export default class StressScale extends Phaser.GameObjects.Container {
     _applyStaticBgOrientation(isPortrait) {
         if (!this._staticBg) return;
 
-        const scaleX = isPortrait ? this._staticBgPortraitScaleX : this._staticBgLandscapeScaleX;
-        const scaleY = isPortrait ? this._staticBgPortraitScaleY : this._staticBgLandscapeScaleY;
+        const bgScaleX = isPortrait ? this._pBgScaleX : this._lBgScaleX;
+        const bgScaleY = isPortrait ? this._pBgScaleY : this._lBgScaleY;
+        const scaleX = (isPortrait ? this._staticBgPortraitScaleX : this._staticBgLandscapeScaleX) * bgScaleX;
+        const scaleY = (isPortrait ? this._staticBgPortraitScaleY : this._staticBgLandscapeScaleY) * bgScaleY;
 
         if (isPortrait) {
-            this._staticBg.setPosition(this._staticBgPortraitX, this._staticBgPortraitY);
+            this._staticBg.setPosition(this._staticBgPortraitX * bgScaleX, this._staticBgPortraitY * bgScaleY);
         } else {
-            this._staticBg.setPosition(this._staticBgLandscapeX, this._staticBgLandscapeY);
+            this._staticBg.setPosition(this._staticBgLandscapeX * bgScaleX, this._staticBgLandscapeY * bgScaleY);
         }
         this._staticBg.setScale(scaleX, scaleY);
     }
@@ -377,19 +449,26 @@ export default class StressScale extends Phaser.GameObjects.Container {
 
         const scaleX = isPortrait ? this._pBgScaleX : this._lBgScaleX;
         const scaleY = isPortrait ? this._pBgScaleY : this._lBgScaleY;
+        if (isPortrait) {
+            this._bg.setOrigin(this._pBgOriginX, this._pBgOriginY);
+        } else {
+            this._bg.setOrigin(this._lBgOriginX, this._lBgOriginY);
+        }
         this._bg.setScale(scaleX, scaleY);
     }
 
     _applyDialOrientation(isPortrait) {
         if (!this._dial) return;
 
-        const scaleX = isPortrait ? this._dialPortraitScaleX : this._dialLandscapeScaleX;
-        const scaleY = isPortrait ? this._dialPortraitScaleY : this._dialLandscapeScaleY;
+        const bgScaleX = isPortrait ? this._pBgScaleX : this._lBgScaleX;
+        const bgScaleY = isPortrait ? this._pBgScaleY : this._lBgScaleY;
+        const scaleX = (isPortrait ? this._dialPortraitScaleX : this._dialLandscapeScaleX) * bgScaleX;
+        const scaleY = (isPortrait ? this._dialPortraitScaleY : this._dialLandscapeScaleY) * bgScaleY;
 
         if (isPortrait) {
-            this._dial.setPosition(this._dialPortraitX, this._dialPortraitY);
+            this._dial.setPosition(this._dialPortraitX * bgScaleX, this._dialPortraitY * bgScaleY);
         } else {
-            this._dial.setPosition(this._dialLandscapeX, this._dialLandscapeY);
+            this._dial.setPosition(this._dialLandscapeX * bgScaleX, this._dialLandscapeY * bgScaleY);
         }
         this._dial.setScale(scaleX, scaleY);
     }

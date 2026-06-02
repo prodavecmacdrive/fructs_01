@@ -7,23 +7,29 @@
 
   "cardTypes": [
     {
-      "type": "past",
-      "label": "Past",
-      "iconPrefix": "past_",
+      "type": "baby",
+      "label": "Baby",
+      "headText": { "text": "Baby", "fontSize": 32 },
+      "bodyText": { "text": "Baby", "fontSize": 38 },
+      "iconPrefix": "baby_",
       "iconCount": 4,
       "target": 4
     },
     {
-      "type": "present",
-      "label": "Present",
-      "iconPrefix": "present_",
+      "type": "adult",
+      "label": "Adult",
+      "headText": { "text": "Adult", "fontSize": 32 },
+      "bodyText": { "text": "Adult", "fontSize": 38 },
+      "iconPrefix": "adult_",
       "iconCount": 4,
       "target": 4
     },
     {
-      "type": "future",
-      "label": "Future",
-      "iconPrefix": "future_",
+      "type": "eldry",
+      "label": "Eldry",
+      "headText": { "text": "Eldry", "fontSize": 32 },
+      "bodyText": { "text": "Eldry", "fontSize": 38 },
+      "iconPrefix": "eldry_",
       "iconCount": 4,
       "target": 4
     }
@@ -31,22 +37,47 @@
 
   "background": {
     "mode": "color",
-    "color": "#6fd7c8",
+    "color": "#6cdfcc",
     "pImage": "main_bg",
     "lImage": "main_bg",
-    "pScaleX": 1.05,
-    "pScaleY": 1.05,
-    "lScaleX": 2.1,
-    "lScaleY": 2.1
+    "pScaleX": 1.0,
+    "pScaleY": 1.0,
+    "lScaleX": 1.0,
+    "lScaleY": 1.0
+  },
+
+  "stressScale": {
+    "background": {
+      "pImage": "stress_bg_p",
+      "lImage": "stress_bg_l"
+    }
   },
 
   "layout": {
     "deckCount": 8,
+    "boardContainer": {
+      "px": 0,
+      "py": 0,
+      "lx": 0,
+      "ly": 0,
+      "pOffsetX": 0,
+      "pOffsetY": 1.1,
+      "lOffsetX": 1.2,
+      "lOffsetY": 0,
+      "maxHeightP": 0.6,
+      "maxWidthL": 0.65,
+      "pScaleX": 1,
+      "pScaleY": 1,
+      "lScaleX": 1,
+      "lScaleY": 1,
+      "pAlign": "Bottom",
+      "lAlign": "Right"
+    },
     "movesCounter": { "cx": 0, "cy": -400 },
     "dropZones": [
-      { "type": "past",    "cx": 0, "cy": -200 },
-      { "type": "present", "cx": 0, "cy": 0 },
-      { "type": "future",  "cx": 0, "cy": 200 }
+      { "type": "baby", "cx": 0, "cy": -367 },
+      { "type": "adult", "cx": 0, "cy": -118 },
+      { "type": "eldry", "cx": 0, "cy": 124 }
     ],
 
     "ctaButton": {
@@ -58,75 +89,77 @@
     "decks": [
       {
         "name": 1,
-        "cx": -162, "cy": -272,
+        "cx": -182, "cy": -367,
+        "iconScale": 1,
         "cards": [
-          { "type": "future", "icon": "future_5"},
-          { "type": "present", "icon": "present_5"},
-          { "type": "past", "icon": "past_1"}
+          { "type": "eldry","icon": "eldry_1"},
+          { "type": "baby","icon": "baby_1"}
         ]
       },
       {
         "name": 2,
-        "cx": 162, "cy": -272,
+        "cx": 182, "cy": -367,
+        "iconScale": 1,
         "cards": [
-          { "type": "past", "icon": "past_6"},
-          { "type": "future", "icon": "future_6"},
-          { "type": "present", "icon": "present_2"}
+          { "type": "baby","icon": "baby_2"},
+          { "type": "eldry","icon": "eldry_2"}
         ]
       },
       {
         "name": 3,
-        "cx": -162, "cy": -82,
+        "cx": -182, "cy": -118,
+        "iconScale": 1,
         "cards": [
-          { "type": "past", "icon": "past_7"},
-          { "type": "future", "icon": "future_8"},
-          { "type": "past", "icon": "past_2"}
+          { "type": "baby","icon": "baby_3"},
+          { "type": "adult","icon": "adult_4"}
         ]
       },
       {
         "name": 4,
-        "cx": 162, "cy": -82,
+        "cx": 182, "cy": -118,
+        "iconScale": 1,
         "cards": [
-          { "type": "past",    "icon": "past_8"},
-          { "type": "present", "icon": "present_8"},
-          { "type": "future",  "icon": "future_4"}
+          { "type": "baby","icon": "baby_4"},
+          { "type": "eldry","icon": "eldry_3"}
         ]
       },
       {
         "name": 5,
-        "cx": -162, "cy": 118,
+        "cx": -182, "cy": 124,
+        "iconScale": 1,
         "cards": [
-          { "type": "past",    "icon": "past_5"},
-          { "type": "present", "icon": "present_6"},
-          { "type": "future",  "icon": "future_3"}
+          { "type": "adult","icon": "adult_1"},
+          { "type": "eldry","icon": "eldry_5"}
         ]
       },
       {
         "name": 6,
-        "cx": 162, "cy": 118,
+        "cx": 182, "cy": 124,
+        "iconScale": 1,
         "cards": [
-          { "type": "future", "icon": "future_7"},
-          { "type": "present", "icon": "present_7"},
-          { "type": "present", "icon": "present_3"}
+          { "type": "eldry","icon": "eldry_4"},
+          { "type": "adult","icon": "adult_2"}
         ]
       },
       {
         "name": 7,
-        "cx": -162, "cy": 310,
-        "cards": [
-          { "type": "past","icon": "past_3"},
-          { "type": "present","icon": "present_4"},
-          { "type": "future","icon": "future_1"}
-        ]
+        "type": "hold",
+        "cx": -222, "cy": 362
       },
       {
         "name": 8,
-        "cx": 162, "cy": 310,
-        "cards": [
-          { "type": "past", "icon": "past_4"},
-          { "type": "present", "icon": "present_1"},
-          { "type": "future", "icon": "future_2"}
-        ]
+        "type": "hold",
+        "cx": -74, "cy": 362
+      },
+      {
+        "name": 9,
+        "type": "hold",
+        "cx": 74, "cy": 362
+      },
+      {
+        "name": 10,
+        "type": "hold",
+        "cx": 222, "cy": 362
       }
     ]
   },
@@ -144,16 +177,16 @@
   },
 
   "card": {
-    "faceScale": 0.5,
-    "iconScale": 0.5,
+    "faceScale": 0.6,
+    "iconScale": 1,
     "iconOffsetY": 0
   },
 
   "dropZone": {
-    "scale": 0.5,
+    "scale": 0.65,
     "bgOffsetY": 12,
-    "headOffsetY": -68,
-    "headTextFOffsetY": -82,
+    "headOffsetY": -94,
+    "headTextFOffsetY": -105,
     "headRevealDurationMs": 350,
     "headRevealEase": "Back.Out",
     "headTextFontFamily": "LilitaOne-Regular, Arial",

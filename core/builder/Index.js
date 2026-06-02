@@ -151,8 +151,8 @@ class BuilderPlugin {
         const flow       = Array.isArray(versionCfg.flow) ? versionCfg.flow : [];
 
         // Build full resources string: cached asset data + per-version flow.
-        // Use base game-settings.json only; do not inject scene-specific settings.
-        const scenesData = {};
+        // Load scene-specific overrides from game-settings_scene-N.json files.
+        const scenesData = this._readSceneSettings();
         const levelSelect = versionCfg.levelSelect === true;
 
         // AppLovin Axon analytics helper — real implementation for Applovin builds,

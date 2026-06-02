@@ -30,6 +30,11 @@ const getConfiguredNetworkName = () => {
 
 class App extends Phaser.Game {
     constructor() {
+        // Polyfill for Camera.addToRenderList (missing in custom Phaser build, needed by SpinePlugin)
+        if (Phaser.Cameras && Phaser.Cameras.Scene2D && Phaser.Cameras.Scene2D.Camera && !Phaser.Cameras.Scene2D.Camera.prototype.addToRenderList) {
+            Phaser.Cameras.Scene2D.Camera.prototype.addToRenderList = function() {};
+        }
+
         const config = {
             type: Phaser.AUTO,
             parent: 'app',
@@ -50,6 +55,23 @@ class App extends Phaser.Game {
         }
 
         super(config);
+
+        // Fix: SpinePlugin's unbind() disables vertex attributes (inTexId, inTintEffect)
+        // on the GL context. When MultiPipeline re-activates via bind(), it calls
+        // setAttribPointers() without the reset flag, so disabled attributes stay disabled.
+        // Patch setAttribPointers to always re-enable attributes after pipelines boot.
+        this.events.once('ready', () => {
+            if (this.renderer && this.renderer.pipelines && typeof this.renderer.pipelines.get === 'function') {
+                const multiPipeline = this.renderer.pipelines.get('MultiPipeline');
+                if (multiPipeline && multiPipeline.currentShader) {
+                    const shader = multiPipeline.currentShader;
+                    const origSetAttribPointers = shader.setAttribPointers;
+                    shader.setAttribPointers = function(t) {
+                        return origSetAttribPointers.call(this, true);
+                    };
+                }
+            }
+        });
 
         this.create();
         this.addStyle();

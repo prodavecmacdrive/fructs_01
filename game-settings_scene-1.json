@@ -9,6 +9,8 @@
     {
       "type": "cold",
       "label": "Cold",
+      "headText": { "text": "Cold", "fontSize": 32 },
+      "bodyText": { "text": "Cold", "fontSize": 38 },
       "iconPrefix": "cold_",
       "iconCount": 4,
       "target": 4
@@ -16,6 +18,8 @@
     {
       "type": "hot",
       "label": "Hot",
+      "headText": { "text": "Hot", "fontSize": 32 },
+      "bodyText": { "text": "Hot", "fontSize": 38 },
       "iconPrefix": "hot_",
       "iconCount": 4,
       "target": 4
@@ -27,18 +31,43 @@
     "color": "#ff9564",
     "pImage": "main_bg",
     "lImage": "main_bg",
-    "pScaleX": 1.05,
-    "pScaleY": 1.05,
-    "lScaleX": 2.1,
-    "lScaleY": 2.1
+    "pScaleX": 1.0,
+    "pScaleY": 1.0,
+    "lScaleX": 1.0,
+    "lScaleY": 1.0
+  },
+
+  "stressScale": {
+    "background": {
+      "pImage": "stress_bg_p",
+      "lImage": "stress_bg_l"
+    }
   },
 
   "layout": {
     "deckCount": 8,
+    "boardContainer": {
+      "px": 0,
+      "py": 0,
+      "lx": 0,
+      "ly": 0,
+      "pOffsetX": 0,
+      "pOffsetY": 1.1,
+      "lOffsetX": 1.2,
+      "lOffsetY": 0,
+      "maxHeightP": 0.6,
+      "maxWidthL": 0.65,
+      "pScaleX": 1,
+      "pScaleY": 1,
+      "lScaleX": 1,
+      "lScaleY": 1,
+      "pAlign": "Bottom",
+      "lAlign": "Right"
+    },
     "movesCounter": { "cx": 0, "cy": -400 },
     "dropZones": [
-      { "type": "cold",     "cx": 0, "cy": -70 },
-      { "type": "hot", "cx": 0, "cy": 124 }
+      { "type": "cold", "cx": 0, "cy": -226 },
+      { "type": "hot", "cx": 0, "cy": 42 }
     ],
 
     "ctaButton": {
@@ -50,67 +79,77 @@
     "decks": [
       {
         "name": 1,
-        "cx": -82, "cy": -272,
+        "cx": -182, "cy": -312,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "cold",     "icon": "cold_2"     },
-          { "type": "hot", "icon": "hot_1" }
+          { "type": "cold",     "icon": "cold_1"     },
+          { "type": "cold", "icon": "cold_2" }
         ]
       },
       {
         "name": 2,
-        "cx": 82, "cy": -272,
+        "cx": 182, "cy": -312,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "hot", "icon": "hot_6" },
-          { "type": "cold",     "icon": "cold_3"     }
+          { "type": "cold", "icon": "cold_3" },
+          { "type": "cold",     "icon": "cold_4"}
         ]
       },
       {
         "name": 3,
-        "cx": -162, "cy": -82,
+        "cx": -182, "cy": -82,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "cold",     "icon": "cold_4"     },
-          { "type": "cold",     "icon": "cold_5"     }
+          { "type": "hot",     "icon": "hot_1"},
+          { "type": "cold",     "icon": "cold_5"}
         ]
       },
       {
         "name": 4,
-        "cx": 162, "cy": -82,
+        "cx": 182, "cy": -82,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "hot", "icon": "hot_5" },
-          { "type": "hot", "icon": "hot_2" }
+          { "type": "hot", "icon": "hot_2" },
+          { "type": "cold", "icon": "cold_6"}
         ]
       },
       {
         "name": 5,
-        "cx": -162, "cy": 118,
+        "cx": -182, "cy": 148,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "hot", "icon": "hot_8" },
-          { "type": "hot", "icon": "hot_3" }
+          { "type": "hot", "icon": "hot_3" },
+          { "type": "cold", "icon": "cold_7"}
         ]
       },
       {
         "name": 6,
-        "cx": 162, "cy": 118,
+        "cx": 182, "cy": 148,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "cold",     "icon": "cold_1"     },
+          { "type": "hot",     "icon": "hot_4"     },
           { "type": "cold",     "icon": "cold_8"     }
         ]
       },
       {
         "name": 7,
-        "cx": -82, "cy": 310,
-        "cards": [
-          { "type": "hot", "icon": "hot_7" },
-          { "type": "cold",     "icon": "cold_6"     }
-        ]
+        "type": "hold",
+        "cx": -222, "cy": 362
       },
       {
         "name": 8,
-        "cx": 82, "cy": 310,
-        "cards": [
-          { "type": "cold",     "icon": "cold_7"     },
-          { "type": "hot", "icon": "hot_4" }
-        ]
+        "type": "hold",
+        "cx": -74, "cy": 362
+      },
+      {
+        "name": 9,
+        "type": "hold",
+        "cx": 74, "cy": 362
+      },
+      {
+        "name": 10,
+        "type": "hold",
+        "cx": 222, "cy": 362
       }
     ]
   },
@@ -128,16 +167,16 @@
   },
 
   "card": {
-    "faceScale": 0.5,
-    "iconScale": 0.5,
+    "faceScale": 0.6,
+    "iconScale": 0.6,
     "iconOffsetY": 0
   },
 
   "dropZone": {
-    "scale": 0.5,
+    "scale": 0.65,
     "bgOffsetY": 12,
-    "headOffsetY": -68,
-    "headTextFOffsetY": -82,
+    "headOffsetY": -94,
+    "headTextFOffsetY": -105,
     "headRevealDurationMs": 350,
     "headRevealEase": "Back.Out",
     "headTextFontFamily": "LilitaOne-Regular, Arial",
@@ -150,7 +189,7 @@
     "counterTextFontStyle": "bold",
     "counterTextColor": "#5c3a00",
     "counterTextStroke": "#ffffff",
-    "counterTextStrokeThickness": 0,
+    "counterTextStrokeThickness": 3,
     "counterFontSize": 24,
     "labelOffsetY": 25,
     "labelTextFontFamily": "LilitaOne-Regular, Arial",
@@ -160,7 +199,7 @@
     "bodyLabelFadeDurationMs": 150,
     "highlightDurationMs": 100,
     "highlightEase": "Power2",
-    "hitHalfWidth": 65,
+    "hitHalfWidth": 125,
     "hitHalfHeight": 120,
     "acceptedCardScale": 0.82,
     "acceptedCardOffsetY": 10,

@@ -19,9 +19,6 @@
 	{ "name": "bone6", "parent": "bone3", "x": 324.82, "y": -513.21, "color": "abe323ff" }
 ],
 "slots": [
-	{ "name": "Layer 1", "bone": "root" },
-	{ "name": "Layer 3", "bone": "root" },
-	{ "name": "Layer 5", "bone": "root" },
 	{ "name": "Body", "bone": "bone", "attachment": "Body" },
 	{ "name": "Head", "bone": "root", "attachment": "Head_smile" },
 	{ "name": "Eye_R", "bone": "bone3", "attachment": "Eye_R" },
@@ -57,15 +54,6 @@
 				},
 				"Head_Idle": { "type": "linkedmesh", "parent": "Head", "width": 1160, "height": 754 },
 				"Head_smile": { "type": "linkedmesh", "parent": "Head", "width": 1160, "height": 754 }
-			},
-			"Layer 1": {
-				"Layer 1": { "x": 1380, "y": -752, "width": 2762, "height": 1506 }
-			},
-			"Layer 3": {
-				"Layer 3": { "x": 1356.5, "y": -748, "width": 2689, "height": 1466 }
-			},
-			"Layer 5": {
-				"Layer 5": { "x": 1341, "y": -723, "width": 2560, "height": 1396 }
 			},
 			"Eye_L": {
 				"Eye_L": {

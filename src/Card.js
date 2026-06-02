@@ -14,11 +14,12 @@ export default class Card extends Phaser.GameObjects.Container {
      * @param {function} opts.onDrop     – callback(card) when pointer is released
      * @param {function} [opts.onDragMove] – callback(card) on every drag-move tick
      */
-    constructor({ scene, type, icon, cx, cy, isFaceUp, container, onDrop, onDragMove }) {
+    constructor({ scene, type, icon, cx, cy, isFaceUp, iconScale, container, onDrop, onDragMove }) {
         super(scene, 0, 0);
 
         this.type          = type;
         this.iconKey       = icon;
+        this.iconScale     = iconScale;
         this.isFaceUp      = isFaceUp;
         this.onDropCb      = onDrop;
         this.onDragMoveCb  = onDragMove || null;
@@ -53,7 +54,7 @@ export default class Card extends Phaser.GameObjects.Container {
 
     _buildVisuals() {
         const S = this.scene.SETTINGS.card.faceScale;
-        const I = this.scene.SETTINGS.card.iconScale;
+        const I = this.iconScale ?? this.scene.SETTINGS.card.iconScale;
         const Y = this.scene.SETTINGS.card.iconOffsetY;
         this.backImg   = this.scene.add.image(0, 0, 'card_back_bg').setScale(S);
         this.frontBg   = this.scene.add.image(0, 0, 'card_front_bg').setScale(S);
@@ -304,8 +305,8 @@ export default class Card extends Phaser.GameObjects.Container {
         const anim = this.scene.SETTINGS.animations;
         const cardSX = this.scene.SETTINGS.card.faceScale;
         const cardSY = this.scene.SETTINGS.card.faceScale;
-        const iconSX = this.scene.SETTINGS.card.iconScale;
-        const iconSY = this.scene.SETTINGS.card.iconScale;
+        const iconSX = this.iconScale ?? this.scene.SETTINGS.card.iconScale;
+        const iconSY = this.iconScale ?? this.scene.SETTINGS.card.iconScale;
         const flipStart = performance.now();
         const originalY = this.y;
         const liftDistance = 22;

@@ -49,6 +49,7 @@ export default class Helper {
         this._lastHintIndex = 0;
         this._currentPair   = null;   // persists until the hinted card is used
         this._mode          = null;
+        this._holdCells     = [];
 
         // Finger sprite – sits above everything, starts hidden.
         // Origin (0, 0) anchors the reference point at the upper-left corner.
@@ -71,11 +72,14 @@ export default class Helper {
      * @param {function(): import('./Card').default[]} getActiveCards
      *   Live callback – returns the currently active (top) card of each deck.
      * @param {import('./DropZone').default[]} dropZones
+     * @param {import('./HoldCell').default[]} [holdCells]
+     *   Optional hold-cell targets used when no active card matches a normal drop zone.
      */
-    startGameplay(getActiveCards, dropZones) {
+    startGameplay(getActiveCards, dropZones, holdCells = []) {
         this._mode           = 'gameplay';
         this._getActiveCards = getActiveCards;
         this._dropZones      = dropZones;
+        this._holdCells      = Array.isArray(holdCells) ? holdCells : [];
 
         const t = this._scene.time.delayedCall(1000, () => {
             if (this._hasInteracted) return;
@@ -177,7 +181,7 @@ export default class Helper {
 
         const { card, zone } = pair;
         const S = this._scene.SETTINGS.card.faceScale;
-        const I = this._scene.SETTINGS.card.iconScale;
+        const I = card.iconScale ?? this._scene.SETTINGS.card.iconScale;
         const Y = this._scene.SETTINGS.card.iconOffsetY;
 
         // ── Ghost card: mirrors the real card face, ignores input (not interactive) ──
@@ -286,18 +290,19 @@ export default class Helper {
         // Re-use the cached pair while the card is still playable
         if (this._currentPair) {
             const { card, zone } = this._currentPair;
-            if (card && card.isFaceUp && !card.isLocked && card.dragEnabled &&
-                !card.isDragging && !zone.isComplete) {
+            const keepPair = card && card.isFaceUp && !card.isLocked && card.dragEnabled &&
+                !card.isDragging && (zone.type === 'hold' ? !zone.isOccupied : !zone.isComplete);
+            if (keepPair) {
                 return this._currentPair;
             }
             this._currentPair = null;
         }
 
-        // Pick the next valid card, cycling through decks
         const cards = this._getActiveCards();
         const len   = cards.length;
         if (len === 0) return null;
 
+        // First choose a proper matching drop zone, if available.
         for (let i = 0; i < len; i++) {
             const idx  = (this._lastHintIndex + i) % len;
             const card = cards[idx];
@@ -309,6 +314,24 @@ export default class Helper {
                 return this._currentPair;
             }
         }
+
+        // Fallback: when no card matches a normal zone, show moving a mismatched card to an empty hold cell.
+        const availableHold = (this._holdCells || []).find(cell => !cell.isOccupied);
+        if (availableHold) {
+            for (let i = 0; i < len; i++) {
+                const idx  = (this._lastHintIndex + i) % len;
+                const card = cards[idx];
+                if (!card || !card.isFaceUp || card.isLocked || card.isDragging || !card.dragEnabled) continue;
+                if (card.parentContainer && card.parentContainer.type === 'hold') continue;
+                const matchingZone = this._dropZones.some(z => z.type === card.type && !z.isComplete);
+                if (!matchingZone) {
+                    this._lastHintIndex = (idx + 1) % len;
+                    this._currentPair   = { card, zone: availableHold };
+                    return this._currentPair;
+                }
+            }
+        }
+
         return null;
     }
 

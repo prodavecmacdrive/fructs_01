@@ -283,6 +283,7 @@ export default class Game extends ParentScene {
                 scene: this,
                 type: topData.type, icon: topData.icon,
                 cx: topCardCx, cy: topCardCy,
+                iconScale: deckData.iconScale,
                 isFaceUp: false,
                 container: this.boardContainer,
                 onDrop:     (dropped) => this._onCardDrop(dropped),
@@ -405,7 +406,8 @@ export default class Game extends ParentScene {
                         this.helper = new Helper({ scene: this, container: this.boardContainer });
                         this.helper.startGameplay(
                             () => this._decks.map(d => d.activeCard).filter(Boolean),
-                            this._dropZones
+                            this._dropZones,
+                            this._holdCells
                         );
                     }
                 });
@@ -443,6 +445,7 @@ export default class Game extends ParentScene {
                 scene: this,
                 type: cardData.type, icon: cardData.icon,
                 cx: spawnCx, cy: spawnCy,
+                iconScale: deck.iconScale,
                 isFaceUp: false,
                 container: this.boardContainer,
                 onDrop:     (dropped) => this._onCardDrop(dropped),
@@ -586,21 +589,37 @@ export default class Game extends ParentScene {
         const targets = [];
         for (const deck of this._decks) {
             if (deck.activeCard && !this._acceptedCards.includes(deck.activeCard)) {
-                targets.push(deck.activeCard);
+                if (!(deck.activeCard.parentContainer && deck.activeCard.parentContainer.type === 'hold')) {
+                    targets.push(deck.activeCard);
+                }
             }
             for (const shadow of deck.shadowImages) {
                 targets.push(shadow);
             }
         }
         targets.push(...this._acceptedCards);
+        for (const holdCell of this._holdCells || []) {
+            if (holdCell && holdCell.isOccupied) {
+                targets.push(holdCell);
+            }
+        }
 
-        if (targets.length === 0) { onComplete(); return; }
+        const uniqueTargets = [];
+        const seen = new Set();
+        for (const target of targets) {
+            if (!target || !target.scene) continue;
+            if (seen.has(target)) continue;
+            seen.add(target);
+            uniqueTargets.push(target);
+        }
+
+        if (uniqueTargets.length === 0) { onComplete(); return; }
 
         let index = 0;
         const next = () => {
-            if (index >= targets.length) { onComplete(); return; }
+            if (index >= uniqueTargets.length) { onComplete(); return; }
 
-            const target = targets[index++];
+            const target = uniqueTargets[index++];
             // Guard against objects destroyed between scheduling and execution
             if (!target || !target.scene) { next(); return; }
 

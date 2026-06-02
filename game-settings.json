@@ -37,6 +37,13 @@
     "lScaleY": 1.0
   },
 
+  "stressScale": {
+    "background": {
+      "pImage": "stress_bg_p",
+      "lImage": "stress_bg_l"
+    }
+  },
+
   "layout": {
     "deckCount": 8,
     "boardContainer": {
@@ -48,7 +55,7 @@
       "pOffsetY": 1.1,
       "lOffsetX": 1.2,
       "lOffsetY": 0,
-      "maxHeightP": 0.65,
+      "maxHeightP": 0.6,
       "maxWidthL": 0.65,
       "pScaleX": 1,
       "pScaleY": 1,
@@ -73,70 +80,76 @@
       {
         "name": 1,
         "cx": -182, "cy": -312,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "cold",     "icon": "cold_2"     },
-          { "type": "hot", "icon": "hot_1" }
+          { "type": "cold",     "icon": "cold_1"     },
+          { "type": "cold", "icon": "cold_2" }
         ]
       },
       {
         "name": 2,
         "cx": 182, "cy": -312,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "hot", "icon": "hot_6" },
-          { "type": "cold",     "icon": "cold_3"     }
+          { "type": "cold", "icon": "cold_3" },
+          { "type": "cold",     "icon": "cold_4"}
         ]
       },
       {
         "name": 3,
         "cx": -182, "cy": -82,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "cold",     "icon": "cold_4"     },
-          { "type": "cold",     "icon": "cold_5"     }
+          { "type": "hot",     "icon": "hot_1"},
+          { "type": "cold",     "icon": "cold_5"}
         ]
       },
       {
         "name": 4,
         "cx": 182, "cy": -82,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "hot", "icon": "hot_5" },
-          { "type": "hot", "icon": "hot_2" }
+          { "type": "hot", "icon": "hot_2" },
+          { "type": "cold", "icon": "cold_6"}
         ]
       },
       {
         "name": 5,
         "cx": -182, "cy": 148,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "hot", "icon": "hot_8" },
-          { "type": "hot", "icon": "hot_3" }
+          { "type": "hot", "icon": "hot_3" },
+          { "type": "cold", "icon": "cold_7"}
         ]
       },
       {
         "name": 6,
         "cx": 182, "cy": 148,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "cold",     "icon": "cold_1"     },
+          { "type": "hot",     "icon": "hot_4"     },
           { "type": "cold",     "icon": "cold_8"     }
         ]
       },
       {
         "name": 7,
         "type": "hold",
-        "cx": -282, "cy": 382
+        "cx": -222, "cy": 362
       },
       {
         "name": 8,
         "type": "hold",
-        "cx": -98, "cy": 382
+        "cx": -74, "cy": 362
       },
       {
         "name": 9,
         "type": "hold",
-        "cx": 98, "cy": 382
+        "cx": 74, "cy": 362
       },
       {
         "name": 10,
         "type": "hold",
-        "cx": 282, "cy": 382
+        "cx": 222, "cy": 362
       }
     ]
   },

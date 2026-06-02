@@ -21,9 +21,9 @@
   },
 
   "sceneButtonLabels": {
-    "scene-1": "Food\nor Not?",
-    "scene-2": "Seasons",
-    "scene-3": "Eras"
+    "scene-1": "Cold\nHot",
+    "scene-2": "Ages",
+    "scene-3": "Nature"
   },
 
   "overlay": {

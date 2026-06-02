@@ -7,54 +7,77 @@
 
   "cardTypes": [
     {
-      "type": "biological",
-      "label": "Biological evidence",
-      "iconPrefix": "biological_",
-      "iconCount": 4,
+      "type": "lend",
+      "label": "Lend",
+      "headText": { "text": "Lend", "fontSize": 32 },
+      "bodyText": { "text": "Lend", "fontSize": 38 },
+      "iconPrefix": "lend_",
+      "iconCount": 3,
       "target": 3
     },
     {
-      "type": "digital",
-      "label": "Digital evidence",
-      "iconPrefix": "digital_",
-      "iconCount": 4,
+      "type": "sea",
+      "label": "Sea",
+      "headText": { "text": "Sea", "fontSize": 32 },
+      "bodyText": { "text": "Sea", "fontSize": 38 },
+      "iconPrefix": "sea_",
+      "iconCount": 3,
       "target": 3
     },
     {
-      "type": "impression",
-      "label": "Impression evidence",
-      "iconPrefix": "impression_",
-      "iconCount": 4,
-      "target": 3
-    },
-    {
-      "type": "physical",
-      "label": "Physical evidence",
-      "iconPrefix": "physical_",
-      "iconCount": 4,
+      "type": "sky",
+      "label": "Sky",
+      "headText": { "text": "Sky", "fontSize": 32 },
+      "bodyText": { "text": "Sky", "fontSize": 38 },
+      "iconPrefix": "sky_",
+      "iconCount": 3,
       "target": 3
     }
   ],
 
   "background": {
     "mode": "color",
-    "color": "#9c65e2",
+    "color": "#ab6cdf",
     "pImage": "main_bg",
     "lImage": "main_bg",
-    "pScaleX": 1.05,
-    "pScaleY": 1.05,
-    "lScaleX": 2.1,
-    "lScaleY": 2.1
+    "pScaleX": 1.0,
+    "pScaleY": 1.0,
+    "lScaleX": 1.0,
+    "lScaleY": 1.0
+  },
+
+  "stressScale": {
+    "background": {
+      "pImage": "stress_bg_s2_p",
+      "lImage": "stress_bg_s2_l"
+    }
   },
 
   "layout": {
     "deckCount": 8,
+    "boardContainer": {
+      "px": 0,
+      "py": 0,
+      "lx": 0,
+      "ly": 0,
+      "pOffsetX": 0,
+      "pOffsetY": 1.1,
+      "lOffsetX": 1.2,
+      "lOffsetY": 0,
+      "maxHeightP": 0.6,
+      "maxWidthL": 0.65,
+      "pScaleX": 1,
+      "pScaleY": 1,
+      "lScaleX": 1,
+      "lScaleY": 1,
+      "pAlign": "Bottom",
+      "lAlign": "Right"
+    },
     "movesCounter": { "cx": 0, "cy": -400 },
     "dropZones": [
-      { "type": "biological", "cx": 0, "cy": -272 },
-      { "type": "digital", "cx": 0, "cy": -76 },
-      { "type": "impression", "cx": 0, "cy": 120 },
-      { "type": "physical", "cx": 0, "cy": 314 }
+      { "type": "lend", "cx": 0, "cy": -367 },
+      { "type": "sea", "cx": 0, "cy": -132 },
+      { "type": "sky", "cx": 0, "cy": 124 }
     ],
 
     "ctaButton": {
@@ -66,75 +89,77 @@
     "decks": [
       {
         "name": 1,
-        "cx": -162, "cy": -272,
+        "cx": -182, "cy": -367,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "physical", "icon": "physical_2" },
-          { "type": "digital", "icon": "digital_3" },
-          { "type": "biological", "icon": "biological_4" }
+          { "type": "sky","icon": "sky_1"},
+          { "type": "lend","icon": "lend_1"}
         ]
       },
       {
         "name": 2,
-        "cx": 162, "cy": -272,
+        "cx": 182, "cy": -367,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "impression", "icon": "impression_1" },
-          { "type": "digital", "icon": "digital_2" },
-          { "type": "biological", "icon": "biological_3" }
+          { "type": "lend","icon": "lend_2"},
+          { "type": "sky","icon": "sky_2"}
         ]
       },
       {
         "name": 3,
-        "cx": -162, "cy": -82,
+        "cx": -182, "cy": -132,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "digital", "icon": "digital_4" },
-          { "type": "impression", "icon": "impression_1" },
-          { "type": "physical", "icon": "physical_2" }
+          { "type": "lend","icon": "lend_3"},
+          { "type": "sea","icon": "sea_4"}
         ]
       },
       {
         "name": 4,
-        "cx": 162, "cy": -82,
+        "cx": 182, "cy": -132,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "impression", "icon": "impression_4" },
-          { "type": "physical", "icon": "physical_3" },
-          { "type": "biological", "icon": "biological_2" }
+          { "type": "lend","icon": "lend_4"},
+          { "type": "sky","icon": "sky_3"}
         ]
       },
       {
         "name": 5,
-        "cx": -162, "cy": 118,
+        "cx": -182, "cy": 124,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "digital", "icon": "digital_3" },
-          { "type": "biological", "icon": "biological_1" },
-          { "type": "physical", "icon": "physical_4" }
+          { "type": "sea","icon": "sea_1"},
+          { "type": "sky","icon": "sky_5"}
         ]
       },
       {
         "name": 6,
-        "cx": 162, "cy": 118,
+        "cx": 182, "cy": 124,
+        "iconScale": 0.7,
         "cards": [
-          { "type": "physical", "icon": "physical_3" },
-          { "type": "biological", "icon": "biological_3" },
-          { "type": "physical", "icon": "physical_2" }
+          { "type": "sky","icon": "sky_4"},
+          { "type": "sea","icon": "sea_2"}
         ]
       },
       {
         "name": 7,
-        "cx": -162, "cy": 310,
-        "cards": [
-          { "type": "physical", "icon": "physical_1" },
-          { "type": "impression", "icon": "impression_3" },
-          { "type": "digital", "icon": "digital_2" }
-        ]
+        "type": "hold",
+        "cx": -222, "cy": 362
       },
       {
         "name": 8,
-        "cx": 162, "cy": 310,
-        "cards": [
-          { "type": "digital", "icon": "digital_1" },
-          { "type": "impression", "icon": "impression_2" },
-          { "type": "impression", "icon": "impression_1" }
-        ]
+        "type": "hold",
+        "cx": -74, "cy": 362
+      },
+      {
+        "name": 9,
+        "type": "hold",
+        "cx": 74, "cy": 362
+      },
+      {
+        "name": 10,
+        "type": "hold",
+        "cx": 222, "cy": 362
       }
     ]
   },
@@ -152,16 +177,16 @@
   },
 
   "card": {
-    "faceScale": 0.5,
-    "iconScale": 0.5,
+    "faceScale": 0.6,
+    "iconScale": 0.7,
     "iconOffsetY": 0
   },
 
   "dropZone": {
-    "scale": 0.5,
+    "scale": 0.65,
     "bgOffsetY": 12,
-    "headOffsetY": -68,
-    "headTextFOffsetY": -82,
+    "headOffsetY": -94,
+    "headTextFOffsetY": -105,
     "headRevealDurationMs": 350,
     "headRevealEase": "Back.Out",
     "headTextFontFamily": "LilitaOne-Regular, Arial",
