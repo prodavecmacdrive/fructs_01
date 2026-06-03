@@ -447,7 +447,7 @@ export default class Game extends ParentScene {
      */
     _runBubblePopSequence(onComplete) {
         // Deck cards (face-up active cards + shadow back-images) pop first,
-        // then the accepted (sorted) cards inside the drop zones.
+        // then any accepted cards that were not already burst by completed zones.
         const targets = [];
         for (const deck of this._decks) {
             if (deck.activeCard && !this._acceptedCards.includes(deck.activeCard)) {
@@ -459,7 +459,7 @@ export default class Game extends ParentScene {
         }
         targets.push(...this._acceptedCards);
 
-        if (targets.length === 0) { onComplete(); return; }
+        if (targets.length === 0) { this._fadeRemainingPlayfield(onComplete); return; }
 
         console.debug('[Game] bubble pop sequence targets', {
             count: targets.length,
@@ -472,7 +472,7 @@ export default class Game extends ParentScene {
 
         let index = 0;
         const next = () => {
-            if (index >= targets.length) { onComplete(); return; }
+            if (index >= targets.length) { this._fadeRemainingPlayfield(onComplete); return; }
 
             const target = targets[index++];
             // Guard against objects destroyed between scheduling and execution
@@ -496,6 +496,31 @@ export default class Game extends ParentScene {
             this.time.delayedCall(120, next);
         };
         next();
+    }
+
+    _fadeRemainingPlayfield(onComplete) {
+        const anim = this.SETTINGS.animations;
+        const fadeTargets = this.mainContainer.list.filter((child) => {
+            if (!child || child.visible === false || typeof child.setAlpha !== 'function') return false;
+            if (child === this.bg) return false;
+            if (child === this.movesCounter) return false;
+            return true;
+        });
+
+        if (fadeTargets.length === 0) {
+            onComplete();
+            return;
+        }
+
+        this.tweens.killTweensOf(fadeTargets);
+        this.tweens.add({
+            targets:  fadeTargets,
+            alpha:    0,
+            duration: anim.sortedFadeDurationMs ?? 200,
+            delay:    anim.sortedFadeDelayMs ?? 120,
+            ease:     'Power2',
+            onComplete: onComplete
+        });
     }
 
     _triggerEnd() {

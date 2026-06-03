@@ -2,7 +2,7 @@
   "_comment": "Global settings for the Category Sort playable. All placement, scale, and animation values live here.",
 
   "game": {
-    "startingMoves": 161
+    "startingMoves": 24
   },
 
   "cardTypes": [

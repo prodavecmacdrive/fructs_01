@@ -1,3 +1,5 @@
+import Utils from '../core/framework/Utils';
+
 export default class DropZone extends Phaser.GameObjects.Container {
     /**
      * A sorting drop zone.  Visual: merge_bg + merge_head + counter + label.
@@ -22,6 +24,8 @@ export default class DropZone extends Phaser.GameObjects.Container {
         this.onCompleteCb = onComplete;
         this._highlighted  = false;
         this._headRevealed = false;
+        this._acceptedCards = [];
+        this._burstInProgress = false;
 
         const dz = this.scene.SETTINGS.dropZone;
 
@@ -94,6 +98,7 @@ export default class DropZone extends Phaser.GameObjects.Container {
      */
     acceptCard(card) {
         this.count++;
+        this._acceptedCards.push(card);
         const dz = this.scene.SETTINGS.dropZone;
         card.flyTo(this.x, this.y + dz.acceptedCardOffsetY, dz.acceptedCardScale, () => {
             this._attachAcceptedCard(card);
@@ -102,6 +107,7 @@ export default class DropZone extends Phaser.GameObjects.Container {
             if (this.count >= this.target) {
                 this.isComplete = true;
                 this._playComplete();
+                this._burstContents();
                 if (this.onCompleteCb) this.onCompleteCb();
             }
         });
@@ -160,6 +166,62 @@ export default class DropZone extends Phaser.GameObjects.Container {
             targets: this,
             scaleX: dz.completeBounceScale, scaleY: dz.completeBounceScale,
             duration: dz.completeBounceMs, yoyo: true, ease: 'Power2'
+        });
+    }
+
+    _burstContents() {
+        if (this._burstInProgress || this._acceptedCards.length === 0) return;
+        this._burstInProgress = true;
+
+        const dz = this.scene.SETTINGS.dropZone;
+        const cards = this._acceptedCards.slice();
+        this._acceptedCards.length = 0;
+
+        cards.forEach((card) => {
+            const accepted = Array.isArray(this.scene._acceptedCards) ? this.scene._acceptedCards : null;
+            if (accepted) {
+                const idx = accepted.indexOf(card);
+                if (idx !== -1) accepted.splice(idx, 1);
+            }
+        });
+
+        const burstDuration = dz.cardBurstDurationMs ?? 260;
+        cards.forEach((card, index) => {
+            if (!card || !card.scene) return;
+            const delay = (dz.cardBurstStaggerMs ?? 50) * index;
+            this.scene.time.delayedCall(delay, () => {
+                if (!card || !card.scene) return;
+                Utils.addAudio(this.scene, 'pop', 1.0);
+                this.scene.tweens.killTweensOf(card);
+                this.scene.tweens.add({
+                    targets:  card,
+                    scaleX:   card.scaleX * 1.5,
+                    scaleY:   card.scaleY * 1.5,
+                    alpha:    0,
+                    duration: burstDuration,
+                    ease:     'Power2.Out',
+                    onComplete: () => {
+                        if (card && card.scene) {
+                            card.setVisible(false);
+                        }
+                    }
+                });
+            });
+        });
+
+        const fadeDelay = ((dz.cardBurstStaggerMs ?? 50) * cards.length) + burstDuration;
+        this.scene.time.delayedCall(fadeDelay, () => {
+            this.scene.tweens.add({
+                targets:  this,
+                alpha:    0,
+                duration: dz.zoneFadeDurationMs ?? 180,
+                ease:     'Power2.Out',
+                onComplete: () => {
+                    if (this.scene && this.scene.sys) {
+                        this.setVisible(false);
+                    }
+                }
+            });
         });
     }
 
