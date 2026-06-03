@@ -49,7 +49,7 @@
     "durationMs": 250,
     "ease": "Power2.Out"
   },
-  "displayType": "emotion",
+  "displayType": "spineCharacter",
   "spineCharacter": {
     "enabled": true,
     "spineKey": "Einstein",

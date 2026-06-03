@@ -1,48 +1,69 @@
 
-Einstein.png
-size: 3330,895
+Einstein_New__.png
+size: 3669,763
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
 Body
-  rotate: false
+  rotate: true
   xy: 2, 2
-  size: 1084, 891
-  orig: 2762, 1506
-  offset: 877, 0
-  index: -1
-Eye_L
-  rotate: true
-  xy: 1088, 21
-  size: 94, 46
-  orig: 94, 46
+  size: 759, 858
+  orig: 759, 858
   offset: 0, 0
   index: -1
-Eye_R
-  rotate: true
-  xy: 1136, 23
-  size: 92, 43
-  orig: 92, 43
+Hand_L
+  rotate: false
+  xy: 3001, 67
+  size: 205, 694
+  orig: 297, 694
+  offset: 92, 0
+  index: -1
+Hand_R
+  rotate: false
+  xy: 3208, 64
+  size: 198, 697
+  orig: 262, 697
   offset: 0, 0
   index: -1
-Head
-  rotate: true
-  xy: 1088, 117
-  size: 776, 754
-  orig: 1160, 754
-  offset: 204, 0
-  index: -1
-Head_Idle
+Head Smile
   rotate: false
-  xy: 1844, 148
-  size: 741, 745
-  orig: 1160, 754
-  offset: 223, 1
+  xy: 862, 40
+  size: 713, 721
+  orig: 713, 721
+  offset: 0, 0
   index: -1
-Head_smile
+Head_01
   rotate: false
-  xy: 2587, 148
-  size: 741, 745
-  orig: 1160, 754
-  offset: 223, 1
+  xy: 1577, 42
+  size: 710, 719
+  orig: 714, 722
+  offset: 2, 1
+  index: -1
+Head_Sad
+  rotate: false
+  xy: 2289, 42
+  size: 710, 719
+  orig: 713, 721
+  offset: 1, 1
+  index: -1
+Neck
+  rotate: false
+  xy: 3408, 493
+  size: 259, 268
+  orig: 259, 268
+  offset: 0, 0
+  index: -1
+eyelid_L
+  rotate: false
+  xy: 3408, 438
+  size: 91, 53
+  orig: 101, 56
+  offset: 10, 3
+  index: -1
+eyelid_R
+  rotate: false
+  xy: 3408, 382
+  size: 85, 54
+  orig: 85, 54
+  offset: 0, 0
   index: -1
