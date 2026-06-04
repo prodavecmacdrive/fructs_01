@@ -188,8 +188,8 @@ export default class StressScale extends Phaser.GameObjects.Container {
     /** Call when a card is placed in the correct drop zone (+15° clockwise). */
     notifyCorrect() {
         if (this._displayType === 'spineCharacter' && this._spineCharacter) {
-            this._spineCharacter.notifyCorrect();
             this._rotate(this._rotationCfg.step, false);
+            console.log('Einstein smile');
             return;
         }
 
@@ -207,8 +207,8 @@ export default class StressScale extends Phaser.GameObjects.Container {
         const nextAngle = Math.max(0, this._currentAngle + delta);
 
         if (this._displayType === 'spineCharacter' && this._spineCharacter) {
-            this._spineCharacter.notifyIncorrect();
             this._rotate(nextAngle - this._currentAngle, true);
+            console.log('Einstein sad');
             return;
         }
 
@@ -369,6 +369,10 @@ export default class StressScale extends Phaser.GameObjects.Container {
         const activeFadeDelay = Math.round(this._emotionTransitionMs * 0.2);
         const activeFadeDuration = Math.max(40, this._emotionTransitionMs - activeFadeDelay);
 
+        if (this._displayType === 'spineCharacter') {
+            return;
+        }
+
         this._emoPrev.setTexture(currentKey);
         this._emoPrev.setAlpha(0.35);
         this._emoActive.setTexture(currentKey);
@@ -414,6 +418,14 @@ export default class StressScale extends Phaser.GameObjects.Container {
         }
 
         this._currentAngle = nextAngle;
+        if (this._displayType === 'spineCharacter' && this._spineCharacter) {
+            if (delta > 0) {
+                this._spineCharacter.notifyCorrect();
+            } else if (delta < 0) {
+                this._spineCharacter.notifyIncorrect();
+            }
+        }
+
         const targetEmotion = this._getEmotionForAngle(nextAngle);
         this.scene.tweens.add({
             targets:  this._dial,
@@ -572,6 +584,7 @@ export default class StressScale extends Phaser.GameObjects.Container {
         this._applyStaticBgOrientation(isPortrait);
         this._applyDialOrientation(isPortrait);
         this._applyEmotionOrientation(isPortrait);
+        this._applySpineOrientation(isPortrait);
         return this;
     }
 }

@@ -107,9 +107,10 @@ export default class Preloader extends Phaser.Scene {
                 return;
             }
 
-            if (this.cache.custom?.spine && !this.cache.custom.spine.has(key)) {
-                this.cache.custom.spine.add(key, {
-                    preMultipliedAlpha: true,
+            const spineCache = this.cache.custom?.spine || this.cache.addCustom('spine');
+            if (!spineCache.has(key)) {
+                spineCache.add(key, {
+                    preMultipliedAlpha: false,
                     data: spineData.atlas,
                     prefix: ''
                 });

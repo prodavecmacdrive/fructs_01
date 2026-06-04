@@ -101,7 +101,7 @@
         "cx": 182, "cy": -367,
         "iconScale": 0.7,
         "cards": [
-          { "type": "lend","icon": "lend_2"},
+          { "type": "lend","icon": "lend_5"},
           { "type": "sky","icon": "sky_2"}
         ]
       },
@@ -177,13 +177,13 @@
   },
 
   "card": {
-    "faceScale": 0.6,
+    "faceScale": 0.5,
     "iconScale": 0.7,
     "iconOffsetY": 0
   },
 
   "dropZone": {
-    "scale": 0.65,
+    "scale": 0.55,
     "bgOffsetY": 12,
     "headOffsetY": -94,
     "headTextFOffsetY": -105,

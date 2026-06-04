@@ -48,8 +48,8 @@
 
   "stressScale": {
     "background": {
-      "pImage": "stress_bg_p",
-      "lImage": "stress_bg_l"
+      "pImage": "stress_bg_s3_p",
+      "lImage": "stress_bg_s3_l"
     }
   },
 
@@ -129,7 +129,7 @@
         "iconScale": 1,
         "cards": [
           { "type": "adult","icon": "adult_1"},
-          { "type": "eldry","icon": "eldry_5"}
+          { "type": "adult","icon": "adult_3"}
         ]
       },
       {
