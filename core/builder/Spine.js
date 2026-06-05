@@ -49,8 +49,7 @@ module.exports.load = function() {
             } else if (isAtlas) {
                 addSpineResource.call(this, name);
                 fs.readFile('assets/spine/' + filename, 'utf8', (err, atlas) => {
-                    atlas = atlas.replace(/\n/g, '\\n');
-                    this.resources += 'window.App.resources.spine.' + name + '.atlas = ' + "'" + atlas + "'" + ';';
+                    this.resources += 'window.App.resources.spine.' + name + '.atlas = ' + JSON.stringify(atlas) + ';';
                 });
             }
         }
@@ -61,7 +60,7 @@ module.exports.load = function() {
 
         function addSpineEntry(name, key, value) {
             addSpineResource.call(this, name);
-            this.resources += 'window.App.resources.spine.' + name + '.' + key + ' = ' + "'" + value + "'" + ';';
+            this.resources += 'window.App.resources.spine.' + name + '.' + key + ' = ' + JSON.stringify(value) + ';';
         }
     });
 
