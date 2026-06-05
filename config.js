@@ -20,10 +20,13 @@ module.exports = {
     'versions': {
         // single-scene builds (3)
         's1':           { flow: ['scene-1'],                         audio: [], fonts: [], sheets: [], textures: [] },
+        's1_4click':    { flow: ['scene-1'],                         outputFolder: 's1_4click', sceneData: { 'scene-1': { game: { startingMoves: 4 } } } },
         't(s1)':        { flow: [['scene-1']],                      levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
         's2':           { flow: ['scene-2'],                         audio: [], fonts: [], sheets: [], textures: [] },
+        's2_4click':    { flow: ['scene-2'],                         outputFolder: 's2_4click', sceneData: { 'scene-2': { game: { startingMoves: 4 } } } },
         't(s2)':        { flow: [['scene-2']],                      levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
         's3':           { flow: ['scene-3'],                         audio: [], fonts: [], sheets: [], textures: [] },
+        's3_4click':    { flow: ['scene-3'],                         outputFolder: 's3_4click', sceneData: { 'scene-3': { game: { startingMoves: 4 } } } },
         't(s3)':        { flow: [['scene-3']],                      levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
 
         // one forced level, then choose two remaining levels (6)

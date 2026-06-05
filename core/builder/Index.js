@@ -25,8 +25,31 @@ class BuilderPlugin {
     }
 
     apply(compiler) {
-        compiler.hooks.done.tap('Builder Plugin', (compilation, callback) => {
-            this.callback = callback;
+        compiler.hooks.emit.tapAsync('Builder Plugin', (compilation, callback) => {
+            // Capture the built bundle content directly from webpack's emitted
+            // assets so we can inline it without depending on the file system.
+            try {
+                const mainAsset = compilation.assets['main.js'];
+                if (mainAsset && typeof mainAsset.source === 'function') {
+                    this.mainJsCode = mainAsset.source();
+                }
+            } catch (err) {
+                // Ignore asset lookup failures and fall back to disk read.
+            }
+            callback();
+        });
+
+        compiler.hooks.done.tap('Builder Plugin', (stats) => {
+            if (!this.mainJsCode) {
+                try {
+                    const mainAsset = stats?.compilation?.assets?.['main.js'];
+                    if (mainAsset && typeof mainAsset.source === 'function') {
+                        this.mainJsCode = mainAsset.source();
+                    }
+                } catch (err) {
+                    // Ignore any failure here and fall back to disk read later.
+                }
+            }
 
             // Reset state for a fresh production run
             this.currentVersion        = 0;
@@ -40,11 +63,16 @@ class BuilderPlugin {
             if( !fs.existsSync('temp') ) fs.mkdirSync('temp');
 
             if(this.mode === 'production') {
-                for (let i = 0; i < Object.keys(config.versions).length; i++) {
-                    const path = 'dist/' + Object.keys(config.versions)[i];
-                    if( !fs.existsSync(path) ) fs.mkdirSync(path);
+                const folders = new Set();
+                for (const versionKey of Object.keys(config.versions)) {
+                    const versionCfg = config.versions[versionKey] || {};
+                    folders.add(versionCfg.outputFolder || versionKey);
                 }
-                if( !fs.existsSync('dist/preview') ) fs.mkdirSync('dist/preview');
+                for (const folder of folders) {
+                    const path = 'dist/' + folder;
+                    if (!fs.existsSync(path)) fs.mkdirSync(path);
+                }
+                if (!fs.existsSync('dist/preview')) fs.mkdirSync('dist/preview');
             }
 
             !fs.existsSync('assets/textures') ? fs.mkdir('assets/textures', () => textures.load.bind(this)()) : textures.load.bind(this)();
@@ -106,17 +134,32 @@ class BuilderPlugin {
      */
     _readSceneSettings() {
         const scenesData = {};
-        for (let i = 1; i <= 3; i++) {
-            const filePath = `game-settings_scene-${i}.json`;
-            if (fs.existsSync(filePath)) {
-                try {
-                    scenesData[`scene-${i}`] = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-                } catch (e) {
-                    console.warn(`[Builder] Could not parse ${filePath}:`, e.message);
-                }
+        const files = fs.readdirSync(process.cwd());
+        for (const fileName of files) {
+            const match = fileName.match(/^game-settings_scene-(\d+)\.json$/);
+            if (!match) continue;
+            const sceneId = `scene-${match[1]}`;
+            try {
+                scenesData[sceneId] = JSON.parse(fs.readFileSync(fileName, 'utf8'));
+            } catch (e) {
+                console.warn(`[Builder] Could not parse ${fileName}:`, e.message);
             }
         }
         return scenesData;
+    }
+
+    _deepMerge(base, override) {
+        const result = Object.assign({}, base);
+        for (const key of Object.keys(override)) {
+            const value = override[key];
+            if (value && typeof value === 'object' && !Array.isArray(value) &&
+                base[key] && typeof base[key] === 'object' && !Array.isArray(base[key])) {
+                result[key] = this._deepMerge(base[key], value);
+            } else {
+                result[key] = value;
+            }
+        }
+        return result;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -135,7 +178,11 @@ class BuilderPlugin {
             this._cachedFonts          = this.fonts;
         }
 
-        this.makeHtml(this.mode === 'development' ? 'dev' : config.networks[0]);
+        const versionKey = Object.keys(config.versions)[this.currentVersion];
+        const versionCfg = config.versions[versionKey] || {};
+        this.networks = Array.isArray(versionCfg.networks) ? versionCfg.networks : config.networks;
+
+        this.makeHtml(this.mode === 'development' ? 'dev' : this.networks[0]);
     }
 
     makeHtml(network) {
@@ -148,11 +195,17 @@ class BuilderPlugin {
             ? Object.keys(config.versions)[this.currentVersion]
             : config.currentVersion;
         const versionCfg = config.versions[versionKey] || {};
+        const folderName = versionCfg.outputFolder || versionKey;
         const flow       = Array.isArray(versionCfg.flow) ? versionCfg.flow : [];
 
         // Build full resources string: cached asset data + per-version flow.
         // In development, use base game-settings.json only; do not inject scene-specific settings.
         const scenesData  = this.mode === 'development' ? {} : this._readSceneSettings();
+        if (versionCfg.sceneData && typeof versionCfg.sceneData === 'object') {
+            for (const sceneId of Object.keys(versionCfg.sceneData)) {
+                scenesData[sceneId] = this._deepMerge(scenesData[sceneId] || {}, versionCfg.sceneData[sceneId]);
+            }
+        }
         const levelSelect = versionCfg.levelSelect === true;
 
         // AppLovin Axon analytics helper — real implementation for Applovin builds,
@@ -181,7 +234,7 @@ class BuilderPlugin {
         html = html.replace('{network}', network);
         html = html.replace('{title}', config.name);
         
-        (this.mode === 'development') ? this.buildDev(html) : this.buildProd(html, network);
+        (this.mode === 'development') ? this.buildDev(html) : this.buildProd(html, network, folderName);
     }
 
     buildDev(html) {
@@ -197,22 +250,26 @@ class BuilderPlugin {
         });
     }
 
-    buildProd(html, network) {
-        const code = fs.readFileSync('dist/main.js', 'utf8');
+    buildProd(html, network, folderName) {
+        const code = this.mainJsCode || fs.readFileSync('dist/main.js', 'utf8');
         html = html.replace('{devCode}', '');
         html = html.replace('{code}', code);
 
-        const folderName = Object.keys(config.versions)[this.currentVersion];
         html = html.replace('{version}', folderName);
 
-        const filenameBase = `${config.name}_${folderName}_timer_${network.toLowerCase()}`;
+        const versionKey = Object.keys(config.versions)[this.currentVersion];
+        const versionFileName = versionKey.endsWith('_4click')
+            ? versionKey.replace('_4click', '_timer_4click')
+            : versionKey;
+        const filenameBase = `${config.name}_${versionFileName}_${network.toLowerCase()}`;
         const htmlFilename = filenameBase + '.html';
         const zipFilename = filenameBase + '.zip';
 
+        const networks = this.networks || config.networks;
         const makeNextNetwork = () => {
-            if(this.currentNetworkCount !== config.networks.length - 1) {
+            if(this.currentNetworkCount !== networks.length - 1) {
                 this.currentNetworkCount++;
-                this.makeHtml(config.networks[this.currentNetworkCount]);
+                this.makeHtml(networks[this.currentNetworkCount]);
             } else {
                 if(this.currentVersion !== Object.keys(config.versions).length - 1) {
                     this.buildNextVersion();
