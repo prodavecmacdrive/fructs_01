@@ -1,5 +1,6 @@
 import ParentScene from "../core/framework/components/Scene";
 import Timer from "./Timer";
+import SETTINGS from "../game-timer.json";
 
 /**
  * TimerScene

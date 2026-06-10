@@ -1,17 +1,18 @@
 {
   "_comment": "Stopwatch timer settings. gameFinalTime is in centiseconds (1/100 s) — 3000 = 30 s.",
 
-  "gameFinalTime": 0,
+  "gameFinalTime": 6000,
 
   "depth": 10,
   "globalScale": 0.3,
 
   "container": {
-    "portraitX":  -90,
-    "portraitY":  110,
-    "landscapeX": -160,
+    "portraitX": -90,
+    "portraitY": 110,
+    "landscapeX": 160,
     "landscapeY": 190,
-    "align": "Top Rigth"
+    "pAlign": "Top Right",
+    "lAlign": "Top Left"
   },
 
   "timerScale": {

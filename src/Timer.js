@@ -296,7 +296,8 @@ export default class Timer extends Phaser.GameObjects.Container {
             duration: cfg.repositionDurationMs,
             ease: cfg.repositionEase,
             onComplete: () => {
-                this.setAlign(SETTINGS.container.align);
+                const align = isPortrait ? SETTINGS.container.pAlign : SETTINGS.container.lAlign;
+                this.setAlign(align);
                 this.px = SETTINGS.container.portraitX;
                 this.py = SETTINGS.container.portraitY;
                 this.lx = SETTINGS.container.landscapeX;
@@ -321,7 +322,7 @@ export default class Timer extends Phaser.GameObjects.Container {
     _getFinalX(isPortrait) {
         const size = this.scene.game.size;
         let alignX = size.x;
-        const align = SETTINGS.container.align;
+        const align = isPortrait ? SETTINGS.container.pAlign : SETTINGS.container.lAlign;
         if (align.includes('Left')) alignX = size.left;
         else if (align.includes('Rigth') || align.includes('Right')) alignX = size.right;
         return alignX + (isPortrait ? SETTINGS.container.portraitX : SETTINGS.container.landscapeX);
@@ -330,7 +331,7 @@ export default class Timer extends Phaser.GameObjects.Container {
     _getFinalY(isPortrait) {
         const size = this.scene.game.size;
         let alignY = size.y;
-        const align = SETTINGS.container.align;
+        const align = isPortrait ? SETTINGS.container.pAlign : SETTINGS.container.lAlign;
         if (align.includes('Top')) alignY = size.top;
         else if (align.includes('Bottom')) alignY = size.bottom;
         return alignY + (isPortrait ? SETTINGS.container.portraitY : SETTINGS.container.landscapeY);

@@ -1,5 +1,5 @@
 module.exports = {
-    'name': 'category-sort_einstein',
+    'name': 'category-sort_einstein_30s',
     // 'networks': ['Applovin', 'Facebook', 'Google', 'IronSource', 'Liftoff', 'TikTok', 'UnityAds', 'Vungle'],
     'networks': ['Applovin', 'Facebook', 'Google', 'UnityAds'],
     'customPhaser': true,
