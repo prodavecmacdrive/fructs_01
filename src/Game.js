@@ -22,6 +22,7 @@ export default class Game extends ParentScene {
     create() {
         this.gameOver = false;
         this._acceptedCards = [];
+        this._drawnCardCount = 0;
         const createStart = performance.now();
         this._initScene();
         const createEnd = performance.now();
@@ -454,6 +455,7 @@ export default class Game extends ParentScene {
             newCard.deckIndex = deckIndex;
             newCard.setDepth(cfg.topCardDepthFaceDown);
             deck.activeCard = newCard;
+            this._trackFinalWindowClick();
 
             // Destroy the shadow at the exact moment the flip begins so
             // the old card-back-bg is never missing from the deck position.
@@ -583,6 +585,23 @@ export default class Game extends ParentScene {
      * (scale × 1.5 + fade out), playing a 'pop' sound per card.
      * Calls onComplete after the last card disappears.
      */
+    _trackFinalWindowClick() {
+        const limit = Number(this.SETTINGS.game?.numberOfClicksForFinalWindow) || 0;
+        if (limit <= 0) {
+            return;
+        }
+
+        this._drawnCardCount += 1;
+        if (this._drawnCardCount >= limit && !this.gameOver) {
+            this.gameOver = true;
+            this.helper?.kill();
+            this.helper = null;
+            window.App.timerScene?.stopTimer();
+            window.App.timerScene?.hideTimer();
+            this.finalWindow.show();
+        }
+    }
+
     _runBubblePopSequence(onComplete) {
         // Deck cards (face-up active cards + shadow back-images) pop first,
         // then the accepted (sorted) cards inside the drop zones.
