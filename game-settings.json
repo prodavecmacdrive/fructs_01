@@ -2,21 +2,35 @@
   "_comment": "Global settings for the Category Sort playable. All placement, scale, and animation values live here.",
 
   "game": {
-    "startingMoves": 161
+    "startingMoves": 32
   },
 
   "cardTypes": [
     {
-      "type": "edible",
-      "label": "Edible",
-      "iconPrefix": "edible_",
+      "type": "bowl",
+      "label": "Bowl",
+      "iconPrefix": "bowl_",
       "iconCount": 4,
       "target": 4
     },
     {
-      "type": "not_edible",
-      "label": "Not Edible",
-      "iconPrefix": "not_edible_",
+      "type": "package",
+      "label": "Package",
+      "iconPrefix": "package_",
+      "iconCount": 4,
+      "target": 4
+    },
+    {
+      "type": "music",
+      "label": "Music",
+      "iconPrefix": "music_",
+      "iconCount": 4,
+      "target": 4
+    },
+    {
+      "type": "baby",
+      "label": "Baby",
+      "iconPrefix": "baby_",
       "iconCount": 4,
       "target": 4
     }
@@ -24,7 +38,7 @@
 
   "background": {
     "mode": "color",
-    "color": "#ff9564",
+    "color": "#dfaa6c",
     "pImage": "main_bg",
     "lImage": "main_bg",
     "pScaleX": 1.05,
@@ -37,8 +51,10 @@
     "deckCount": 8,
     "movesCounter": { "cx": 0, "cy": -400 },
     "dropZones": [
-      { "type": "edible",     "cx": 0, "cy": -70 },
-      { "type": "not_edible", "cx": 0, "cy": 124 }
+      { "type": "bowl",     "cx": 0, "cy": -270 },
+      { "type": "package",  "cx": 0, "cy": -75 },
+      { "type": "music",    "cx": 0, "cy": 120 },
+      { "type": "baby",     "cx": 0, "cy": 310 }
     ],
 
     "ctaButton": {
@@ -50,68 +66,72 @@
     "decks": [
       {
         "name": 1,
-        "cx": -82, "cy": -272,
+        "cx": -150, "cy": -275,
         "cards": [
-          { "type": "edible",     "icon": "edible_2"     },
-          { "type": "not_edible", "icon": "not_edible_1" }
+          { "type": "bowl",     "icon": "bowl_1"},
+          { "type": "baby", "icon": "baby_1"}
         ]
       },
       {
         "name": 2,
-        "cx": 82, "cy": -272,
+        "cx": 150, "cy": -275,
         "cards": [
-          { "type": "not_edible", "icon": "not_edible_6" },
-          { "type": "edible",     "icon": "edible_3"     }
+          { "type": "package",  "icon": "package_1"},
+          { "type": "music",    "icon": "music_1"}
         ]
       },
+
       {
         "name": 3,
-        "cx": -162, "cy": -82,
+        "cx": -150, "cy": -80,
         "cards": [
-          { "type": "edible",     "icon": "edible_4"     },
-          { "type": "edible",     "icon": "edible_5"     }
+          { "type": "bowl",     "icon": "bowl_2"},
+          { "type": "baby",     "icon": "baby_2"}
         ]
       },
       {
         "name": 4,
-        "cx": 162, "cy": -82,
+        "cx": 150, "cy": -80,
         "cards": [
-          { "type": "not_edible", "icon": "not_edible_5" },
-          { "type": "not_edible", "icon": "not_edible_2" }
+          { "type": "package",  "icon": "package_2"},
+          { "type": "music",    "icon": "music_2"}
         ]
       },
+
       {
         "name": 5,
-        "cx": -162, "cy": 118,
+        "cx": -150, "cy": 115,
         "cards": [
-          { "type": "not_edible", "icon": "not_edible_8" },
-          { "type": "not_edible", "icon": "not_edible_3" }
+          { "type": "bowl",     "icon": "bowl_3"},
+          { "type": "baby",     "icon": "baby_3"}
         ]
       },
       {
         "name": 6,
-        "cx": 162, "cy": 118,
+        "cx": 150,  "cy": 115,
         "cards": [
-          { "type": "edible",     "icon": "edible_1"     },
-          { "type": "edible",     "icon": "edible_8"     }
+          { "type": "package",  "icon": "package_3"},
+          { "type": "music",    "icon": "music_3"}
         ]
       },
+
       {
         "name": 7,
-        "cx": -82, "cy": 310,
-        "cards": [
-          { "type": "not_edible", "icon": "not_edible_7" },
-          { "type": "edible",     "icon": "edible_6"     }
-        ]
+        "cx": -150, 	"cy": 310,
+       	"cards":[
+          {	"type":"bowl","icon":"bowl_4"},
+          {	"type":"baby","icon":"baby_4"}
+      	]
       },
       {
-        "name": 8,
-        "cx": 82, "cy": 310,
-        "cards": [
-          { "type": "edible",     "icon": "edible_7"     },
-          { "type": "not_edible", "icon": "not_edible_4" }
-        ]
+      	"name" :8,
+      	"cx" :150,	"cy" : 310,
+      	"cards":[
+        	{	"type":"package","icon":"package_4"},
+        	{	"type":"music","icon":"music_4"}
+      	]
       }
+      
     ]
   },
 
@@ -129,7 +149,7 @@
 
   "card": {
     "faceScale": 0.5,
-    "iconScale": 0.5,
+    "iconScale": 0.6,
     "iconOffsetY": 0
   },
 
@@ -151,12 +171,12 @@
     "counterTextColor": "#5c3a00",
     "counterTextStroke": "#ffffff",
     "counterTextStrokeThickness": 0,
-    "counterFontSize": 24,
+    "counterFontSize": 21,
     "labelOffsetY": 25,
     "labelTextFontFamily": "LilitaOne-Regular, Arial",
     "labelTextFontStyle": "bold",
     "labelTextColor": "#3d2200",
-    "labelFontSize": 26,
+    "labelFontSize": 24,
     "bodyLabelFadeDurationMs": 150,
     "highlightDurationMs": 100,
     "highlightEase": "Power2",
