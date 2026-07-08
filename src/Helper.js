@@ -103,11 +103,12 @@ export default class Helper {
 
     /**
      * Activate final-screen hint mode.
-     * @param {Phaser.GameObjects.Image} btnFin
+     * @param {Phaser.GameObjects.Image|Phaser.GameObjects.Image[]} buttons
      */
-    startFinalScreen(btnFin) {
-        this._mode   = 'finalScreen';
-        this._btnFin = btnFin;
+    startFinalScreen(buttons) {
+        this._mode = 'finalScreen';
+        this._finalButtons = Array.isArray(buttons) ? buttons : [buttons];
+        this._finalBtnIndex = 0;
 
         const t = this._scene.time.delayedCall(2000, () => {
             this._running = true;
@@ -155,6 +156,45 @@ export default class Helper {
             this._scene.tweens.killTweensOf(this._finger);
             this._finger.destroy();
             this._finger = null;
+        }
+    }
+
+    /**
+     * Hide helper visuals with a fade-out animation.
+     */
+    hideWithFade() {
+        this._running = false;
+        for (const t of this._timers) {
+            if (t) t.remove(false);
+        }
+        this._timers = [];
+        if (this._afkTimer) {
+            this._afkTimer.remove(false);
+            this._afkTimer = null;
+        }
+
+        if (this._ghost) {
+            this._scene.tweens.killTweensOf(this._ghost);
+            this._scene.tweens.add({
+                targets: this._ghost,
+                alpha: 0,
+                duration: 240,
+                ease: 'Power2.Out',
+                onComplete: () => this._destroyGhost()
+            });
+        }
+
+        if (this._finger) {
+            this._scene.tweens.killTweensOf(this._finger);
+            this._scene.tweens.add({
+                targets: this._finger,
+                alpha: 0,
+                duration: 240,
+                ease: 'Power2.Out',
+                onComplete: () => {
+                    this._finger.setScale(0.8);
+                }
+            });
         }
     }
 
@@ -401,9 +441,13 @@ export default class Helper {
     // ─────────────────────────────────────────────────────────────────────────
 
     _runFinalScreenHint() {
-        if (!this._running || !this._btnFin) return;
+        const btns = this._finalButtons || (this._btnFin ? [this._btnFin] : null);
+        if (!this._running || !btns || btns.length === 0) return;
 
-        const btn     = this._btnFin;
+        const btn = btns[this._finalBtnIndex % btns.length];
+        this._finalBtnIndex = (this._finalBtnIndex || 0) + 1;
+        if (!btn || !btn.scene) return;
+
         const isFirst = this._finger.alpha < 0.1;
 
         if (isFirst) {
@@ -419,7 +463,24 @@ export default class Helper {
             duration: isFirst ? 313 : 438,
             ease:     'Cubic.InOut',
             onComplete: () => {
-                // Tap press
+                const normalPX = btn._pScaleX ?? btn.scaleX ?? 1;
+                const normalPY = btn._pScaleY ?? btn.scaleY ?? 1;
+                const normalLX = btn._lScaleX ?? btn.scaleX ?? 1;
+                const normalLY = btn._lScaleY ?? btn.scaleY ?? 1;
+
+                // Animate button simulating a press when palette (finger) simulates a press
+                this._tw({
+                    targets:  btn,
+                    pScaleX:  normalPX * 0.88,
+                    pScaleY:  normalPY * 0.88,
+                    lScaleX:  normalLX * 0.88,
+                    lScaleY:  normalLY * 0.88,
+                    duration: 163,
+                    ease:     'Power2.In',
+                    yoyo:     true
+                });
+
+                // Tap press on finger
                 this._tw({
                     targets:  this._finger,
                     scaleX:   0.65,
@@ -428,14 +489,14 @@ export default class Helper {
                     ease:     'Power2.In',
                     yoyo:     true,
                     onComplete: () => {
-                        // Hide for 2 seconds, then repeat
+                        // Hide for 1.5 seconds, then repeat on alternate button
                         this._tw({
                             targets:  this._finger,
                             alpha:    0,
                             duration: 250,
                             ease:     'Power2',
                             onComplete: () => {
-                                const t = this._scene.time.delayedCall(2000, () => {
+                                const t = this._scene.time.delayedCall(1500, () => {
                                     if (this._running) this._runFinalScreenHint();
                                 });
                                 this._timers.push(t);

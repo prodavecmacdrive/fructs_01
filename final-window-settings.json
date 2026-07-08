@@ -1,8 +1,6 @@
 {
-  "_comment": "Settings for the FinalWindow overlay shown at game end. Position offsets use the same coordinate conventions as game-settings.json: portrait/landscape pairs, aligned to Top or Bottom edge.",
-
+  "_comment": "Settings for the FinalWindow overlay shown at game end. Position offsets use coordinate conventions aligned to Top or Bottom edge.",
   "autoShowOnLaunchMs": 0,
-
   "overlay": {
     "_comment": "Full-screen translucent black rectangle drawn in container local-space.",
     "fillAlpha": 0.6,
@@ -10,51 +8,121 @@
     "depth": 50,
     "blurRadius": 12
   },
-
-  "imgFin": {
-    "_comment": "Win image. Aligned to Top; portraitY/landscapeY are offsets downward from the top edge.",
-    "portraitX":  0, "portraitY":  320,
-    "landscapeX": 0, "landscapeY": 300,
-    "pScale": 0.6,
-    "lScale": 0.7,
-    "depth": 52,
-
+  "arrowL": {
+    "_comment": "Left arrow pointing from dog icon down to left button.",
+    "align": "Top",
+    "portraitX": -110,
+    "portraitY": 440,
+    "landscapeX": -130,
+    "landscapeY": 380,
+    "startX": 0,
+    "startY": 320,
+    "pScale": 0.9,
+    "lScale": 0.9,
+    "startAngle": 45,
+    "targetAngle": 0,
+    "depth": 51,
     "intro": {
-      "_comment": "Fade + zoom-in with bounces. Use Bounce.Out for multi-bounce feel.",
-      "delayMs":    150,
-      "durationMs": 850,
-      "ease":       "Bounce.Out"
-    },
-
-    "pulse": {
-      "_comment": "After intro: continuously grows and shrinks in a loop.",
-      "scaleAdd":   0.04,
-      "durationMs": 950,
-      "ease":       "Sine.InOut"
+      "delayMs": 1400,
+      "durationMs": 450,
+      "ease": "Cubic.Out"
     }
   },
-
-  "btnFin": {
-    "_comment": "CTA button. Aligned to Bottom; portraitY/landscapeY are offsets upward (negative = up from bottom).",
-    "portraitX":  0, "portraitY":  -300,
-    "landscapeX": 0, "landscapeY": -270,
-    "pScale": 0.35,
-    "lScale": 0.35,
-    "depth": 52,
-
+  "arrowR": {
+    "_comment": "Right arrow pointing from dog icon down to right button.",
+    "align": "Top",
+    "portraitX": 110,
+    "portraitY": 440,
+    "landscapeX": 130,
+    "landscapeY": 380,
+    "startX": 0,
+    "startY": 320,
+    "pScale": 0.9,
+    "lScale": 0.9,
+    "startAngle": -45,
+    "targetAngle": 0,
+    "depth": 51,
     "intro": {
-      "_comment": "Fade + zoom-in after imgFin starts.",
-      "delayMs":    400,
+      "delayMs": 1400,
       "durationMs": 450,
-      "ease":       "Back.Out"
+      "ease": "Cubic.Out"
+    }
+  },
+  "shining": {
+    "_comment": "Glowing aura behind final_window_ico.",
+    "align": "Top",
+    "portraitX": 0,
+    "portraitY": 320,
+    "landscapeX": 0,
+    "landscapeY": 280,
+    "pScale": 0.95,
+    "lScale": 0.95,
+    "depth": 52,
+    "intro": {
+      "delayMs": 300,
+      "durationMs": 700,
+      "ease": "Quad.Out"
     },
-
-    "twitch": {
-      "_comment": "Periodic grow-and-shrink twitch loop that starts after the intro.",
-      "pauseMs":   2200,
-      "upMs":       180,
-      "downMs":     480,
-      "scaleMultiplier": 1.18
+    "pulse": {
+      "scaleAdd": 0.04,
+      "angleAdd": 5,
+      "alphaMin": 0.75,
+      "durationMs": 950,
+      "ease": "Sine.InOut"
+    }
+  },
+  "ico": {
+    "_comment": "Main dog win image.",
+    "align": "Top",
+    "portraitX": 0,
+    "portraitY": 320,
+    "landscapeX": 0,
+    "landscapeY": 280,
+    "pScale": 0.85,
+    "lScale": 0.85,
+    "depth": 53,
+    "intro": {
+      "delayMs": 150,
+      "durationMs": 850,
+      "ease": "Bounce.Out"
+    },
+    "pulse": {
+      "scaleAdd": 0.04,
+      "angleAdd": 5,
+      "durationMs": 950,
+      "ease": "Sine.InOut"
+    }
+  },
+  "btnL": {
+    "_comment": "Left CTA button (ANIMALS).",
+    "align": "Top",
+    "portraitX": -120,
+    "portraitY": 600,
+    "landscapeX": -130,
+    "landscapeY": 530,
+    "pScale": 0.85,
+    "lScale": 0.85,
+    "depth": 54,
+    "intro": {
+      "delayMs": 900,
+      "durationMs": 400,
+      "ease": "Back.Out"
+    }
+  },
+  "btnR": {
+    "_comment": "Right CTA button (WIZARDS).",
+    "align": "Top",
+    "portraitX": 120,
+    "portraitY": 600,
+    "landscapeX": 130,
+    "landscapeY": 530,
+    "pScale": 0.85,
+    "lScale": 0.85,
+    "depth": 54,
+    "intro": {
+      "delayMs": 1050,
+      "durationMs": 400,
+      "ease": "Back.Out"
     }
   }
 }

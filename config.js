@@ -1,7 +1,15 @@
 module.exports = {
-    'name': 'category-sort',
+    'name': 'cts_mip_grknopa_cats_01_real_ugc_noseason_en',
     // 'networks': ['Applovin', 'Facebook', 'Google', 'IronSource', 'Liftoff', 'TikTok', 'UnityAds', 'Vungle'],
-    'networks': ['Applovin', 'Facebook', 'Google', 'UnityAds'],
+    'networks': ['Applovin', 'Facebook', 'Google', 'Mintegral', 'Moloco', 'UnityAds'],
+    'mirrors': {
+        'Applovin': 'al',
+        'Facebook': 'fb',
+        'Google': 'gg',
+        'Mintegral': 'mtg',
+        'Moloco': 'mo',
+        'UnityAds': 'un'
+    },
     'customPhaser': true,
     'compressAtlas': true,
     'compressTexture': true,
@@ -19,19 +27,21 @@ module.exports = {
     // A choice stage is represented by an array of scene ids.
     'versions': {
         // single-scene builds (3)
-        's1':           { flow: ['scene-1'],                         audio: [], fonts: [], sheets: [], textures: [] },
-        't(s1)':        { flow: [['scene-1']],                      levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
-        's2':           { flow: ['scene-2'],                         audio: [], fonts: [], sheets: [], textures: [] },
-        't(s2)':        { flow: [['scene-2']],                      levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
-        's3':           { flow: ['scene-3'],                         audio: [], fonts: [], sheets: [], textures: [] },
-        't(s3)':        { flow: [['scene-3']],                      levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
+        'full': { flow: ['scene-1'], audio: [], fonts: [], sheets: [], textures: [] },
+
+        // 't(s1)':        { flow: [['scene-1']],                      levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
+        'time60': { flow: ['scene-2'], audio: [], fonts: [], sheets: [], textures: [] },
+        // 't(s2)':        { flow: [['scene-2']],                      levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
+        'clicks2': { flow: ['scene-3'], audio: [], fonts: [], sheets: [], textures: [] },
+        // 't(s3)':        { flow: [['scene-3']],                      levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
 
         // one forced level, then choose two remaining levels (6)
-        's1-t(s2-s3)':  { flow: ['scene-1', ['scene-2', 'scene-3']],    audio: [], fonts: [], sheets: [], textures: [] },
-        't(s1)-t(s2-s3)': { flow: [['scene-1'], ['scene-2', 'scene-3']], levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
-        's2-t(s1-s3)':  { flow: ['scene-2', ['scene-1', 'scene-3']],    audio: [], fonts: [], sheets: [], textures: [] },
-        't(s2)-t(s1-s3)': { flow: [['scene-2'], ['scene-1', 'scene-3']], levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
-        's3-t(s1-s2)':  { flow: ['scene-3', ['scene-1', 'scene-2']],    audio: [], fonts: [], sheets: [], textures: [] },
-        't(s3)-t(s1-s2)': { flow: [['scene-3'], ['scene-1', 'scene-2']], levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
+
+        // 's1-t(s2-s3)':  { flow: ['scene-1', ['scene-2', 'scene-3']],    audio: [], fonts: [], sheets: [], textures: [] },
+        // 't(s1)-t(s2-s3)': { flow: [['scene-1'], ['scene-2', 'scene-3']], levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
+        // 's2-t(s1-s3)':  { flow: ['scene-2', ['scene-1', 'scene-3']],    audio: [], fonts: [], sheets: [], textures: [] },
+        // 't(s2)-t(s1-s3)': { flow: [['scene-2'], ['scene-1', 'scene-3']], levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
+        // 's3-t(s1-s2)':  { flow: ['scene-3', ['scene-1', 'scene-2']],    audio: [], fonts: [], sheets: [], textures: [] },
+        // 't(s3)-t(s1-s2)': { flow: [['scene-3'], ['scene-1', 'scene-2']], levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
     }
 };

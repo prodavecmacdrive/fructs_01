@@ -205,7 +205,8 @@ class BuilderPlugin {
         const folderName = Object.keys(config.versions)[this.currentVersion];
         html = html.replace('{version}', folderName);
 
-        const filenameBase = `${config.name}_${folderName}_${network.toLowerCase()}`;
+        const suffix = (config.mirrors && config.mirrors[network]) ? config.mirrors[network] : network.toLowerCase();
+        const filenameBase = `${config.name}_${folderName}_${suffix}`;
         const htmlFilename = filenameBase + '.html';
         const zipFilename = filenameBase + '.zip';
 

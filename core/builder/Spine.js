@@ -23,9 +23,15 @@ module.exports.load = function() {
         
         let count = {current: 0, total: names.length / 3};
         for (let i = 0; i < files.length; i++) {
-            if(files[i].slice(files[i].length - 3, files[i].length) === 'png') {
+            const filename = files[i];
+            const isPng = filename.endsWith('.png');
+            const isJson = filename.endsWith('.json');
+            const isAtlas = filename.endsWith('.atlas') || filename.endsWith('.atlas.txt');
+            const name = filename.replace(/\.atlas(?:\.txt)?$/, '').replace(/\.[^.]+$/, '');
+
+            if (isPng) {
                 (async () => {
-                    await imagemin(['assets/spine/' + files[i]], {
+                    await imagemin(['assets/spine/' + filename], {
                         destination: 'temp/',
                         plugins: [
                             imageminMozjpeg(),
@@ -34,26 +40,35 @@ module.exports.load = function() {
                             })
                         ]
                     });
-                            
-                    spineToBase64.bind(this)('temp/' + files[i], files[i], count);
+                    spineToBase64.bind(this)('temp/' + filename, filename, count);
                 })();
-            } else if(files[i].slice(files[i].length - 4, files[i].length) === 'json') {
-                fs.readFile('assets/spine/' + files[i], 'utf8', (err, json) => {
-                    this.resources += 'window.App.resources.spine.' + files[i] + ' = ' + "'" + JSON.minify(json) + "'" + ';';
+            } else if (isJson) {
+                fs.readFile('assets/spine/' + filename, 'utf8', (err, json) => {
+                    addSpineEntry.call(this, name, 'json', JSON.minify(json));
                 });
-            } else if(files[i].slice(files[i].length - 5, files[i].length) === 'atlas') {
-                this.resources += 'window.App.resources.spine.' + files[i].slice(0, -6) + ' = {};';
-                fs.readFile('assets/spine/' + files[i], 'utf8', (err, atlas) => {
-                    atlas = atlas.replace(new RegExp("\n","g"), "\\n");
-                    this.resources += 'window.App.resources.spine.' + files[i] + ' = ' + "'" + atlas + "'" + ';';
+            } else if (isAtlas) {
+                addSpineResource.call(this, name);
+                fs.readFile('assets/spine/' + filename, 'utf8', (err, atlas) => {
+                    this.resources += 'window.App.resources.spine.' + name + '.atlas = ' + JSON.stringify(atlas) + ';';
                 });
             }
+        }
+
+        function addSpineResource(name) {
+            this.resources += 'window.App.resources.spine.' + name + ' = window.App.resources.spine.' + name + ' || {};' + '\n';
+        }
+
+        function addSpineEntry(name, key, value) {
+            addSpineResource.call(this, name);
+            this.resources += 'window.App.resources.spine.' + name + '.' + key + ' = ' + JSON.stringify(value) + ';';
         }
     });
 
     function spineToBase64(path, title, count) {
+        const name = title.slice(0, title.indexOf('.'));
         base64Img.base64(path, (err, data) => {
-            this.resources += 'window.App.resources.spine.' + title + ' = ' + "'" + data + "'" + ';';
+            this.resources += 'window.App.resources.spine.' + name + ' = window.App.resources.spine.' + name + ' || {};' + '\n';
+            this.resources += 'window.App.resources.spine.' + name + '.png = ' + "'" + data + "'" + ';';
                 
             count.current++;
                 

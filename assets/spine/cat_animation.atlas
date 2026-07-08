@@ -1,0 +1,111 @@
+
+cat_animation.png
+size: 856,1058
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Eye_L
+  rotate: false
+  xy: 772, 891
+  size: 80, 82
+  orig: 80, 82
+  offset: 0, 0
+  index: -1
+Eye_L_Closed
+  rotate: false
+  xy: 297, 4
+  size: 138, 135
+  orig: 138, 135
+  offset: 0, 0
+  index: -1
+Eye_R
+  rotate: false
+  xy: 772, 975
+  size: 82, 81
+  orig: 82, 81
+  offset: 0, 0
+  index: -1
+Eye_R_Closed
+  rotate: true
+  xy: 2, 9
+  size: 130, 151
+  orig: 130, 151
+  offset: 0, 0
+  index: -1
+Head
+  rotate: false
+  xy: 2, 141
+  size: 503, 425
+  orig: 503, 425
+  offset: 0, 0
+  index: -1
+Pupil_L
+  rotate: false
+  xy: 437, 76
+  size: 58, 63
+  orig: 58, 63
+  offset: 0, 0
+  index: -1
+Pupil_R
+  rotate: false
+  xy: 437, 76
+  size: 58, 63
+  orig: 58, 63
+  offset: 0, 0
+  index: -1
+Torso
+  rotate: false
+  xy: 2, 568
+  size: 525, 488
+  orig: 993, 488
+  offset: 0, 0
+  index: -1
+ear_L
+  rotate: true
+  xy: 507, 26
+  size: 154, 169
+  orig: 154, 169
+  offset: 0, 0
+  index: -1
+ear_R
+  rotate: false
+  xy: 678, 18
+  size: 160, 162
+  orig: 160, 162
+  offset: 0, 0
+  index: -1
+mouth
+  rotate: true
+  xy: 716, 248
+  size: 141, 113
+  orig: 141, 113
+  offset: 0, 0
+  index: -1
+mouth_02
+  rotate: false
+  xy: 155, 2
+  size: 140, 137
+  orig: 141, 137
+  offset: 1, 0
+  index: -1
+mustache
+  rotate: true
+  xy: 529, 615
+  size: 441, 241
+  orig: 454, 242
+  offset: 0, 0
+  index: -1
+paw_L
+  rotate: false
+  xy: 507, 182
+  size: 207, 207
+  orig: 211, 217
+  offset: 0, 0
+  index: -1
+paw_R
+  rotate: false
+  xy: 529, 391
+  size: 259, 222
+  orig: 490, 222
+  offset: 231, 0
+  index: -1

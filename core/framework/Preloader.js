@@ -6,10 +6,8 @@ export default class Preloader extends Phaser.Scene {
     }
 
     preload() {
-        for (var key in window.App.resources.spine) {
-            this.textures.addBase64(key + '.png', window.App.resources.spine[key].png);
-        }
     }
+
   
     create() {
         if (typeof window.trackAxonEvent === 'function') window.trackAxonEvent('LOADING');
@@ -72,29 +70,104 @@ export default class Preloader extends Phaser.Scene {
             }, 1000)
         }
 
-        this.time.addEvent({delay: 250, callback: () => {
-            for (var key in App.resources.spine) {
-                let image = new Image();
-                image.src = window.App.resources.spine[key].png;
-                image.onload = () => {
-                    //console.log(this);
-                    //console.log(this.spine.plugin.webgl.GLTexture( this.game.context, image, false ));
-                }
-
-                this.cache.custom.spine.add(key, {preMultipliedAlpha: true, data: window.App.resources.spine[key].atlas} );
-                //console.log(this.game.context, window.App.resources.spine[key].png);
-                //console.log(this.spine.plugin.webgl.GLTexture( this.game.context, window.App.resources.spine[key].png ));
-                this.cache.custom.spineTextures.add(key, this.spine.getAtlas(key));
-                //console.log(this.spine.spineTextures.get(key));
-                this.cache.json.add(key, window.App.resources.spine[key].json);
-                
-                this.loaded++;
-            }
-
-            this.startGame();
-        }, callbackScope: this});
+        for (var key in App.resources.spine) {
+            this._loadInlineSpine(key, App.resources.spine[key]);
+        }
 
         this.startGame();
+    }
+
+    _loadInlineSpine(key, spineData) {
+        console.log(`[Preloader] Starting load for inline Spine asset: '${key}'`);
+        if (!spineData || !spineData.png || !spineData.atlas || !spineData.json) {
+            console.warn(`[Preloader] Spine asset '${key}' is missing required data (png/atlas/json). Skipping.`);
+            this.loaded++;
+            this.startGame();
+            return;
+        }
+
+        const pageNames = this._extractSpinePageNames(spineData.atlas, `${key}.png`);
+        let remainingPages = pageNames.length;
+
+        const finalize = () => {
+            if (remainingPages > 0) {
+                return;
+            }
+
+            const spineCache = this.cache.custom?.spine || this.cache.addCustom('spine');
+            if (!spineCache.has(key)) {
+                spineCache.add(key, {
+                    preMultipliedAlpha: false,
+                    data: spineData.atlas,
+                    prefix: ''
+                });
+            }
+
+            if (!this.cache.json.has(key)) {
+                this.cache.json.add(key, JSON.parse(spineData.json));
+            }
+
+            console.log(`[Preloader] Successfully loaded and cached Spine asset: '${key}'`);
+            this.loaded++;
+            this.startGame();
+        };
+
+        if (remainingPages === 0) {
+            finalize();
+            return;
+        }
+
+        for (const pageName of pageNames) {
+            if (this.textures.exists(pageName)) {
+                remainingPages--;
+                finalize();
+                continue;
+            }
+
+            this._loadBase64Image(
+                spineData.png,
+                (image) => {
+                    if (!this.textures.exists(pageName)) {
+                        this.textures.addImage(pageName, image);
+                    }
+
+                    remainingPages--;
+                    finalize();
+                },
+                () => {
+                    console.warn(`[Preloader] spine texture failed for ${key}:${pageName}`);
+                    remainingPages--;
+                    finalize();
+                }
+            );
+        }
+    }
+
+    _extractSpinePageNames(atlasText, fallbackPageName) {
+        const lines = atlasText.split(/\r?\n/);
+        const pageNames = [];
+
+        for (let index = 0; index < lines.length - 1; index++) {
+            const current = lines[index].trim();
+            const next = lines[index + 1].trim();
+
+            if (current && next.startsWith('size:')) {
+                pageNames.push(current);
+            }
+        }
+
+        if (pageNames.length === 0 && fallbackPageName) {
+            pageNames.push(fallbackPageName);
+        }
+
+        return [...new Set(pageNames)];
+    }
+
+    _loadBase64Image(base64, onLoad, onError) {
+        const image = new Image();
+        image.onload = () => onLoad(image);
+        image.onerror = onError;
+        image.src = base64;
     }
 
     base64ToArrayBuffer(base64) {
@@ -119,6 +192,7 @@ export default class Preloader extends Phaser.Scene {
         this.time.addEvent({delay: 250, callback: () => {
             document.getElementById('loader').style.display = 'none';
             document.getElementById('app').style.display = 'block';
+            if (typeof window.trackAxonEvent === 'function') window.trackAxonEvent('DISPLAYED');
             
             if (typeof window.App.isDev === 'undefined') {
                 window.App.isDev = window.location && (

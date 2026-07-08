@@ -217,6 +217,10 @@ export default class TransitionScene extends ParentScene {
     _selectScene(sceneId, clickedButton) {
         if (this._isTransitioning) return;
         this._isTransitioning = true;
+        if (!window.App._challengeStarted) {
+            window.App._challengeStarted = true;
+            if (typeof window.trackAxonEvent === 'function') window.trackAxonEvent('CHALLENGE_STARTED');
+        }
         this._helper?.kill();
         this._helper = null;
 

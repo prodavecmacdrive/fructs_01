@@ -1,44 +1,13 @@
 {
   "_comment": "Global settings for the Category Sort playable. All placement, scale, and animation values live here.",
-
   "game": {
-    "startingMoves": 161
+    "startingMoves": 32,
+    "movesForFinal": 0,
+    "gameFinalTime": 6000
   },
-
-  "cardTypes": [
-    {
-      "type": "spring",
-      "label": "Spring",
-      "iconPrefix": "spring_",
-      "iconCount": 4,
-      "target": 3
-    },
-    {
-      "type": "summer",
-      "label": "Summer",
-      "iconPrefix": "summer_",
-      "iconCount": 4,
-      "target": 3
-    },
-    {
-      "type": "autumn",
-      "label": "Autumn",
-      "iconPrefix": "autumn_",
-      "iconCount": 4,
-      "target": 3
-    },
-    {
-      "type": "winter",
-      "label": "Winter",
-      "iconPrefix": "winter_",
-      "iconCount": 4,
-      "target": 3
-    }
-  ],
-
   "background": {
     "mode": "color",
-    "color": "#9c65e2",
+    "color": "#dfaa6c",
     "pImage": "main_bg",
     "lImage": "main_bg",
     "pScaleX": 1.05,
@@ -46,99 +15,243 @@
     "lScaleX": 2.1,
     "lScaleY": 2.1
   },
-
+  "dialogue": {
+    "game_start": "Find their categories",
+    "positive": [
+      "Good",
+      "Oh, Great",
+      "That's nice",
+      "Keep going",
+      "Cool!",
+      "You are sorting seniors",
+      "Yeah!",
+      "That's fantastic",
+      "Awesome!",
+      "You played like a pro"
+    ],
+    "negative": [
+      "Oh no!",
+      "Oh, it's wrong",
+      "It's wrong again",
+      "See the emojis carefully",
+      "Match them correctly",
+      "Be careful. Don't rush",
+      "Pay closer attention to the details"
+    ],
+    "game_fail": "That's it. Zero lives left"
+  },
+  "dialogueBox": {
+    "fontFamily": "LilitaOne-Regular, Arial",
+    "fontStyle": "normal",
+    "textColor": "#ffffff",
+    "align": "center",
+    "portraitTexture": "bubble_p",
+    "landscapeTexture": "bubble_l",
+    "bubbleOffsetProtretXFactor": 0.1,
+    "bubbleOffsetProtretYFactor": -0.15,
+    "bubbleOffsetlandscapeXFactor": 0.0,
+    "bubbleOffsetlandscapeYFactor": 0.0,
+    "portrait": {
+      "bubbleHeightScale": 0.88,
+      "bubbleWidthScale": 0.50,
+      "textOffsetXFactor": -0.05,
+      "textOffsetYFactor": 0.0,
+      "fontSizeFactor": 0.2,
+      "minFontSize": 14,
+      "wordWrapFactor": 0.68
+    },
+    "landscape": {
+      "bubbleHeightScale": 0.45,
+      "bubbleWidthScale": 0.90,
+      "textOffsetXFactor": 0.0,
+      "textOffsetYFactor": -0.05,
+      "fontSizeFactor": 0.15,
+      "minFontSize": 16,
+      "wordWrapFactor": 0.70
+    }
+  },
+  "character": {
+    "portraitHeightPercent": 20,
+    "landscapeWidthPercent": 50
+  },
   "layout": {
     "deckCount": 8,
-    "movesCounter": { "cx": 0, "cy": -400 },
+    "movesCounter": {
+      "cx": 0,
+      "cy": -400
+    },
     "dropZones": [
-      { "type": "spring", "cx": 0, "cy": -272 },
-      { "type": "summer", "cx": 0, "cy": -76 },
-      { "type": "autumn", "cx": 0, "cy": 120 },
-      { "type": "winter", "cx": 0, "cy": 314 }
+      {
+        "type": "bowl",
+        "cx": 0,
+        "cy": -270
+      },
+      {
+        "type": "package",
+        "cx": 0,
+        "cy": -75
+      },
+      {
+        "type": "music",
+        "cx": 0,
+        "cy": 120
+      },
+      {
+        "type": "baby",
+        "cx": 0,
+        "cy": 310
+      },
+      {
+        "type": "furry",
+        "status": "expectant"
+      }
     ],
-
     "ctaButton": {
-      "portraitX":  0, "portraitY": -80,
-      "landscapeX": 0, "landscapeY": -60,
+      "portraitX": 0,
+      "portraitY": -80,
+      "landscapeX": 0,
+      "landscapeY": -60,
       "scale": 0.5
     },
-
     "decks": [
       {
         "name": 1,
-        "cx": -162, "cy": -272,
+        "cx": -150,
+        "cy": -275,
         "cards": [
-          { "type": "winter", "icon": "winter_7" },
-          { "type": "summer", "icon": "summer_6" },
-          { "type": "spring", "icon": "spring_4" }
+          {
+            "type": "bowl",
+            "icon": "bowl_1"
+          },
+          {
+            "type": "baby",
+            "icon": "baby_1"
+          }
         ]
       },
       {
         "name": 2,
-        "cx": 162, "cy": -272,
+        "cx": 150,
+        "cy": -275,
         "cards": [
-          { "type": "autumn", "icon": "autumn_6" },
-          { "type": "summer", "icon": "summer_5" },
-          { "type": "spring", "icon": "spring_3" }
+          {
+            "type": "furry",
+            "icon": "furry_1"
+          },
+          {
+            "type": "package",
+            "icon": "package_1"
+          },
+          {
+            "type": "music",
+            "icon": "music_1"
+          }
         ]
       },
       {
         "name": 3,
-        "cx": -162, "cy": -82,
+        "cx": -150,
+        "cy": -80,
         "cards": [
-          { "type": "summer", "icon": "summer_4" },
-          { "type": "autumn", "icon": "autumn_5" },
-          { "type": "winter", "icon": "winter_6" }
+          {
+            "type": "bowl",
+            "icon": "bowl_2"
+          },
+          {
+            "type": "furry",
+            "icon": "furry_2"
+          },
+          {
+            "type": "baby",
+            "icon": "baby_2"
+          }
         ]
       },
       {
         "name": 4,
-        "cx": 162, "cy": -82,
+        "cx": 150,
+        "cy": -80,
         "cards": [
-          { "type": "autumn", "icon": "autumn_4" },
-          { "type": "winter", "icon": "winter_5" },
-          { "type": "spring", "icon": "spring_2" }
+          {
+            "type": "furry",
+            "icon": "furry_3"
+          },
+          {
+            "type": "package",
+            "icon": "package_2"
+          },
+          {
+            "type": "music",
+            "icon": "music_2"
+          }
         ]
       },
       {
         "name": 5,
-        "cx": -162, "cy": 118,
+        "cx": -150,
+        "cy": 115,
         "cards": [
-          { "type": "summer", "icon": "summer_3" },
-          { "type": "spring", "icon": "spring_1" },
-          { "type": "winter", "icon": "winter_4" }
+          {
+            "type": "furry",
+            "icon": "furry_4"
+          },
+          {
+            "type": "bowl",
+            "icon": "bowl_3"
+          },
+          {
+            "type": "baby",
+            "icon": "baby_3"
+          }
         ]
       },
       {
         "name": 6,
-        "cx": 162, "cy": 118,
+        "cx": 150,
+        "cy": 115,
         "cards": [
-          { "type": "winter", "icon": "winter_3" },
-          { "type": "spring", "icon": "spring_5" },
-          { "type": "winter", "icon": "winter_2" }
+          {
+            "type": "package",
+            "icon": "package_3"
+          },
+          {
+            "type": "music",
+            "icon": "music_3"
+          }
         ]
       },
       {
         "name": 7,
-        "cx": -162, "cy": 310,
+        "cx": -150,
+        "cy": 310,
         "cards": [
-          { "type": "winter", "icon": "winter_1" },
-          { "type": "autumn", "icon": "autumn_3" },
-          { "type": "summer", "icon": "summer_2" }
+          {
+            "type": "bowl",
+            "icon": "bowl_4"
+          },
+          {
+            "type": "baby",
+            "icon": "baby_4"
+          }
         ]
       },
       {
         "name": 8,
-        "cx": 162, "cy": 310,
+        "cx": 150,
+        "cy": 310,
         "cards": [
-          { "type": "summer", "icon": "summer_1" },
-          { "type": "autumn", "icon": "autumn_2" },
-          { "type": "autumn", "icon": "autumn_1" }
+          {
+            "type": "package",
+            "icon": "package_4"
+          },
+          {
+            "type": "music",
+            "icon": "music_4"
+          }
         ]
       }
     ]
   },
-
   "deckStack": {
     "shadowBottomOffsetCx": 2,
     "shadowBottomOffsetCy": 18,
@@ -150,41 +263,84 @@
     "topCardDepthFaceUp": 5,
     "topCardDepthDragging": 20
   },
-
   "card": {
     "faceScale": 0.5,
-    "iconScale": 0.5,
+    "iconScale": 0.6,
     "iconOffsetY": 0
   },
-
+  "cardTypes": [
+    {
+      "type": "bowl",
+      "label": "Cats in\nthe Bowl",
+      "headLabel": "Cats in the Bowl",
+      "iconPrefix": "bowl_",
+      "iconCount": 4,
+      "target": 4
+    },
+    {
+      "type": "package",
+      "label": "Box\nBuddies",
+      "headLabel": "Box Buddies",
+      "iconPrefix": "package_",
+      "iconCount": 4,
+      "target": 4
+    },
+    {
+      "type": "baby",
+      "label": "Baby\nKittens",
+      "headLabel": "Baby Kittens",
+      "iconPrefix": "baby_",
+      "iconCount": 4,
+      "target": 4
+    },
+    {
+      "type": "music",
+      "label": "Music\nLovers",
+      "headLabel": "Music Lovers",
+      "iconPrefix": "music_",
+      "iconCount": 4,
+      "target": 4
+    },
+    {
+      "type": "furry",
+      "label": "Furry\nFluffballs",
+      "headLabel": "Furry Fluffballs",
+      "iconPrefix": "furry_",
+      "iconCount": 4,
+      "target": 4
+    }
+  ],
   "dropZone": {
     "scale": 0.5,
     "bgOffsetY": 12,
     "headOffsetY": -68,
-    "headTextFOffsetY": -82,
+    "headTextFOffsetY": -80,
     "headRevealDurationMs": 350,
     "headRevealEase": "Back.Out",
     "headTextFontFamily": "LilitaOne-Regular, Arial",
     "headTextFontStyle": "bold",
     "headTextColor": "#3d2200",
-    "headTextFontSize": 18,
+    "headTextFontSize": 15,
+    "headTextLetterSpacing": 1,
     "counterOffsetX": -22,
     "counterOffsetY": -38,
     "counterTextFontFamily": "LilitaOne-Regular, Arial",
     "counterTextFontStyle": "bold",
     "counterTextColor": "#5c3a00",
     "counterTextStroke": "#ffffff",
-    "counterTextStrokeThickness": 3,
-    "counterFontSize": 24,
+    "counterTextStrokeThickness": 0,
+    "counterFontSize": 18,
+    "counterTextLetterSpacing": 1,
     "labelOffsetY": 25,
     "labelTextFontFamily": "LilitaOne-Regular, Arial",
     "labelTextFontStyle": "bold",
     "labelTextColor": "#3d2200",
-    "labelFontSize": 26,
+    "labelFontSize": 22,
+    "labelTextLetterSpacing": 1,
     "bodyLabelFadeDurationMs": 150,
     "highlightDurationMs": 100,
     "highlightEase": "Power2",
-    "hitHalfWidth": 125,
+    "hitHalfWidth": 65,
     "hitHalfHeight": 120,
     "acceptedCardScale": 0.82,
     "acceptedCardOffsetY": 10,
@@ -193,7 +349,6 @@
     "highlightGlowAlpha": 0,
     "highlightScaleUp": 1.05
   },
-
   "movesCounter": {
     "backgroundScale": 0.5,
     "textOffsetX": 0,
@@ -207,7 +362,6 @@
     "shakeFeedbackScale": 1.1,
     "shakeDurationMs": 70
   },
-
   "animations": {
     "cardFlipHalfDurationMs": 150,
     "cardFlipEase": "Power2",

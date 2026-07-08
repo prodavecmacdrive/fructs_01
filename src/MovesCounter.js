@@ -34,7 +34,7 @@ export default class MovesCounter extends Phaser.GameObjects.Container {
         this.lx = cx; this.ly = cy;
         this.pScaleX = 1; this.pScaleY = 1;
         this.lScaleX = 1; this.lScaleY = 1;
-        this.setCustomPosition(0, 0).setAlign('Center');
+        this.setCustomPosition(cx ?? 0, cy ?? 0).setAlign('Center');
 
         container.add(this);
         this.setDepth(6);

@@ -11,6 +11,7 @@ import Vungle from '../networks/Vungle';
 import Preloader from './Preloader';
 import Game from '../../src/Game';
 import TransitionScene from '../../src/TransitionScene';
+import TimerScene from '../../src/TimerScene';
 import StateManager from '../../src/StateManager';
 
 import Utils from './Utils';
@@ -29,6 +30,22 @@ const getConfiguredNetworkName = () => {
 
 class App extends Phaser.Game {
     constructor() {
+        // Patch Phaser cameras to support addToRenderList if missing in custom Phaser builds
+        if (typeof Phaser !== 'undefined' && Phaser.Cameras && Phaser.Cameras.Scene2D) {
+            ['BaseCamera', 'Camera'].forEach((clsName) => {
+                const cls = Phaser.Cameras.Scene2D[clsName];
+                if (cls && cls.prototype && typeof cls.prototype.addToRenderList !== 'function') {
+                    console.log(`[App] Patching Phaser.Cameras.Scene2D.${clsName}.prototype with addToRenderList`);
+                    cls.prototype.addToRenderList = function (gameObject) {
+                        if (!this.renderList) {
+                            this.renderList = [];
+                        }
+                        this.renderList.push(gameObject);
+                    };
+                }
+            });
+        }
+
         const config = {
             type: Phaser.AUTO,
             parent: 'app',
@@ -39,13 +56,69 @@ class App extends Phaser.Game {
             },
             title: 'Core Version: ' + window.App.CORE_VERSION,
             backgroundColor: '#1e1e1e',
-            scene: [Preloader, Game, TransitionScene]
+            scene: [Preloader, Game, TransitionScene, TimerScene]
         };
 
         if(window.SpinePlugin) {
             config['plugins'] = {
                 scene: [{ key: 'SpinePlugin', plugin: window.SpinePlugin, start: true, mapping: 'spine' }]
             };
+
+            // Bridge SpinePlugin renderers for Phaser 3.50+ Container WebGL compatibility.
+            // Phaser 3.50+ passes 5 arguments: (renderer, src, interpolationPercentage, camera, parentMatrix).
+            // SpinePlugin expects 4 arguments: (renderer, src, camera, parentMatrix).
+            const patchRender = (fn, name) => {
+                if (typeof fn !== 'function' || fn._isPatched) return fn;
+                const patched = function (renderer, src) {
+                    const args = Array.prototype.slice.call(arguments, 2);
+                    console.log(`[SpinePatch ${name}]`, {
+                        renderer: !!renderer,
+                        src: src ? src.constructor.name : null,
+                        argsCount: args.length,
+                        args: args.map(a => {
+                            if (!a) return String(a);
+                            if (typeof a === 'object') {
+                                return {
+                                    constructor: a.constructor.name,
+                                    hasAddToRenderList: typeof a.addToRenderList === 'function',
+                                    keys: Object.keys(a).slice(0, 5)
+                                };
+                            }
+                            return typeof a + ': ' + String(a);
+                        })
+                    });
+                    let camIdx = -1;
+                    for (let k = 0; k < args.length; k++) {
+                        if (args[k] && typeof args[k].addToRenderList === 'function') {
+                            camIdx = k;
+                            break;
+                        }
+                    }
+                    if (camIdx !== -1) {
+                        return fn.apply(this, [renderer, src].concat(args.slice(camIdx)));
+                    }
+                    const fallbackCam = src && src.scene && src.scene.cameras && src.scene.cameras.main;
+                    if (fallbackCam && typeof fallbackCam.addToRenderList === 'function') {
+                        let matrix = args[1] || (args[0] && typeof args[0] === 'object' ? args[0] : undefined);
+                        return fn.call(this, renderer, src, fallbackCam, matrix);
+                    }
+                    return fn.apply(this, arguments);
+                };
+                patched._isPatched = true;
+                return patched;
+            };
+
+            ['SpineGameObject', 'SpineContainer'].forEach((className) => {
+                const cls = window.SpinePlugin[className];
+                if (cls && cls.prototype) {
+                    if (cls.prototype.renderWebGL) {
+                        cls.prototype.renderWebGL = patchRender(cls.prototype.renderWebGL, `${className}.renderWebGL`);
+                    }
+                    if (cls.prototype.renderCanvas) {
+                        cls.prototype.renderCanvas = patchRender(cls.prototype.renderCanvas, `${className}.renderCanvas`);
+                    }
+                }
+            });
         }
 
         super(config);

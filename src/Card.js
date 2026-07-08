@@ -87,7 +87,7 @@ export default class Card extends Phaser.GameObjects.Container {
 
         this.on('pointerdown', (pointer, lx, ly, ev) => {
             ev.stopPropagation();
-            if (this.isLocked || !this.dragEnabled) return;
+            if (this.isLocked || !this.dragEnabled || this.scene._zoneTransitionActive || this.scene.gameOver) return;
             Utils.addAudio(this.scene, 'click', 1.5);
             this._startDrag(pointer);
         });
@@ -119,6 +119,11 @@ export default class Card extends Phaser.GameObjects.Container {
     }
 
     _startDrag(pointer) {
+        if (this.scene.gameOver) return;
+        if (!window.App._challengeStarted) {
+            window.App._challengeStarted = true;
+            if (typeof window.trackAxonEvent === 'function') window.trackAxonEvent('CHALLENGE_STARTED');
+        }
         this.scene.helper?.notifyDragStart();
         this.isDragging = true;
         const local = this._toLocal(pointer.x, pointer.y);
@@ -136,9 +141,10 @@ export default class Card extends Phaser.GameObjects.Container {
 
         this.scene.tweens.killTweensOf(this);
         const anim = this.scene.SETTINGS.animations;
+        const targetScale = anim.dragPickupScale * (this.baseScale ?? 1);
         this.scene.tweens.add({
             targets: this,
-            scaleX: anim.dragPickupScale, scaleY: anim.dragPickupScale,
+            scaleX: targetScale, scaleY: targetScale,
             duration: anim.dragPickupDurationMs,
             ease: anim.dragPickupEase
         });
@@ -255,7 +261,7 @@ export default class Card extends Phaser.GameObjects.Container {
                 this.scene.tweens.add({
                     targets: this,
                     x: this.homeX, y: this.homeY,
-                    scaleX: 1, scaleY: 1, angle: 0,
+                    scaleX: this.baseScale ?? 1, scaleY: this.baseScale ?? 1, angle: 0,
                     duration: anim.returnHomeDurationMs,
                     ease:     anim.returnHomeEase,
                     onUpdate: () => {
@@ -304,8 +310,8 @@ export default class Card extends Phaser.GameObjects.Container {
         this.scene.tweens.add({
             targets: this,
             y: originalY - liftDistance,
-            scaleX: liftScale,
-            scaleY: liftScale,
+            scaleX: liftScale * (this.baseScale || 1.0),
+            scaleY: liftScale * (this.baseScale || 1.0),
             duration: liftDuration,
             ease: 'Power2.Out',
             onUpdate: () => {
@@ -340,8 +346,8 @@ export default class Card extends Phaser.GameObjects.Container {
                                 this.scene.tweens.add({
                                     targets: this,
                                     y: originalY,
-                                    scaleX: 1,
-                                    scaleY: 1,
+                                    scaleX: this.baseScale || 1.0,
+                                    scaleY: this.baseScale || 1.0,
                                     duration: fallDuration,
                                     ease: 'Back.Out',
                                     onUpdate: () => {

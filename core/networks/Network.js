@@ -10,6 +10,7 @@ export default class Network {
     }
 
     ctaClick() {
+        if (typeof window.trackAxonEvent === 'function') window.trackAxonEvent('CTA_CLICKED');
         this.openStore();
     }
 

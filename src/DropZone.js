@@ -11,10 +11,11 @@ export default class DropZone extends Phaser.GameObjects.Container {
      * @param {Phaser.GameObjects.Container} opts.container
      * @param {function} opts.onComplete – called when all cards accepted
      */
-    constructor({ scene, label, type, cx, cy, target = 4, container, onComplete }) {
+    constructor({ scene, label, headLabel, type, cx, cy, target = 4, container, onComplete }) {
         super(scene, 0, 0);
 
         this.label      = label;
+        this.headLabelText = headLabel || label;
         this.type       = type;
         this.target     = target;
         this.count      = 0;
@@ -35,12 +36,13 @@ export default class DropZone extends Phaser.GameObjects.Container {
         this.head = scene.add.image(0, dz.bgOffsetY, 'merge_head').setScale(S);
         this.add(this.head);
 
-        this.headLabel = scene.add.text(0, dz.bgOffsetY, label, {
+        this.headLabel = scene.add.text(0, dz.bgOffsetY, this.headLabelText, {
             fontFamily: dz.headTextFontFamily,
             fontSize:   dz.headTextFontSize,
             fontStyle:  dz.headTextFontStyle,
             color:      dz.headTextColor,
-            align:      'center'
+            align:      'center',
+            letterSpacing: dz.headTextLetterSpacing || 0
         }).setOrigin(0.5, 0.5);
         this.add(this.headLabel);
 
@@ -54,27 +56,29 @@ export default class DropZone extends Phaser.GameObjects.Container {
             fontStyle:  dz.counterTextFontStyle,
             color:      dz.counterTextColor,
             stroke:     dz.counterTextStroke,
-            strokeThickness: dz.counterTextStrokeThickness
+            strokeThickness: dz.counterTextStrokeThickness,
+            letterSpacing: dz.counterTextLetterSpacing || 0
         }).setOrigin(0.5, 0.5).setDepth(1);
         this.add(this.counterText);
 
-        const displayLabel = label.replace(' ', '\n');
+        const displayLabel = label.includes('\n') ? label : label.replace(' ', '\n');
         this.labelText = scene.add.text(0, dz.labelOffsetY, displayLabel, {
             fontFamily: dz.labelTextFontFamily,
             fontSize:   dz.labelFontSize,
             fontStyle:  dz.labelTextFontStyle,
             color:      dz.labelTextColor,
-            align:      'center'
+            align:      'center',
+            letterSpacing: dz.labelTextLetterSpacing || 0
         }).setOrigin(0.5, 0.5).setDepth(1);
         this.add(this.labelText);
 
         // Wire into the responsive system
         this.addProperties(['pos', 'scale']);
-        this.px = cx; this.py = cy;
-        this.lx = cx; this.ly = cy;
+        this.px = cx ?? 0; this.py = cy ?? 0;
+        this.lx = cx ?? 0; this.ly = cy ?? 0;
         this.pScaleX = 1; this.pScaleY = 1;
         this.lScaleX = 1; this.lScaleY = 1;
-        this.setCustomPosition(0, 0).setAlign('Center');
+        this.setCustomPosition(cx ?? 0, cy ?? 0).setAlign('Center');
 
         container.add(this);
         this.setDepth(3);
@@ -83,8 +87,8 @@ export default class DropZone extends Phaser.GameObjects.Container {
     /** Returns true if the given mainContainer-local point is within the zone's hit area. */
     isOver(cardX, cardY) {
         return (
-            Math.abs(cardX - this.x) < this.hitHalfW &&
-            Math.abs(cardY - this.y) < this.hitHalfH
+            Math.abs(cardX - this.x) < this.hitHalfW * this.scaleX &&
+            Math.abs(cardY - this.y) < this.hitHalfH * this.scaleY
         );
     }
 
