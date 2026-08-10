@@ -121,6 +121,7 @@ export default class FinalWindow {
     // ─────────────────────────────────────────────────────────────────────────
 
     show() {
+        Utils.addAudio(this._scene, 'win', 1.0);
         this._captureBlurredBackground(() => {
             const maxDepth = this._container.list.reduce((max, child) => {
                 if (child === this._overlay || child === this._imgFin ||
@@ -319,13 +320,6 @@ export default class FinalWindow {
     _handleCtaClick() {
         if (this._twitchTimer) this._twitchTimer.remove();
         if (this._imgFinLoop)  this._imgFinLoop.stop();
-        this._btnFin.off('pointerdown');
-
-        if (this._blurBg) { this._blurBg.destroy(); this._blurBg = null; }
-        if (this._blurTexKey && this._scene.textures.exists(this._blurTexKey)) {
-            this._scene.textures.remove(this._blurTexKey);
-            this._blurTexKey = null;
-        }
 
         if (this._onCta) this._onCta();
     }

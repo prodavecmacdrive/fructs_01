@@ -6,7 +6,7 @@ const imageminPngquant = require('imagemin-pngquant');
 
 const config = require('../../config');
 
-module.exports.load = function() {
+module.exports.load = function () {
     fs.readdir('assets/textures', (err, names) => {
         let textures = false;
 
@@ -19,27 +19,27 @@ module.exports.load = function() {
         let files = [];
         for (const title of names) {
             const name = title.slice(0, -4);
-            
+
             this.isCurrentVersionAsset(name, 'textures') && files.push(title);
         }
 
-        if(names.length === 0 || files.length === 0 || !textures) {
+        if (names.length === 0 || files.length === 0 || !textures) {
             this.texturesLoaded = true;
             this.loadChunck();
 
-    	    return;
-	    }
-            
-        let count = {current: 0, total: 0};
+            return;
+        }
+
+        let count = { current: 0, total: 0 };
         for (let i = 0; i < files.length; i++) {
-            if(config.compressTexture) {
+            if (config.compressTexture) {
                 (async () => {
                     await imagemin(['assets/textures/' + files[i]], {
                         destination: 'temp/',
                         plugins: [
                             imageminMozjpeg(),
                             imageminPngquant({
-                                quality: [0.5, 0.5]
+                                quality: [0.97, 0.97]
                             })
                         ]
                     });
@@ -55,17 +55,17 @@ module.exports.load = function() {
 
     function textureToBase64(path, title, count) {
         base64Img.base64(path, (err, data) => {
-            if(data) {
+            if (data) {
                 title = title.replace(/ /g, "_").replace(/-/g, "_");
                 this.resources += 'window.App.resources.textures.' + title.slice(0, -4) + ' = ' + "'" + data + "'" + ';';
             }
 
             count.current++;
-                
-            if(count.current === count.total) {
+
+            if (count.current === count.total) {
                 this.texturesLoaded = true;
                 this.loadChunck();
             }
-        }); 
+        });
     }
 }

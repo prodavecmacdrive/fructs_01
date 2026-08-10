@@ -1,3 +1,5 @@
+import Utils from "../core/framework/Utils";
+
 /**
  * Helper
  * ------
@@ -37,29 +39,38 @@ export default class Helper {
      * @param {Phaser.GameObjects.Container}    opts.container – mainContainer
      */
     constructor({ scene, container }) {
-        this._scene     = scene;
+        this._scene = scene;
         this._container = container;
 
-        this._tweens        = [];
-        this._timers        = [];
-        this._ghost         = null;
-        this._running       = false;
+        this._tweens = [];
+        this._timers = [];
+        this._ghost = null;
+        this._running = false;
         this._hasInteracted = false;
-        this._afkTimer      = null;
+        this._afkTimer = null;
         this._lastHintIndex = 0;
-        this._currentPair   = null;   // persists until the hinted card is used
-        this._mode          = null;
+        this._currentPair = null;   // persists until the hinted card is used
+        this._mode = null;
 
         // Finger sprite – sits above everything, starts hidden.
         // Origin (0, 0) anchors the reference point at the upper-left corner.
         this._finger = scene.add.image(0, 0, 'finger');
         this._finger.setOrigin(0, 0);
         this._finger.isHelperHint = true;
-        this._finger.setDepth(10000);
+        this._finger.setDepth(999999);
         this._finger.setAlpha(0);
         this._finger.setScale(0.8);
         container.add(this._finger);
         container.bringToTop(this._finger);
+    }
+
+    _ensureFingerTop() {
+        if (this._finger) {
+            this._finger.setDepth(999999);
+            if (this._container) {
+                this._container.bringToTop(this._finger);
+            }
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -73,9 +84,9 @@ export default class Helper {
      * @param {import('./DropZone').default[]} dropZones
      */
     startGameplay(getActiveCards, dropZones) {
-        this._mode           = 'gameplay';
+        this._mode = 'gameplay';
         this._getActiveCards = getActiveCards;
-        this._dropZones      = dropZones;
+        this._dropZones = dropZones;
 
         const t = this._scene.time.delayedCall(1000, () => {
             if (this._hasInteracted) return;
@@ -86,11 +97,262 @@ export default class Helper {
     }
 
     /**
+     * Activate the custom onboarding sequence for the start of the game.
+     * @param {Phaser.GameObjects.Text[]} headers 
+     * @param {import('./Card').default[][]} columns 
+     */
+    startCustomOnboarding(headers, columns) {
+        this._mode = 'customOnboarding';
+        this._running = true;
+
+        // 1. Identify Pink Cat column & collect all 'pink_cat' type cards
+        let pinkCatColIdx = 3;
+        if (this._scene.SETTINGS.cardTypes) {
+            const idx = this._scene.SETTINGS.cardTypes.findIndex(ct => ct.type === 'pink_cat');
+            if (idx !== -1) pinkCatColIdx = idx;
+        }
+
+        const header = headers[pinkCatColIdx];
+        const pinkCatColumnCards = columns[pinkCatColIdx];
+
+        // Gather ALL cards of type 'pink_cat' across the game (all columns + active card)
+        let allCards = [];
+        if (this._scene.activeCard) allCards.push(this._scene.activeCard);
+        for (const col of columns) {
+            allCards = allCards.concat(col);
+        }
+        const pinkCatTypeCards = allCards.filter(c => c && c.type === 'pink_cat');
+
+        if (!header || pinkCatTypeCards.length === 0) {
+            // Fallback to normal gameplay hint if something is missing
+            this._mode = 'gameplay';
+            this._runGameplayHint();
+            return;
+        }
+
+        // Store references for interrupt cleanup
+        this._onboardingHeader = header;
+        this._onboardingCards = pinkCatTypeCards;
+        this._origHeaderDepth = header.depth;
+        this._origDepths = new Map();
+        for (const card of pinkCatTypeCards) {
+            this._origDepths.set(card, card.depth);
+        }
+
+        // Phase 1: Header Highlight (pulse twice)
+        Utils.addAudio(this._scene, 'pulse_tutorial', 1.0);
+        this._scene.time.delayedCall(500, () => {
+            if (this._running) Utils.addAudio(this._scene, 'pulse_tutorial', 1.0);
+        });
+        this._tw({
+            targets: header,
+            scaleX: header.scaleX * 1.25,
+            scaleY: header.scaleY * 1.25,
+            duration: 250,
+            yoyo: true,
+            repeat: 1,
+            onComplete: () => {
+                if (!this._running) return;
+
+                // Phase 2: Overlay & Focus
+                this._overlay = this._scene.add.graphics();
+                this._overlay.fillStyle(0x000000, 0.9);
+                this._overlay.fillRect(-3000, -3000, 6000, 6000);
+                this._overlay.setDepth(199);
+                this._container.add(this._overlay);
+
+                header.setDepth(200);
+                for (const card of pinkCatTypeCards) {
+                    card.setDepth(200);
+                }
+                this._container.sort('depth');
+
+                // Phase 3: Synchronous Pulse of ONLY pink_cat type cards
+                Utils.addAudio(this._scene, 'pulse_tutorial', 1.0);
+                this._scene.time.delayedCall(700, () => {
+                    if (this._running) Utils.addAudio(this._scene, 'pulse_tutorial', 1.0);
+                });
+                this._tw({
+                    targets: pinkCatTypeCards,
+                    scaleX: pinkCatTypeCards[0].scaleX * 1.15,
+                    scaleY: pinkCatTypeCards[0].scaleY * 1.15,
+                    duration: 350,
+                    yoyo: true,
+                    repeat: 1,
+                    onComplete: () => {
+                        if (!this._running) return;
+
+                        // Phase 4: Restore State
+                        this._tw({
+                            targets: this._overlay,
+                            alpha: 0,
+                            duration: 300,
+                            onComplete: () => {
+                                if (this._overlay) {
+                                    this._overlay.destroy();
+                                    this._overlay = null;
+                                }
+                                header.setDepth(this._origHeaderDepth);
+                                for (const card of pinkCatTypeCards) {
+                                    card.setDepth(this._origDepths.get(card));
+                                }
+                                this._container.sort('depth');
+
+                                if (!this._running) return;
+
+                                // Phase 5: Wave Effect on Pink Cat column cards
+                                let waveCompleteCount = 0;
+                                for (let i = 0; i < pinkCatColumnCards.length; i++) {
+                                    const card = pinkCatColumnCards[i];
+                                    this._scene.time.delayedCall(i * 150, () => {
+                                        if (this._running) Utils.addAudio(this._scene, 'pulse_tutorial', 1.0);
+                                    });
+                                    this._tw({
+                                        targets: card,
+                                        scaleX: card.scaleX * 1.1,
+                                        scaleY: card.scaleY * 1.1,
+                                        duration: 200,
+                                        yoyo: true,
+                                        delay: i * 150, // Top to bottom
+                                        onComplete: () => {
+                                            waveCompleteCount++;
+                                            if (waveCompleteCount === pinkCatColumnCards.length) {
+                                                if (!this._running) return;
+                                                this._runTargetPulse(columns, pinkCatColIdx);
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    _runTargetPulse(columns, excludeColIdx) {
+        // Phase 6: Target Card Highlight
+        let targetCard = null;
+        for (let c = 0; c < columns.length; c++) {
+            if (c === excludeColIdx) continue;
+            const col = columns[c];
+            if (col.length > 0) {
+                const bottomCard = col[col.length - 1]; // bottom card is at the end of the array
+                if (bottomCard.type === 'pink_cat') {
+                    targetCard = bottomCard;
+                    break;
+                }
+            }
+        }
+
+        if (!targetCard) return;
+
+        Utils.addAudio(this._scene, 'pulse_tutorial', 1.0);
+        this._scene.time.delayedCall(600, () => {
+            if (this._running) Utils.addAudio(this._scene, 'pulse_tutorial', 1.0);
+        });
+        this._tw({
+            targets: targetCard,
+            scaleX: targetCard.scaleX * 1.2,
+            scaleY: targetCard.scaleY * 1.2,
+            duration: 300,
+            yoyo: true,
+            repeat: 1,
+            onComplete: () => {
+                if (!this._running) return;
+
+                // Phase 7: Helper Appearance
+                this._ensureFingerTop();
+                this._finger.setPosition(targetCard.x, targetCard.y);
+                this._finger.setAlpha(0);
+                this._tw({
+                    targets: this._finger,
+                    alpha: 1,
+                    duration: 300,
+                    onComplete: () => {
+                        if (!this._running) return;
+
+                        this._scene.isTutorialReady = true;
+                        this._waitingForStep2 = true; // Ready for user to tap and swap
+
+                        this._tw({
+                            targets: this._finger,
+                            y: targetCard.y + 15,
+                            scaleX: 0.7,
+                            scaleY: 0.7,
+                            duration: 500,
+                            yoyo: true,
+                            repeat: -1,
+                            ease: 'Sine.easeInOut'
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * Trigger Step 2 of the tutorial: point directly to the Pink Cat column.
+     * @param {Phaser.GameObjects.Text[]} headers 
+     * @param {import('./Card').default[][]} columns 
+     */
+    startOnboardingStep2(headers, columns) {
+        if (this._hasCompletedStep2) return;
+        this._mode = 'customOnboardingStep2';
+        this._running = true;
+
+        let pinkCatColIdx = 3;
+        if (this._scene.SETTINGS.cardTypes) {
+            const idx = this._scene.SETTINGS.cardTypes.findIndex(ct => ct.type === 'pink_cat');
+            if (idx !== -1) pinkCatColIdx = idx;
+        }
+
+        const header = headers[pinkCatColIdx];
+        if (!header) return;
+
+        // Position finger over the Pink Cat column header pointing at the column
+        this._ensureFingerTop();
+        this._finger.setPosition(header.x, header.y + 50);
+        this._finger.setAlpha(0);
+        this._finger.setScale(0.8);
+        this._tw({
+            targets: this._finger,
+            alpha: 1,
+            duration: 350,
+            onComplete: () => {
+                if (!this._running) return;
+                this._tw({
+                    targets: this._finger,
+                    y: header.y + 65,
+                    scaleX: 0.7,
+                    scaleY: 0.7,
+                    duration: 500,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: 'Sine.easeInOut'
+                });
+            }
+        });
+    }
+
+    /**
+     * Called when a card swap completes. Checks if Step 2 should trigger.
+     */
+    notifySwapComplete(activeCard, headers, columns) {
+        if (this._hasCompletedStep2) return;
+        if (activeCard && activeCard.type === 'pink_cat' && this._waitingForStep2) {
+            this._waitingForStep2 = false;
+            this.startOnboardingStep2(headers, columns);
+        }
+    }
+
+    /**
      * Activate level-selection hint mode.
      * @param {Phaser.GameObjects.Image[]} buttons
      */
     startLevelSelect(buttons) {
-        this._mode    = 'levelSelect';
+        this._mode = 'levelSelect';
         this._buttons = buttons;
 
         const t = this._scene.time.delayedCall(2000, () => {
@@ -106,7 +368,7 @@ export default class Helper {
      * @param {Phaser.GameObjects.Image} btnFin
      */
     startFinalScreen(btnFin) {
-        this._mode   = 'finalScreen';
+        this._mode = 'finalScreen';
         this._btnFin = btnFin;
 
         const t = this._scene.time.delayedCall(2000, () => {
@@ -124,7 +386,34 @@ export default class Helper {
         const firstTime = !this._hasInteracted;
         this._hasInteracted = true;
         this._stopHintLoop();
-        if (this._mode === 'gameplay') {
+
+        // Restore depths and remove overlay if interrupted during onboarding
+        if (this._overlay) {
+            this._scene.tweens.killTweensOf(this._overlay);
+            this._overlay.destroy();
+            this._overlay = null;
+        }
+        if (this._onboardingCards) {
+            for (const card of this._onboardingCards) {
+                if (this._origDepths && this._origDepths.has(card)) {
+                    card.setDepth(this._origDepths.get(card));
+                }
+            }
+            this._onboardingCards = null;
+        }
+        if (this._onboardingHeader && this._origHeaderDepth !== undefined) {
+            this._onboardingHeader.setDepth(this._origHeaderDepth);
+            this._onboardingHeader = null;
+        }
+        this._container.sort('depth');
+
+        if (this._mode === 'customOnboardingStep2') {
+            this._hasCompletedStep2 = true;
+            this._waitingForStep2 = false;
+        }
+
+        if (this._mode === 'gameplay' || this._mode === 'customOnboarding' || this._mode === 'customOnboardingStep2') {
+            this._mode = 'gameplay'; // AFK hint will use generic gameplay logic
             this._resetAfkTimer();
         }
     }
@@ -134,7 +423,8 @@ export default class Helper {
      * Resets the AFK countdown to 5 s from now.
      */
     notifyCorrectMove() {
-        if (this._mode === 'gameplay') {
+        if (this._mode === 'gameplay' || this._mode === 'customOnboarding') {
+            this._mode = 'gameplay';
             this._resetAfkTimer();
         }
     }
@@ -148,7 +438,7 @@ export default class Helper {
         for (const t of this._timers) {
             if (t) t.remove(false);
         }
-        this._timers   = [];
+        this._timers = [];
         this._afkTimer = null;
         this._cleanupVisuals();
         if (this._finger) {
@@ -182,7 +472,7 @@ export default class Helper {
 
         // ── Ghost card: mirrors the real card face, ignores input (not interactive) ──
         this._ghost = this._scene.add.container(card.x, card.y);
-        const ghostBg   = this._scene.add.image(0, 0, 'card_front_bg').setScale(S);
+        const ghostBg = this._scene.add.image(0, 0, 'card_front_bg').setScale(S);
         const ghostIcon = this._scene.add.image(0, Y, card.iconKey).setScale(I);
         this._ghost.add([ghostBg, ghostIcon]);
         this._ghost.setAlpha(0);
@@ -201,61 +491,62 @@ export default class Helper {
 
         // 1. Finger fades in
         this._tw({
-            targets:  this._finger,
-            alpha:    1,
+            targets: this._finger,
+            alpha: 1,
             duration: 250,
-            ease:     'Power2',
+            ease: 'Power2',
             onComplete: () => {
+                this._scene.isTutorialReady = true;
                 // 2. Finger "presses" down
                 this._tw({
-                    targets:  this._finger,
-                    scaleX:   0.65,
-                    scaleY:   0.65,
+                    targets: this._finger,
+                    scaleX: 0.65,
+                    scaleY: 0.65,
                     duration: 150,
-                    ease:     'Power2.In',
+                    ease: 'Power2.In',
                     onComplete: () => {
                         // 3. Ghost fades in beneath finger
                         this._tw({
-                            targets:  this._ghost,
-                            alpha:    0.55,
+                            targets: this._ghost,
+                            alpha: 0.55,
                             duration: 163,
-                            ease:     'Power2',
+                            ease: 'Power2',
                             onComplete: () => {
                                 // 4. Drag finger + ghost to drop zone simultaneously
                                 this._tw({
-                                    targets:  this._finger,
-                                    x:        zone.x,
-                                    y:        zone.y,
+                                    targets: this._finger,
+                                    x: zone.x,
+                                    y: zone.y,
                                     duration: 688,
-                                    ease:     'Cubic.InOut'
+                                    ease: 'Cubic.InOut'
                                 });
                                 this._tw({
-                                    targets:  this._ghost,
-                                    x:        zone.x,
-                                    y:        zone.y,
+                                    targets: this._ghost,
+                                    x: zone.x,
+                                    y: zone.y,
                                     duration: 688,
-                                    ease:     'Cubic.InOut',
+                                    ease: 'Cubic.InOut',
                                     onComplete: () => {
                                         // 5. Release: finger scales back up, ghost fades out
                                         this._tw({
-                                            targets:  this._finger,
-                                            scaleX:   0.8,
-                                            scaleY:   0.8,
+                                            targets: this._finger,
+                                            scaleX: 0.8,
+                                            scaleY: 0.8,
                                             duration: 150,
-                                            ease:     'Power2.Out'
+                                            ease: 'Power2.Out'
                                         });
                                         this._tw({
-                                            targets:  this._ghost,
-                                            alpha:    0,
+                                            targets: this._ghost,
+                                            alpha: 0,
                                             duration: 275,
-                                            ease:     'Power2',
+                                            ease: 'Power2',
                                             onComplete: () => {
                                                 // 6. Finger fades out
                                                 this._tw({
-                                                    targets:  this._finger,
-                                                    alpha:    0,
+                                                    targets: this._finger,
+                                                    alpha: 0,
                                                     duration: 250,
-                                                    ease:     'Power2',
+                                                    ease: 'Power2',
                                                     onComplete: () => {
                                                         this._destroyGhost();
                                                         // 7. Brief pause then loop
@@ -293,38 +584,89 @@ export default class Helper {
             this._currentPair = null;
         }
 
-        // Pick the next valid card, cycling through decks
+        if (!this._getActiveCards) return null;
         const cards = this._getActiveCards();
-        const len   = cards.length;
+        if (!cards) return null;
+        const len = cards.length;
         if (len === 0) return null;
 
         for (let i = 0; i < len; i++) {
-            const idx  = (this._lastHintIndex + i) % len;
+            const idx = (this._lastHintIndex + i) % len;
             const card = cards[idx];
             if (!card || !card.isFaceUp || card.isLocked || card.isDragging || !card.dragEnabled) continue;
+            if (!this._dropZones) continue;
             const zone = this._dropZones.find(z => z.type === card.type && !z.isComplete);
             if (zone) {
                 this._lastHintIndex = (idx + 1) % len;
-                this._currentPair   = { card, zone };
+                this._currentPair = { card, zone };
                 return this._currentPair;
             }
         }
         return null;
     }
 
-    /** Arm/reset the 5-second AFK timer. */
+    /** Arm/reset the 3-second AFK timer. */
     _resetAfkTimer() {
         if (this._afkTimer) {
             this._afkTimer.remove(false);
             this._timers = this._timers.filter(t => t !== this._afkTimer);
             this._afkTimer = null;
         }
-        this._afkTimer = this._scene.time.delayedCall(5000, () => {
+        this._afkTimer = this._scene.time.delayedCall(3000, () => {
             this._afkTimer = null;
-            this._running  = true;
-            this._runGameplayHint();
+            this._running = true;
+            this._runAfkHint();
         });
         this._timers.push(this._afkTimer);
+    }
+
+    /**
+     * Runs when the 3-second AFK timer expires.
+     * Points finger at the column matching activeCard.type.
+     */
+    _runAfkHint() {
+        if (!this._running) return;
+
+        const activeCard = this._scene.activeCard;
+        if (!activeCard) return;
+
+        const activeType = activeCard.type;
+        const cardTypes = this._scene.SETTINGS.cardTypes;
+        let matchingColIdx = -1;
+        if (cardTypes) {
+            matchingColIdx = cardTypes.findIndex(ct => ct.type === activeType);
+        }
+
+        if (matchingColIdx === -1) return;
+
+        const headers = this._scene.columnHeaders;
+        const header = headers ? headers[matchingColIdx] : null;
+
+        if (!header) return;
+
+        // Position finger over the matching column header
+        this._ensureFingerTop();
+        this._finger.setPosition(header.x, header.y + 50);
+        this._finger.setAlpha(0);
+        this._finger.setScale(0.8);
+        this._tw({
+            targets: this._finger,
+            alpha: 1,
+            duration: 350,
+            onComplete: () => {
+                if (!this._running) return;
+                this._tw({
+                    targets: this._finger,
+                    y: header.y + 65,
+                    scaleX: 0.7,
+                    scaleY: 0.7,
+                    duration: 500,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: 'Sine.easeInOut'
+                });
+            }
+        });
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -353,30 +695,30 @@ export default class Helper {
         }
 
         this._tw({
-            targets:  this._finger,
-            x:        targetX,
-            y:        targetY,
-            alpha:    1,
+            targets: this._finger,
+            x: targetX,
+            y: targetY,
+            alpha: 1,
             duration: isFirst ? 313 : 475,
-            ease:     isFirst ? 'Power2' : 'Cubic.InOut',
+            ease: isFirst ? 'Power2' : 'Cubic.InOut',
             onComplete: () => {
                 // Tap press (quick scale-down then back)
                 this._tw({
-                    targets:  this._finger,
-                    scaleX:   0.65,
-                    scaleY:   0.65,
+                    targets: this._finger,
+                    scaleX: 0.65,
+                    scaleY: 0.65,
                     duration: 125,
-                    ease:     'Power2.In',
-                    yoyo:     true,
+                    ease: 'Power2.In',
+                    yoyo: true,
                     onComplete: () => {
                         const next = (index + 1) % buttons.length;
                         if (next === 0 && buttons.length > 1) {
                             // End of cycle: fade out before starting over
                             this._tw({
-                                targets:  this._finger,
-                                alpha:    0,
+                                targets: this._finger,
+                                alpha: 0,
                                 duration: 275,
-                                ease:     'Power2',
+                                ease: 'Power2',
                                 onComplete: () => {
                                     const t = this._scene.time.delayedCall(625, () => {
                                         if (this._running) this._tapButton(0);
@@ -403,7 +745,7 @@ export default class Helper {
     _runFinalScreenHint() {
         if (!this._running || !this._btnFin) return;
 
-        const btn     = this._btnFin;
+        const btn = this._btnFin;
         const isFirst = this._finger.alpha < 0.1;
 
         if (isFirst) {
@@ -412,28 +754,28 @@ export default class Helper {
 
         // Move to / appear at button
         this._tw({
-            targets:  this._finger,
-            x:        btn.x,
-            y:        btn.y,
-            alpha:    1,
+            targets: this._finger,
+            x: btn.x,
+            y: btn.y,
+            alpha: 1,
             duration: isFirst ? 313 : 438,
-            ease:     'Cubic.InOut',
+            ease: 'Cubic.InOut',
             onComplete: () => {
                 // Tap press
                 this._tw({
-                    targets:  this._finger,
-                    scaleX:   0.65,
-                    scaleY:   0.65,
+                    targets: this._finger,
+                    scaleX: 0.65,
+                    scaleY: 0.65,
                     duration: 163,
-                    ease:     'Power2.In',
-                    yoyo:     true,
+                    ease: 'Power2.In',
+                    yoyo: true,
                     onComplete: () => {
                         // Hide for 2 seconds, then repeat
                         this._tw({
-                            targets:  this._finger,
-                            alpha:    0,
+                            targets: this._finger,
+                            alpha: 0,
                             duration: 250,
-                            ease:     'Power2',
+                            ease: 'Power2',
                             onComplete: () => {
                                 const t = this._scene.time.delayedCall(2000, () => {
                                     if (this._running) this._runFinalScreenHint();
@@ -481,7 +823,7 @@ export default class Helper {
 
     /** Kill running tweens and destroy the ghost image. */
     _cleanupVisuals() {
-        if (this._ghost)  this._scene.tweens.killTweensOf(this._ghost);
+        if (this._ghost) this._scene.tweens.killTweensOf(this._ghost);
         if (this._finger) this._scene.tweens.killTweensOf(this._finger);
         this._tweens = [];
         this._destroyGhost();

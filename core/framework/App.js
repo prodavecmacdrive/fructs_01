@@ -11,6 +11,7 @@ import Vungle from '../networks/Vungle';
 import Preloader from './Preloader';
 import Game from '../../src/Game';
 import TransitionScene from '../../src/TransitionScene';
+import TimerScene from '../../src/TimerScene';
 import StateManager from '../../src/StateManager';
 
 import Utils from './Utils';
@@ -39,7 +40,7 @@ class App extends Phaser.Game {
             },
             title: 'Core Version: ' + window.App.CORE_VERSION,
             backgroundColor: '#1e1e1e',
-            scene: [Preloader, Game, TransitionScene]
+            scene: [Preloader, Game, TransitionScene, TimerScene]
         };
 
         if(window.SpinePlugin) {
@@ -155,8 +156,15 @@ class App extends Phaser.Game {
         this.scale.resize(deviceWidth, deviceHeight);
 
         let scale = Math.min(deviceWidth / 600, deviceHeight / 900);
-        this.size.scale = scale.toFixed(1);
-        this.size.isPortrait = deviceWidth < deviceHeight;
+        const isPortrait = deviceWidth < deviceHeight;
+        const portraitAspect = isPortrait ? (deviceHeight / deviceWidth) : (deviceWidth / deviceHeight);
+
+        if ((isPortrait && portraitAspect <= 1.63282337) || !isPortrait) {
+            scale *= 0.9;
+        }
+
+        this.size.scale = scale;
+        this.size.isPortrait = isPortrait;
         
         this.updateScale();
         this.scaleContainer();

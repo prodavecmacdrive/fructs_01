@@ -1,5 +1,5 @@
 module.exports = {
-    'name': 'category-sort',
+    'name': 'cts_mip_grknopa_stacksort',
     // 'networks': ['Applovin', 'Facebook', 'Google', 'IronSource', 'Liftoff', 'TikTok', 'UnityAds', 'Vungle'],
     'networks': ['Applovin', 'Facebook', 'Google', 'UnityAds'],
     'customPhaser': true,
@@ -7,31 +7,16 @@ module.exports = {
     'compressTexture': true,
     'compressAudio': true,
     'ios': 'https://apps.apple.com/ua/app/category-sort/id6758512068',
-    'android': 'https://play.google.com/store/apps/details?id=com.meemeegames.categorysor',
+    'android': 'https://play.google.com/store/apps/details?id=com.meemeegames.categorysort',
 
     // Dev mode previews scene-1 only; override to test other flows.
-    'currentVersion': 's1',
+    'currentVersion': 'scene-1',
 
-    // ── 11 combinatorial build variants ─────────────────────────────────────
-    // Each entry defines the ordered pool of scenes for that build.
-    // Assets are identical across all variants; only the injected flow differs.
-    // levelSelect: true  →  start with TransitionScene (level-selection screen).
-    // A choice stage is represented by an array of scene ids.
+    // ── 4 game-settings build variants ───────────────────────────────────────
     'versions': {
-        // single-scene builds (3)
-        's1':           { flow: ['scene-1'],                         audio: [], fonts: [], sheets: [], textures: [] },
-        't(s1)':        { flow: [['scene-1']],                      levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
-        's2':           { flow: ['scene-2'],                         audio: [], fonts: [], sheets: [], textures: [] },
-        't(s2)':        { flow: [['scene-2']],                      levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
-        's3':           { flow: ['scene-3'],                         audio: [], fonts: [], sheets: [], textures: [] },
-        't(s3)':        { flow: [['scene-3']],                      levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
-
-        // one forced level, then choose two remaining levels (6)
-        's1-t(s2-s3)':  { flow: ['scene-1', ['scene-2', 'scene-3']],    audio: [], fonts: [], sheets: [], textures: [] },
-        't(s1)-t(s2-s3)': { flow: [['scene-1'], ['scene-2', 'scene-3']], levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
-        's2-t(s1-s3)':  { flow: ['scene-2', ['scene-1', 'scene-3']],    audio: [], fonts: [], sheets: [], textures: [] },
-        't(s2)-t(s1-s3)': { flow: [['scene-2'], ['scene-1', 'scene-3']], levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
-        's3-t(s1-s2)':  { flow: ['scene-3', ['scene-1', 'scene-2']],    audio: [], fonts: [], sheets: [], textures: [] },
-        't(s3)-t(s1-s2)': { flow: [['scene-3'], ['scene-1', 'scene-2']], levelSelect: true, audio: [], fonts: [], sheets: [], textures: [] },
+        '60s_sky': { flow: ['scene-1'], audio: [], fonts: [], sheets: [], textures: [] }, // 60s limit + sky_bg
+        '60s_wood': { flow: ['scene-2'], audio: [], fonts: [], sheets: [], textures: [] }, // 60s limit + wood_bg
+        '4tap_wood': { flow: ['scene-3'], audio: [], fonts: [], sheets: [], textures: [] }, // 4-tap limit + wood_bg
+        '4tap_sky': { flow: ['scene-4'], audio: [], fonts: [], sheets: [], textures: [] }  // 4-tap limit + sky_bg
     }
 };

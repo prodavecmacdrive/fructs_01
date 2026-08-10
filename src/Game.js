@@ -2,7 +2,6 @@ import ParentScene  from "../core/framework/components/Scene";
 import Utils        from "../core/framework/Utils";
 import Background   from "./Background";
 import Card         from "./Card";
-import DropZone     from "./DropZone";
 import FinalWindow  from "./FinalWindow";
 import MovesCounter from "./MovesCounter";
 import BASE_SETTINGS from "../game-settings.json";
@@ -19,18 +18,15 @@ export default class Game extends ParentScene {
 
     create() {
         this.gameOver = false;
-        this._acceptedCards = [];
-        const createStart = performance.now();
+        this.isTutorialReady = false;
+        window.App.gameScene = this;
+        this.columns = []; // Array of arrays of Cards
+        this.activeCard = null; // The card in the bottom cell
+        this.isAnimating = false; // Prevent interactions during animation
         this._initScene();
-        const createEnd = performance.now();
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Scene initialisation
-    // ─────────────────────────────────────────────────────────────────────────
-
     _initScene() {
-        const initStart = performance.now();
         // Background
         const bgCfg = this.SETTINGS.background;
         if (bgCfg.mode === 'color') {
@@ -53,106 +49,289 @@ export default class Game extends ParentScene {
             });
         }
 
-        const L   = this.SETTINGS.layout;
-        const cfg = this.SETTINGS.deckStack;
+        const L = this.SETTINGS.layout;
+        const grid = this.SETTINGS.grid;
         const anim = this.SETTINGS.animations;
 
-        // Drop zones are derived from cardTypes and layout dropZone positions.
-        const zonePositions = new Map(L.dropZones.map((dz) => [dz.type, dz]));
-        this._dropZones = this.SETTINGS.cardTypes.map((typeDef) => {
-            const zoneLayout = zonePositions.get(typeDef.type);
-            if (!zoneLayout) {
-                throw new Error(`Missing layout.dropZones entry for type '${typeDef.type}'`);
-            }
-            return new DropZone({
-                scene: this,
-                label: typeDef.label,
-                type: typeDef.type,
-                cx: zoneLayout.cx,
-                cy: zoneLayout.cy,
-                target: typeDef.target,
-                container: this.mainContainer,
-                onComplete: () => this._checkWin()
-            });
-        });
+        // Ensure card glow texture exists
+        if (!this.textures.exists('card_glow_tex')) {
+            const glowW = 200;
+            const glowH = 240;
+            const glowTex = this.textures.createCanvas('card_glow_tex', glowW, glowH);
+            const gCtx = glowTex.context;
+            const padX = 35;
+            const padY = 35;
+            const rectW = glowW - padX * 2;
+            const rectH = glowH - padY * 2;
+            const rad = 22;
+
+            gCtx.shadowColor = '#ffea55';
+            gCtx.shadowBlur = 25;
+            gCtx.lineWidth = 6;
+            gCtx.strokeStyle = '#ffffff';
+            gCtx.fillStyle = 'rgba(255, 234, 85, 0.35)';
+
+            gCtx.beginPath();
+            gCtx.moveTo(padX + rad, padY);
+            gCtx.lineTo(padX + rectW - rad, padY);
+            gCtx.quadraticCurveTo(padX + rectW, padY, padX + rectW, padY + rad);
+            gCtx.lineTo(padX + rectW, padY + rectH - rad);
+            gCtx.quadraticCurveTo(padX + rectW, padY + rectH, padX + rectW - rad, padY + rectH);
+            gCtx.lineTo(padX + rad, padY + rectH);
+            gCtx.quadraticCurveTo(padX, padY + rectH, padX, padY + rectH - rad);
+            gCtx.lineTo(padX, padY + rad);
+            gCtx.quadraticCurveTo(padX, padY, padX + rad, padY);
+            gCtx.closePath();
+
+            gCtx.fill();
+            gCtx.stroke();
+            glowTex.refresh();
+        }
 
         // Moves counter
-        this.movesCounter = new MovesCounter({
-            scene: this, moves: this.SETTINGS.game.startingMoves,
-            cx: L.movesCounter.cx, cy: L.movesCounter.cy,
+        if (L.movesCounter) {
+            this.movesCounter = new MovesCounter({
+                scene: this, moves: this.SETTINGS.game.startingMoves,
+                cx: L.movesCounter.cx, cy: L.movesCounter.cy,
+                alpha: L.movesCounter.alpha,
+                container: this.mainContainer
+            });
+        }
+
+        const startX = L.startX !== undefined ? L.startX : -225;
+        const spacingX = L.spacingX !== undefined ? L.spacingX : 150;
+        const targetCards = this.SETTINGS.game.cardsPerColumn || 5;
+
+        // Draw Game Board with Rounded Corners and Fading Gradient
+        const frame = this.SETTINGS.boardFrame || {};
+        const sidePadding = frame.sidePadding !== undefined ? frame.sidePadding : 25;
+        const topPadding = frame.topPadding !== undefined ? frame.topPadding : 25;
+        const radius = frame.borderRadius !== undefined ? frame.borderRadius : 28;
+        const strokeWidth = frame.borderWidth !== undefined ? frame.borderWidth : 6;
+
+        const fillGradCfg = frame.fillGradient || {};
+        const fillTopColor = fillGradCfg.topColor || 'rgba(86, 170, 255, 0.95)';
+        const fillMidColor = fillGradCfg.midColor || 'rgba(86, 170, 255, 0.6)';
+        const fillMidStop = fillGradCfg.midStop !== undefined ? fillGradCfg.midStop : 0.65;
+        const fillBottomColor = fillGradCfg.bottomColor || 'rgba(86, 170, 255, 0)';
+
+        const borderGradCfg = frame.borderGradient || {};
+        const borderTopColor = borderGradCfg.topColor || 'rgba(255, 255, 255, 1)';
+        const borderMidColor = borderGradCfg.midColor || 'rgba(255, 255, 255, 0.5)';
+        const borderMidStop = borderGradCfg.midStop !== undefined ? borderGradCfg.midStop : 0.7;
+        const borderBottomColor = borderGradCfg.bottomColor || 'rgba(255, 255, 255, 0)';
+
+        const boardWidth = spacingX * L.columns.length + 20 + (sidePadding * 2);
+        const boardHeight = L.spacingY * (targetCards - 1) + 240 + topPadding;
+        const boardX = startX - spacingX / 2 - 10 - sidePadding + boardWidth / 2;
+        const boardY = L.startY - 100 - topPadding + boardHeight / 2;
+
+        if (this.textures.exists('board_bg_tex')) {
+            this.textures.remove('board_bg_tex');
+        }
+        const canvasTex = this.textures.createCanvas('board_bg_tex', boardWidth, boardHeight);
+        const ctx = canvasTex.context;
+
+        // Path for rounded rectangle
+        const x = strokeWidth / 2;
+        const y = strokeWidth / 2;
+        const w = boardWidth - strokeWidth;
+        const h = boardHeight - strokeWidth;
+
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+
+        // Linear gradient: blue top -> transparent bottom
+        const grad = ctx.createLinearGradient(0, 0, 0, boardHeight);
+        grad.addColorStop(0, fillTopColor);
+        grad.addColorStop(fillMidStop, fillMidColor);
+        grad.addColorStop(1, fillBottomColor);
+
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Fading rounded border
+        const borderGrad = ctx.createLinearGradient(0, 0, 0, boardHeight);
+        borderGrad.addColorStop(0, borderTopColor);
+        borderGrad.addColorStop(borderMidStop, borderMidColor);
+        borderGrad.addColorStop(1, borderBottomColor);
+
+        ctx.lineWidth = strokeWidth;
+        ctx.strokeStyle = borderGrad;
+        ctx.stroke();
+
+        canvasTex.refresh();
+
+        const boardBg = this.add.image(0, 0, 'board_bg_tex');
+        boardBg.setDepth(1);
+        boardBg.addProperties(['pos', 'scale']);
+        boardBg.px = boardX; boardBg.py = boardY;
+        boardBg.lx = boardX; boardBg.ly = boardY;
+        boardBg.setCustomPosition(boardX, boardY).setAlign('Center');
+        this.boardBg = boardBg;
+        this.mainContainer.add(boardBg);
+
+        // Initialize Columns
+        this.columnHeaders = [];
+        for (let c = 0; c < L.columns.length; c++) {
+            const colData = L.columns[c];
+            const colArray = [];
+            this.columns.push(colArray);
+
+            const colCx = colData.cx !== undefined ? colData.cx : (startX + c * spacingX);
+
+            // Column Header
+            let header = null;
+            if (this.SETTINGS.cardTypes && this.SETTINGS.cardTypes[c]) {
+                const labelStr = this.SETTINGS.cardTypes[c].label;
+                const headerY = L.startY + (grid.categoryLabelOffsetY !== undefined ? grid.categoryLabelOffsetY : -80);
+                const textStyle = {
+                    fontFamily: grid.categoryLabelFontFamily,
+                    fontSize: grid.categoryLabelFontSize,
+                    fontStyle: grid.categoryLabelFontStyle,
+                    color: grid.categoryLabelTextColor,
+                    stroke: grid.categoryLabelStroke,
+                    strokeThickness: grid.categoryLabelStrokeThickness
+                };
+                if (grid.categoryLabelLetterSpacing && grid.categoryLabelLetterSpacing > 0) {
+                    header = this.add.container(0, 0);
+                    let chars = labelStr.split('');
+                    let totalWidth = 0;
+                    let textObjs = [];
+                    for (let i = 0; i < chars.length; i++) {
+                        let t = this.add.text(0, 0, chars[i], textStyle).setOrigin(0, 0.5);
+                        textObjs.push(t);
+                        header.add(t);
+                        t.x = totalWidth;
+                        totalWidth += t.width + grid.categoryLabelLetterSpacing;
+                    }
+                    totalWidth -= grid.categoryLabelLetterSpacing;
+                    for (let i = 0; i < textObjs.length; i++) {
+                        textObjs[i].x -= totalWidth / 2;
+                    }
+                    header.setDepth(2);
+                    header.setAlign = function() { return this; };
+                    header.setOrigin = function() { return this; };
+                } else {
+                    header = this.add.text(0, 0, labelStr, textStyle).setOrigin(0.5).setDepth(2);
+                }
+                header.addProperties(['pos', 'scale']);
+                header.px = colCx; header.py = headerY;
+                header.lx = colCx; header.ly = headerY;
+                header.setCustomPosition(colCx, headerY).setAlign('Center');
+                this.mainContainer.add(header);
+            }
+            this.columnHeaders.push(header);
+
+            // Down Arrow Animation
+            const arrowSettings = this.SETTINGS.arrowAnimation || {};
+            const arrowCount = arrowSettings.count !== undefined ? arrowSettings.count : 3;
+            const arrowScale = arrowSettings.scale !== undefined ? arrowSettings.scale : 1;
+            const arrowOffsetX = arrowSettings.offsetX || 0;
+            const arrowOffsetY = arrowSettings.offsetY !== undefined ? arrowSettings.offsetY : -45;
+            const arrowDistance = arrowSettings.distance !== undefined ? arrowSettings.distance : 90;
+            const arrowDuration = arrowSettings.durationMs !== undefined ? arrowSettings.durationMs : 1800;
+            const arrowDepth = arrowSettings.depth !== undefined ? arrowSettings.depth : 0;
+
+            const baseArrowX = colCx + arrowOffsetX;
+            const baseArrowY = (L.startY - 100) + boardHeight + arrowOffsetY;
+            const staggerDelay = arrowCount > 0 ? arrowDuration / arrowCount : 0;
+
+            for (let i = 0; i < arrowCount; i++) {
+                this.time.delayedCall(i * staggerDelay, () => {
+                    if (!this.mainContainer) return;
+                    const arrow = this.add.sprite(0, 0, 'down_arrow').setDepth(arrowDepth);
+                    arrow.addProperties(['pos', 'scale']);
+                    arrow.pScaleX = arrow.pScaleY = arrow.lScaleX = arrow.lScaleY = arrowScale;
+                    arrow.setScale(arrowScale);
+                    arrow.px = baseArrowX; arrow.py = baseArrowY;
+                    arrow.lx = baseArrowX; arrow.ly = baseArrowY;
+                    arrow.alpha = 0; // Start fully transparent
+                    arrow.setCustomPosition(baseArrowX, baseArrowY).setAlign('Center');
+                    
+                    const bgIdx = this.boardBg ? this.mainContainer.getIndex(this.boardBg) : 0;
+                    this.mainContainer.addAt(arrow, Math.max(0, bgIdx + 1));
+                    this.tweens.add({
+                        targets: arrow,
+                        py: baseArrowY + arrowDistance,
+                        ly: baseArrowY + arrowDistance,
+                        alpha: { value: 1, duration: arrowDuration / 2, yoyo: true },
+                        duration: arrowDuration,
+                        repeat: -1
+                    });
+                });
+            }
+
+            // Create visual highlight area for the column
+            const cardScale = this.SETTINGS.card?.faceScale || 0.38;
+            const cardW = 130 * cardScale;
+            const cardH = 170 * cardScale;
+            const autoWidth = (grid.hitAreaWidth !== undefined && grid.hitAreaWidth > 0) ? grid.hitAreaWidth : cardW;
+            const autoHeight = (grid.hitAreaHeight !== undefined && grid.hitAreaHeight > 0) ? grid.hitAreaHeight : (((targetCards - 1) * L.spacingY) + cardH);
+            const hitCy = L.startY + (((targetCards - 1) / 2) * L.spacingY) + (grid.hitAreaOffsetY || 0);
+
+            const hitArea = this.add.image(0, 0, 'card_front_bg');
+            hitArea.addProperties(['pos', 'scale', 'alpha']);
+            hitArea.px = colCx; hitArea.py = hitCy;
+            hitArea.lx = colCx; hitArea.ly = hitCy;
+            hitArea.setCustomPosition(colCx, hitCy).setAlign('Center');
+            hitArea.setDisplaySize(autoWidth, autoHeight);
+            
+            const targetAlpha = (grid.hitAreaAlpha !== undefined && grid.hitAreaAlpha > 0) ? grid.hitAreaAlpha : 0.0001;
+            hitArea.pAlpha = targetAlpha;
+            hitArea.lAlpha = targetAlpha;
+            hitArea.setAlpha(targetAlpha);
+
+            if (grid.hitAreaColor) {
+                const colorInt = parseInt(grid.hitAreaColor.replace('#', '0x'), 16);
+                hitArea.setTint(colorInt);
+            }
+            hitArea.setDepth(1);
+            this.mainContainer.add(hitArea);
+
+            // Populate initial cards
+            if (colData.cards) {
+                for (let r = 0; r < colData.cards.length; r++) {
+                    const cardData = colData.cards[r];
+                    const cy = L.startY + r * L.spacingY;
+                    const card = new Card({
+                        scene: this,
+                        type: cardData.type,
+                        icon: cardData.icon,
+                        cx: colCx,
+                        cy: cy,
+                        isFaceUp: false,
+                        container: this.mainContainer
+                    });
+                    card.columnIndex = c;
+                    card.setDepth(grid.gridCardDepth + r);
+                    colArray.push(card);
+                }
+            }
+        }
+
+        // Initialize Active Card (Gradient Card at bottom)
+        const initActive = L.initialActiveCard || { type: "gradient", icon: "gradient" };
+        this.activeCard = new Card({
+            scene: this,
+            type: initActive.type,
+            icon: initActive.icon,
+            cx: L.bottomCell.cx,
+            cy: L.bottomCell.cy,
+            isFaceUp: false,
             container: this.mainContainer
         });
-
-        // Decks – each has 2 static shadow cards + 1 interactive face-down top card
-        this._decks = [];
-        this._initialTopCards = [];
-
-        for (const deckData of L.decks) {
-            const { cx, cy, cards = [] } = deckData;
-            const totalCards = cards.length;
-            const topIndex = Math.max(0, totalCards - 1);
-            const topData = cards[topIndex];
-
-            const remainingCards = cards.slice(0, topIndex);
-            const shadowImages = [];
-            let topCardCx = cx;
-            let topCardCy = cy;
-
-            if (totalCards === 2) {
-                topCardCx = cx + cfg.shadowMiddleOffsetCx;
-                topCardCy = cy + cfg.shadowMiddleOffsetCy;
-                if (remainingCards.length === 1) {
-                    shadowImages.push(this._addShadowCard(
-                        cx + cfg.shadowBottomOffsetCx, cy + cfg.shadowBottomOffsetCy, cfg.shadowBottomDepth
-                    ));
-                }
-            } else if (totalCards === 1) {
-                topCardCx = cx + cfg.shadowBottomOffsetCx;
-                topCardCy = cy + cfg.shadowBottomOffsetCy;
-            } else if (remainingCards.length >= 2) {
-                shadowImages.push(this._addShadowCard(
-                    cx + cfg.shadowBottomOffsetCx, cy + cfg.shadowBottomOffsetCy, cfg.shadowBottomDepth
-                ));
-                shadowImages.push(this._addShadowCard(
-                    cx + cfg.shadowMiddleOffsetCx, cy + cfg.shadowMiddleOffsetCy, cfg.shadowMiddleDepth
-                ));
-            } else if (remainingCards.length === 1) {
-                shadowImages.push(this._addShadowCard(
-                    cx + cfg.shadowMiddleOffsetCx, cy + cfg.shadowMiddleOffsetCy, cfg.shadowMiddleDepth
-                ));
-            }
-
-            if (!topData) {
-                // If a deck has no cards, skip creating an active top card.
-                this._decks.push({
-                    name: deckData.name, cx, cy,
-                    remaining: remainingCards,
-                    shadowImages,
-                    activeCard: null
-                });
-                continue;
-            }
-
-            const topCard = new Card({
-                scene: this,
-                type: topData.type, icon: topData.icon,
-                cx: topCardCx, cy: topCardCy,
-                isFaceUp: false,
-                container: this.mainContainer,
-                onDrop:     (dropped) => this._onCardDrop(dropped),
-                onDragMove: (dragged) => this._onCardDragMove(dragged)
-            });
-            topCard.deckIndex = this._decks.length;
-            topCard.setDepth(cfg.topCardDepthFaceDown);
-
-            this._decks.push({
-                name: deckData.name, cx, cy,
-                remaining: remainingCards,
-                shadowImages,
-                activeCard: topCard
-            });
-            this._initialTopCards.push(topCard);
-        }
+        this.activeCard.columnIndex = -1;
+        this.activeCard.setDepth(grid.activeCardDepth);
 
         // Final window (hidden until end-state)
         this.finalWindow = new FinalWindow({
@@ -161,23 +340,37 @@ export default class Game extends ParentScene {
             onCta:     () => this._onCta()
         });
 
+        // Launch the persistent TimerScene (no-op if already active from a prior scene)
+        if (!this.scene.isActive('TimerScene')) {
+            this.scene.launch('TimerScene');
+        }
+
         // Trigger resize, set up listener, then show start screen
         setTimeout(() => {
             if (!this.scene || !this.scene.key) return; // Scene already shutdown
-
-            const resizeStart = performance.now();
             this._resize();
-            const resizeEnd = performance.now();
-
             this.scale.on('resize', () => setTimeout(() => {
                 if (this.scene && this.scene.key) this._resize();
             }, anim.resizeDebounceMs));
             
-            // Launch gameplay immediately every time.
             if (!window.App.hasGameStarted) {
                 window.App.hasGameStarted = true;
             }
-            this._flipAllTopCards();
+
+            const timerScene = this.scene.get('TimerScene');
+            const onTimeout = () => {
+                if (!this.gameOver) {
+                    this.gameOver = true;
+                    this.helper?.kill();
+                    this.helper = null;
+                    this._triggerEnd();
+                }
+            };
+            if (timerScene) {
+                timerScene.launchTimer(onTimeout, () => this._flipAllCards());
+            } else {
+                this._flipAllCards();
+            }
         }, anim.resizeDebounceMs);
 
         this.events.once('shutdown', () => {
@@ -185,266 +378,249 @@ export default class Game extends ParentScene {
             this.input.removeAllListeners();
             this.scale.removeAllListeners('resize');
         });
-
-        const initEnd = performance.now();
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Deck helpers
-    // ─────────────────────────────────────────────────────────────────────────
-
-    /** Create a static back-facing shadow image and return it. */
-    _addShadowCard(cx, cy, depth) {
-        const img = this.add.image(0, 0, 'card_back_bg')
-            .setScale(this.SETTINGS.card.faceScale)
-            .setDepth(depth);
-        img.cx = cx;
-        img.cy = cy;
-        this.mainContainer.add(img);
-        return img;
-    }
-
-    /** Flip each deck’s top card one after another with a random staggered delay. */
-    _flipAllTopCards() {
-        const anim = this.SETTINGS.animations;
-        const cfg  = this.SETTINGS.deckStack;
-        
-        // The first-ever gameplay reveal gets the initial slow stagger; all later levels are immediate.
-        const isFirstLevel = !!window.App.shouldDoInitialReveal;
-        window.App.shouldDoInitialReveal = false;
-        let delay = isFirstLevel ? anim.flipRevealInitialDelayMs : 0;
-        const startTime = performance.now();
+    _flipAllCards() {
+        let delay = 0;
         let completed = 0;
-        const totalCards = this._initialTopCards.length;
-
-        for (const card of this._initialTopCards) {
-            const scheduledDelay = delay;
-            this.time.delayedCall(scheduledDelay, () => {
-                const flipStart = performance.now();
+        
+        let allCards = [this.activeCard];
+        for (const col of this.columns) {
+            allCards = allCards.concat(col);
+        }
+        
+        for (const card of allCards) {
+            this.time.delayedCall(delay, () => {
                 card.flip(() => {
-                    card.setDepth(cfg.topCardDepthFaceUp);
-                    card.enableDrag();
                     completed += 1;
-                    const flipEnd = performance.now();
-                    if (completed === totalCards) {
+                    if (completed === allCards.length) {
+                        this._checkCompletedColumns();
                         this.helper = new Helper({ scene: this, container: this.mainContainer });
-                        this.helper.startGameplay(
-                            () => this._decks.map(d => d.activeCard).filter(Boolean),
-                            this._dropZones
-                        );
+                        this.helper.startCustomOnboarding(this.columnHeaders, this.columns);
                     }
                 });
             });
-
-            if (isFirstLevel) {
-                const range = anim.flipRevealMaxIntervalMs - anim.flipRevealMinIntervalMs + 1;
-                delay += anim.flipRevealMinIntervalMs + Math.floor(Math.random() * range);
-            } else {
-                // Very small stagger for subsequent levels so they feel "immediate" but still distinct
-                delay += 50; 
-            }
+            delay += 30; // Quick stagger
         }
     }
 
-    /**
-     * After a card is correctly sorted, reveal the next card in that deck.
-     * Destroys the topmost shadow image and spawns a new face-down Card at the
-     * canonical deck position, which then flips face-up.
-     */
-    _revealNextCard(deckIndex) {
-        const deck = this._decks[deckIndex];
-        const cardData  = deck.remaining.pop();    // matching card definition
-        if (!cardData) return; // no more cards in the deck
+    _onColumnTapped(colIndex) {
+        if (this.gameOver || this.isAnimating || !this.isTutorialReady) return;
+        
+        const col = this.columns[colIndex];
+        if (!col || col.length === 0 || col.isCompleted) return;
 
-        const shadowImg = deck.shadowImages.pop(); // topmost shadow (middle, then bottom)
-        const spawnCx = shadowImg ? shadowImg.cx : deck.cx;
-        const spawnCy = shadowImg ? shadowImg.cy : deck.cy;
+        this.isAnimating = true;
+        Utils.addAudio(this, 'swoosh', 1.0);
 
-        const cfg  = this.SETTINGS.deckStack;
-        const anim = this.SETTINGS.animations;
+        if (this.movesCounter) {
+            this.movesCounter.decrement();
+        }
 
-        this.time.delayedCall(anim.revealNextCardDelayMs, () => {
-            const newCard = new Card({
-                scene: this,
-                type: cardData.type, icon: cardData.icon,
-                cx: spawnCx, cy: spawnCy,
-                isFaceUp: false,
-                container: this.mainContainer,
-                onDrop:     (dropped) => this._onCardDrop(dropped),
-                onDragMove: (dragged) => this._onCardDragMove(dragged)
+        const L = this.SETTINGS.layout;
+        const grid = this.SETTINGS.grid;
+        
+        // Remove bottom card from column (last item in array = row 3)
+        const poppedCard = col.pop();
+        poppedCard.columnIndex = -1;
+        
+        // Add active card to top of column (first item in array = row 0)
+        const insertingCard = this.activeCard;
+        insertingCard.columnIndex = colIndex;
+        col.unshift(insertingCard);
+
+        // Update column index for all cards in this column
+        for (let r = 0; r < col.length; r++) {
+            col[r].columnIndex = colIndex;
+        }
+        
+        // Update new active card
+        this.activeCard = poppedCard;
+
+        let completedAnims = 0;
+        const totalAnims = col.length + 1; // 4 cards in column + 1 popped active card
+
+        const onAnimComplete = () => {
+            completedAnims++;
+            if (completedAnims === totalAnims) {
+                this.isAnimating = false;
+                this._checkCompletedColumns();
+                if (!this._checkWin()) {
+                    this._checkLose();
+                }
+                this.helper?.notifySwapComplete(this.activeCard, this.columnHeaders, this.columns);
+            }
+        };
+
+        const targetCx = col.cx !== undefined ? col.cx : (L.startX !== undefined ? L.startX + colIndex * (L.spacingX || 150) : L.columns[colIndex].cx);
+
+        const swapAnim = this.SETTINGS.swapAnimation || {
+            liftDurationMs: 200, dropDurationMs: 250, shiftDurationMs: 350, returnDurationMs: 450, liftDistancePx: 40, maxTiltAngle: 8
+        };
+
+        // Bring poppedCard and insertingCard to the top of mainContainer (poppedCard below insertingCard)
+        this.mainContainer.bringToTop(poppedCard);
+        this.mainContainer.bringToTop(insertingCard);
+        this.helper?._ensureFingerTop();
+
+        poppedCard.setDepth(grid.activeCardDepth + 4);
+        insertingCard.setDepth(grid.activeCardDepth + 5);
+
+        // Animate insertingCard to row 0 (lift, tilt, drop)
+        insertingCard.advancedMoveTo({
+            newCx: targetCx,
+            newCy: L.startY,
+            liftDistance: swapAnim.liftDistancePx,
+            liftDuration: swapAnim.liftDurationMs,
+            duration: swapAnim.dropDurationMs,
+            ease: 'Cubic.easeOut',
+            angle: swapAnim.maxTiltAngle,
+            onComplete: () => {
+                insertingCard.setDepth(grid.gridCardDepth); // Reset depth after drop
+                onAnimComplete();
+            }
+        });
+
+        const shiftDelay = swapAnim.shiftDelayMs !== undefined ? swapAnim.shiftDelayMs : swapAnim.liftDurationMs;
+        const returnDelay = swapAnim.returnDelayMs !== undefined ? swapAnim.returnDelayMs : swapAnim.liftDurationMs;
+
+        // Animate remaining cards in column to shift down simultaneously
+        for (let r = 1; r < col.length; r++) {
+            const card = col[r];
+            card.setDepth(grid.gridCardDepth + r);
+            card.advancedMoveTo({
+                newCx: targetCx,
+                newCy: L.startY + r * L.spacingY,
+                duration: swapAnim.shiftDurationMs,
+                delay: shiftDelay,
+                ease: 'Cubic.easeOut',
+                onComplete: onAnimComplete
             });
-            newCard.deckIndex = deckIndex;
-            newCard.setDepth(cfg.topCardDepthFaceDown);
-            deck.activeCard = newCard;
+        }
 
-            // Destroy the shadow at the exact moment the flip begins so
-            // the old card-back-bg is never missing from the deck position.
-            if (shadowImg) shadowImg.destroy();
-            newCard.flip(() => {
-                newCard.setDepth(cfg.topCardDepthFaceUp);
-                newCard.enableDrag();
-            });
+        // Animate poppedCard to bottom cell (inertia move back)
+        poppedCard.advancedMoveTo({
+            newCx: L.bottomCell.cx,
+            newCy: L.bottomCell.cy,
+            duration: swapAnim.returnDurationMs,
+            delay: returnDelay,
+            ease: 'Power3.easeOut', // Smooth inertia
+            onComplete: onAnimComplete
         });
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Drop handling
-    // ─────────────────────────────────────────────────────────────────────────
+    _checkCompletedColumns() {
+        if (this.gameOver) return;
 
-    _onCardDragMove(card) {
-        const bestZone = this._bestHoverZone(card);
-        this._dropZones.forEach((zone) => zone.setHighlight(zone === bestZone));
-    }
+        const targetCards = this.SETTINGS.game.cardsPerColumn || 5;
 
-    _onCardDrop(card) {
-        // Clear hover highlights whenever a drag ends
-        this._dropZones.forEach((zone) => zone.setHighlight(false));
+        for (let c = 0; c < this.columns.length; c++) {
+            const col = this.columns[c];
+            if (col.isCompleted) continue;
+            if (col.length !== targetCards) continue;
 
-        if (this.gameOver) {
-            card.shakeAndReturn();
-            return;
-        }
+            const firstType = col[0].type;
+            if (!firstType || firstType === 'gradient') continue;
 
-        const remaining = this.movesCounter.decrement();
-        const zone      = this._hitZone(card);
-
-        if (zone) {
-            if (card.type === zone.type) {
-                // ── Correct sort ──
-                Utils.addAudio(this, 'pop', 0.8);
-                card.disableDrag();
-                this._acceptedCards.push(card);
-                zone.acceptCard(card);
-                // Flip the next card in this deck
-                if (card.deckIndex !== undefined) this._revealNextCard(card.deckIndex);
-                this.helper?.notifyCorrectMove();
-            } else {
-                // ── Wrong zone ──
-                Utils.addAudio(this, 'fail', 0.8);
-                card.shakeAndReturn();
-            }
-        } else {
-            card.shakeAndReturn();
-        }
-
-        if (remaining <= 0 && !this.gameOver) {
-            this.time.delayedCall(this.SETTINGS.animations.lossDelayMs, () => this._triggerEnd());
-        }
-    }
-
-    /** Returns the zone with the highest overlap score, or null. */
-    _bestHoverZone(card) {
-        let bestZone = null;
-        let bestScore = 0;
-
-        for (const zone of this._dropZones) {
-            const score = this._zoneOverlapScore(zone, card);
-            if (score > bestScore) {
-                bestScore = score;
-                bestZone = zone;
+            const allMatch = col.every(card => card.type === firstType && card.type !== 'gradient');
+            if (allMatch) {
+                this._assembleColumn(col, c);
             }
         }
-
-        return bestZone;
     }
 
-    _zoneOverlapScore(zone, card) {
-        const cardW = (card.width || 0) * (card.scaleX || 1);
-        const cardH = (card.height || 0) * (card.scaleY || 1);
-        const cardMinX = card.x - cardW * 0.5;
-        const cardMaxX = card.x + cardW * 0.5;
-        const cardMinY = card.y - cardH * 0.5;
-        const cardMaxY = card.y + cardH * 0.5;
+    _assembleColumn(col, colIndex) {
+        col.isCompleted = true;
+        for (const card of col) {
+            card.isLocked = true;
+        }
 
-        const zoneMinX = zone.x - zone.hitHalfW;
-        const zoneMaxX = zone.x + zone.hitHalfW;
-        const zoneMinY = zone.y - zone.hitHalfH;
-        const zoneMaxY = zone.y + zone.hitHalfH;
+        Utils.addAudio(this, 'column_win', 1.0);
 
-        const overlapW = Math.max(0, Math.min(cardMaxX, zoneMaxX) - Math.max(cardMinX, zoneMinX));
-        const overlapH = Math.max(0, Math.min(cardMaxY, zoneMaxY) - Math.max(cardMinY, zoneMinY));
-        return overlapW * overlapH;
+        // Apply wave pulse animation sequentially across cards from top to bottom
+        for (let i = 0; i < col.length; i++) {
+            const card = col[i];
+            const delay = i * 140;
+
+            this.time.delayedCall(delay, () => {
+                this.tweens.add({
+                    targets: card,
+                    scaleX: 1.15,
+                    scaleY: 1.15,
+                    duration: 160,
+                    yoyo: true,
+                    ease: 'Cubic.easeOut',
+                    onComplete: () => {
+                        // After wave pulse completes, start card-flame-bg glow & floating effect
+                        card.showGlow(i * 120);
+                    }
+                });
+            });
+        }
     }
-
-    /** Returns the zone the card is most over, or null. */
-    _hitZone(card) {
-        return this._bestHoverZone(card);
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // Win / lose
-    // ─────────────────────────────────────────────────────────────────────────
 
     _checkWin() {
-        if (this._dropZones.every((zone) => zone.isComplete) && !this.gameOver) {
-            this.gameOver = true;
-            Utils.addAudio(this, 'win', 1);
-            this._runBubblePopSequence(() => this._triggerEnd());
+        if (this.gameOver) return false;
+
+        const targetCards = this.SETTINGS.game.cardsPerColumn || 4;
+        let isWon = true;
+        for (const col of this.columns) {
+            if (col.length !== targetCards) {
+                isWon = false;
+                break;
+            }
+            const firstType = col[0].type;
+            if (firstType === 'gradient') {
+                isWon = false;
+                break;
+            }
+            for (const card of col) {
+                if (card.type !== firstType || card.type === 'gradient') {
+                    isWon = false;
+                    break;
+                }
+            }
         }
+
+        if (isWon) {
+            this.gameOver = true;
+            this._triggerEnd();
+        }
+        
+        return isWon;
     }
 
-    /**
-     * Sequentially pop each accepted card with a soap-bubble burst animation
-     * (scale × 1.5 + fade out), playing a 'pop' sound per card.
-     * Calls onComplete after the last card disappears.
-     */
-    _runBubblePopSequence(onComplete) {
-        // Deck cards (face-up active cards + shadow back-images) pop first,
-        // then the accepted (sorted) cards inside the drop zones.
-        const targets = [];
-        for (const deck of this._decks) {
-            if (deck.activeCard && !this._acceptedCards.includes(deck.activeCard)) {
-                targets.push(deck.activeCard);
-            }
-            for (const shadow of deck.shadowImages) {
-                targets.push(shadow);
-            }
-        }
-        targets.push(...this._acceptedCards);
-
-        if (targets.length === 0) { onComplete(); return; }
-
-        let index = 0;
-        const next = () => {
-            if (index >= targets.length) { onComplete(); return; }
-
-            const target = targets[index++];
-            // Guard against objects destroyed between scheduling and execution
-            if (!target || !target.scene) { next(); return; }
-
-            const sx = target.scaleX * 1.5;
-            const sy = target.scaleY * 1.5;
-
-            Utils.addAudio(this, 'pop', 1.0);
-            this.tweens.killTweensOf(target);
-            this.tweens.add({
-                targets:  target,
-                scaleX:   sx,
-                scaleY:   sy,
-                alpha:    0,
-                duration: 280,
-                ease:     'Power2.Out',
-                onComplete: () => { if (target.scene) target.setVisible(false); }
+    _checkLose() {
+        if (this.gameOver) return;
+        if (this.movesCounter && this.movesCounter.remaining <= 0) {
+            this.gameOver = true;
+            Utils.addAudio(this, 'lose', 1);
+            this.time.delayedCall(this.SETTINGS.animations.lossDelayMs || 600, () => {
+                this._triggerEnd();
             });
-
-            this.time.delayedCall(120, next);
-        };
-        next();
+        }
     }
 
     _triggerEnd() {
-        this.gameOver = true;
-        this.time.delayedCall(this.SETTINGS.animations.endScreenDelayMs, () => {
+        this.time.delayedCall(this.SETTINGS.animations.endScreenDelayMs || 400, () => {
             this.helper?.kill();
             this.helper = null;
-            window.App.stateManager.markCompleted(this._sceneId);
-            if (window.App.stateManager.isFlowComplete()) {
-                this.finalWindow.show();
-                this.helper = new Helper({ scene: this, container: this.mainContainer });
-                this.helper.startFinalScreen(this.finalWindow.btnFin);
+            if (window.App.stateManager && window.App.stateManager.isFlowComplete) {
+                window.App.stateManager.markCompleted(this._sceneId);
+                if (window.App.stateManager.isFlowComplete()) {
+                    window.App.timerScene?.stopTimer();
+                    window.App.timerScene?.hideTimer();
+                    this.finalWindow.show();
+                    this.helper = new Helper({ scene: this, container: this.mainContainer });
+                    this.helper.startFinalScreen(this.finalWindow.btnFin);
+                } else {
+                    this.scene.stop();
+                    this.scene.start('TransitionScene');
+                }
             } else {
-                this.scene.stop();
-                this.scene.start('TransitionScene');
+                window.App.timerScene?.stopTimer();
+                window.App.timerScene?.hideTimer();
+                this.finalWindow.show();
             }
         });
     }
@@ -453,15 +629,6 @@ export default class Game extends ParentScene {
         window.App.network.ctaClick();
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Settings merge
-    // ─────────────────────────────────────────────────────────────────────────
-
-    /**
-     * Deep-merge two plain objects.  Arrays in `override` replace arrays in
-     * `base` wholesale so that scene-specific deck arrays are not partially
-     * blended with the base deck array.
-     */
     _deepMerge(base, override) {
         const result = Object.assign({}, base);
         for (const key of Object.keys(override)) {
@@ -476,10 +643,6 @@ export default class Game extends ParentScene {
         }
         return result;
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // Resize
-    // ─────────────────────────────────────────────────────────────────────────
 
     _resize() {
         if (!this.game) return;

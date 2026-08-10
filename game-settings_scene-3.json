@@ -1,191 +1,244 @@
 {
   "_comment": "Global settings for the Category Sort playable. All placement, scale, and animation values live here.",
-
   "game": {
-    "startingMoves": 161
+    "startingMoves": 4,
+    "cardsPerColumn": 5,
+    "gameFinalTime": 0
   },
-
   "cardTypes": [
     {
-      "type": "past",
-      "label": "Past",
-      "iconPrefix": "past_",
-      "iconCount": 4,
+      "type": "family",
+      "label": "Family",
+      "iconPrefix": "family_",
+      "iconCount": 5,
+      "target": 1
+    },
+    {
+      "type": "food",
+      "label": "Food",
+      "iconPrefix": "food_",
+      "iconCount": 5,
+      "target": 2
+    },
+    {
+      "type": "wealth",
+      "label": "Wealth",
+      "iconPrefix": "wealth_",
+      "iconCount": 5,
+      "target": 3
+    },
+    {
+      "type": "pink_cat",
+      "label": "Pink Cat",
+      "iconPrefix": "pink_cat_",
+      "iconCount": 5,
       "target": 4
     },
     {
-      "type": "present",
-      "label": "Present",
-      "iconPrefix": "present_",
-      "iconCount": 4,
-      "target": 4
-    },
-    {
-      "type": "future",
-      "label": "Future",
-      "iconPrefix": "future_",
-      "iconCount": 4,
-      "target": 4
+      "type": "pets",
+      "label": "Pets",
+      "iconPrefix": "pets_",
+      "iconCount": 5,
+      "target": 5
     }
   ],
-
   "background": {
-    "mode": "color",
-    "color": "#6fd7c8",
-    "pImage": "main_bg",
-    "lImage": "main_bg",
+    "mode": "image",
+    "color": "#dfaa6c",
+    "pImage": "wood_bg",
+    "lImage": "wood_bg",
     "pScaleX": 1.05,
     "pScaleY": 1.05,
     "lScaleX": 2.1,
     "lScaleY": 2.1
   },
-
   "layout": {
-    "deckCount": 8,
-    "movesCounter": { "cx": 0, "cy": -400 },
-    "dropZones": [
-      { "type": "past",    "cx": 0, "cy": -200 },
-      { "type": "present", "cx": 0, "cy": 0 },
-      { "type": "future",  "cx": 0, "cy": 200 }
-    ],
-
-    "ctaButton": {
-      "portraitX":  0, "portraitY": -80,
-      "landscapeX": 0, "landscapeY": -60,
-      "scale": 0.5
+    "startX": -200,
+    "spacingX": 100,
+    "startY": -340,
+    "spacingY": 130,
+    "bottomCell": {
+      "cx": 0,
+      "cy": 390
     },
-
-    "decks": [
+    "initialActiveCard": {
+      "type": "gradient",
+      "icon": "gradient"
+    },
+    "movesCounter": {
+      "cx": -170,
+      "cy": 424,
+      "alpha": 1
+    },
+    "columns": [
       {
-        "name": 1,
-        "cx": -162, "cy": -272,
         "cards": [
-          { "type": "future", "icon": "future_5"},
-          { "type": "present", "icon": "present_5"},
-          { "type": "past", "icon": "past_1"}
+          {
+            "type": "family",
+            "icon": "family_4"
+          },
+          {
+            "type": "pink_cat",
+            "icon": "pink_cat_4"
+          },
+          {
+            "type": "wealth",
+            "icon": "wealth_3"
+          },
+          {
+            "type": "family",
+            "icon": "family_1"
+          },
+          {
+            "type": "pets",
+            "icon": "pets_5"
+          }
         ]
       },
       {
-        "name": 2,
-        "cx": 162, "cy": -272,
         "cards": [
-          { "type": "past", "icon": "past_6"},
-          { "type": "future", "icon": "future_6"},
-          { "type": "present", "icon": "present_2"}
+          {
+            "type": "wealth",
+            "icon": "wealth_5"
+          },
+          {
+            "type": "pink_cat",
+            "icon": "pink_cat_5"
+          },
+          {
+            "type": "family",
+            "icon": "family_2"
+          },
+          {
+            "type": "pets",
+            "icon": "pets_1"
+          },
+          {
+            "type": "family",
+            "icon": "family_5"
+          }
         ]
       },
       {
-        "name": 3,
-        "cx": -162, "cy": -82,
         "cards": [
-          { "type": "past", "icon": "past_7"},
-          { "type": "future", "icon": "future_8"},
-          { "type": "past", "icon": "past_2"}
+          {
+            "type": "pink_cat",
+            "icon": "pink_cat_1"
+          },
+          {
+            "type": "food",
+            "icon": "food_5"
+          },
+          {
+            "type": "food",
+            "icon": "food_1"
+          },
+          {
+            "type": "wealth",
+            "icon": "wealth_4"
+          },
+          {
+            "type": "pink_cat",
+            "icon": "pink_cat_3"
+          }
         ]
       },
       {
-        "name": 4,
-        "cx": 162, "cy": -82,
         "cards": [
-          { "type": "past",    "icon": "past_8"},
-          { "type": "present", "icon": "present_8"},
-          { "type": "future",  "icon": "future_4"}
+          {
+            "type": "food",
+            "icon": "food_2"
+          },
+          {
+            "type": "pets",
+            "icon": "pets_4"
+          },
+          {
+            "type": "family",
+            "icon": "family_3"
+          },
+          {
+            "type": "food",
+            "icon": "food_4"
+          },
+          {
+            "type": "wealth",
+            "icon": "wealth_1"
+          }
         ]
       },
       {
-        "name": 5,
-        "cx": -162, "cy": 118,
         "cards": [
-          { "type": "past",    "icon": "past_5"},
-          { "type": "present", "icon": "present_6"},
-          { "type": "future",  "icon": "future_3"}
-        ]
-      },
-      {
-        "name": 6,
-        "cx": 162, "cy": 118,
-        "cards": [
-          { "type": "future", "icon": "future_7"},
-          { "type": "present", "icon": "present_7"},
-          { "type": "present", "icon": "present_3"}
-        ]
-      },
-      {
-        "name": 7,
-        "cx": -162, "cy": 310,
-        "cards": [
-          { "type": "past","icon": "past_3"},
-          { "type": "present","icon": "present_4"},
-          { "type": "future","icon": "future_1"}
-        ]
-      },
-      {
-        "name": 8,
-        "cx": 162, "cy": 310,
-        "cards": [
-          { "type": "past", "icon": "past_4"},
-          { "type": "present", "icon": "present_1"},
-          { "type": "future", "icon": "future_2"}
+          {
+            "type": "pink_cat",
+            "icon": "pink_cat_5"
+          },
+          {
+            "type": "wealth",
+            "icon": "wealth_2"
+          },
+          {
+            "type": "pets",
+            "icon": "pets_3"
+          },
+          {
+            "type": "food",
+            "icon": "food_3"
+          },
+          {
+            "type": "pets",
+            "icon": "pets_2"
+          }
         ]
       }
-    ]
+    ],
+    "ctaButton": {
+      "portraitX": 0,
+      "portraitY": -80,
+      "landscapeX": 0,
+      "landscapeY": -60,
+      "scale": 0.5
+    }
   },
-
-  "deckStack": {
-    "shadowBottomOffsetCx": 2,
-    "shadowBottomOffsetCy": 18,
-    "shadowBottomDepth": 0,
-    "shadowMiddleOffsetCx": 1,
-    "shadowMiddleOffsetCy": 4,
-    "shadowMiddleDepth": 1,
-    "topCardDepthFaceDown": 2,
-    "topCardDepthFaceUp": 5,
-    "topCardDepthDragging": 20
-  },
-
   "card": {
-    "faceScale": 0.5,
-    "iconScale": 0.5,
+    "faceScale": 0.38,
+    "iconScale": 0.7,
     "iconOffsetY": 0
   },
-
-  "dropZone": {
-    "scale": 0.5,
-    "bgOffsetY": 12,
-    "headOffsetY": -68,
-    "headTextFOffsetY": -82,
-    "headRevealDurationMs": 350,
-    "headRevealEase": "Back.Out",
-    "headTextFontFamily": "LilitaOne-Regular, Arial",
-    "headTextFontStyle": "bold",
-    "headTextColor": "#3d2200",
-    "headTextFontSize": 18,
-    "counterOffsetX": -22,
-    "counterOffsetY": -38,
-    "counterTextFontFamily": "LilitaOne-Regular, Arial",
-    "counterTextFontStyle": "bold",
-    "counterTextColor": "#5c3a00",
-    "counterTextStroke": "#ffffff",
-    "counterTextStrokeThickness": 3,
-    "counterFontSize": 24,
-    "labelOffsetY": 25,
-    "labelTextFontFamily": "LilitaOne-Regular, Arial",
-    "labelTextFontStyle": "bold",
-    "labelTextColor": "#3d2200",
-    "labelFontSize": 26,
-    "bodyLabelFadeDurationMs": 150,
-    "highlightDurationMs": 100,
-    "highlightEase": "Power2",
-    "hitHalfWidth": 125,
-    "hitHalfHeight": 120,
-    "acceptedCardScale": 0.82,
-    "acceptedCardOffsetY": 10,
-    "completeBounceScale": 1.12,
-    "completeBounceMs": 120,
-    "highlightGlowAlpha": 0,
-    "highlightScaleUp": 1.05
+  "boardFrame": {
+    "sidePadding": 2,
+    "topPadding": 25,
+    "borderRadius": 28,
+    "borderWidth": 2,
+    "fillGradient": {
+      "topColor": "rgba(86, 170, 255, 0.95)",
+      "midColor": "rgba(86, 170, 255, 0.6)",
+      "midStop": 0.8,
+      "bottomColor": "rgba(86, 170, 255, 0)"
+    },
+    "borderGradient": {
+      "topColor": "rgba(255, 255, 255, 1)",
+      "midColor": "rgba(255, 255, 255, 0.5)",
+      "midStop": 0.8,
+      "bottomColor": "rgba(255, 255, 255, 0)"
+    }
   },
-
+  "grid": {
+    "categoryLabelOffsetY": -92,
+    "categoryLabelFontFamily": "LilitaOne-Regular, Arial",
+    "categoryLabelTextColor": "#ffffff",
+    "categoryLabelFontSize": 24,
+    "categoryLabelStroke": "#5daffe",
+    "categoryLabelStrokeThickness": 0,
+    "categoryLabelLetterSpacing": 0,
+    "hitAreaWidth": 49.4,
+    "hitAreaHeight": 585,
+    "hitAreaOffsetY": 0,
+    "hitAreaAlpha": 0,
+    "hitAreaColor": "#ff0000",
+    "activeCardDepth": 10,
+    "gridCardDepth": 5
+  },
   "movesCounter": {
     "backgroundScale": 0.5,
     "textOffsetX": 0,
@@ -199,7 +252,6 @@
     "shakeFeedbackScale": 1.1,
     "shakeDurationMs": 70
   },
-
   "animations": {
     "cardFlipHalfDurationMs": 150,
     "cardFlipEase": "Power2",
@@ -207,9 +259,8 @@
     "flipRevealMinIntervalMs": 100,
     "flipRevealMaxIntervalMs": 130,
     "revealNextCardDelayMs": 300,
-    "dragPickupScale": 1.08,
-    "dragPickupDurationMs": 100,
-    "dragPickupEase": "Power2",
+    "shiftDurationMs": 200,
+    "shiftEase": "Power2.Out",
     "flyToDurationMs": 260,
     "flyToEase": "Power2.Out",
     "shakeOffsetPx": 14,
@@ -223,5 +274,24 @@
     "endScreenFadeDurationMs": 350,
     "lossDelayMs": 600,
     "resizeDebounceMs": 11
+  },
+  "arrowAnimation": {
+    "count": 3,
+    "scale": 0.6,
+    "offsetX": 0,
+    "offsetY": -125,
+    "distance": 75,
+    "durationMs": 3800,
+    "depth": 0
+  },
+  "swapAnimation": {
+    "liftDurationMs": 300,
+    "dropDurationMs": 250,
+    "shiftDurationMs": 300,
+    "shiftDelayMs": 180,
+    "returnDurationMs": 250,
+    "returnDelayMs": 180,
+    "liftDistancePx": 40,
+    "maxTiltAngle": 8
   }
 }

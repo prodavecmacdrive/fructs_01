@@ -134,17 +134,19 @@ export default class Utils {
 
     static getAlignX(obj) {
         if (!obj.scene?.game?.size) return 0;
-        if(obj.align === 'Top Left' || obj.align === 'Left' || obj.align === 'Bottom Left') return obj.scene.game.size.left;
-        if(obj.align === 'Top Rigth' || obj.align === 'Rigth' || obj.align === 'Bottom Rigth') return obj.scene.game.size.right;
+        const a = obj.align || '';
+        if (a.includes('Left')) return obj.scene.game.size.left;
+        if (a.includes('Right') || a.includes('Rigth')) return obj.scene.game.size.right;
 
         return obj.scene.game.size.x;
     }
 
     static getAlignY(obj) {
         if (!obj.scene?.game?.size) return 0;
-        if(obj.align === 'Top Left' || obj.align === 'Top' || obj.align === 'Top Rigth') return obj.scene.game.size.top;
-        if(obj.align === 'Bottom Left' || obj.align === 'Bottom' || obj.align === 'Bottom Rigth') return obj.scene.game.size.bottom;
-        
+        const a = obj.align || '';
+        if (a.includes('Top')) return obj.scene.game.size.top;
+        if (a.includes('Bottom')) return obj.scene.game.size.bottom;
+
         return obj.scene.game.size.y;
     }
 

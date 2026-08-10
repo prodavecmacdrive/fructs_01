@@ -106,7 +106,7 @@ class BuilderPlugin {
      */
     _readSceneSettings() {
         const scenesData = {};
-        for (let i = 1; i <= 3; i++) {
+        for (let i = 1; i <= 4; i++) {
             const filePath = `game-settings_scene-${i}.json`;
             if (fs.existsSync(filePath)) {
                 try {

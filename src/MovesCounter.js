@@ -1,19 +1,23 @@
 export default class MovesCounter extends Phaser.GameObjects.Container {
     /**
-     * Top-panel moves counter.  Visual: moves_bg pill + "Moves : N" text.
+     * Top-panel moves counter. Visual: moves_bg pill + "Moves : N" text.
      * @param {object} opts
      * @param {Phaser.Scene} opts.scene
      * @param {number}  opts.moves    – starting move count
      * @param {number}  opts.cx       – design-space x offset from screen centre
      * @param {number}  opts.cy       – design-space y offset from screen centre
+     * @param {number}  [opts.alpha]  – opacity (0 to 1)
      * @param {Phaser.GameObjects.Container} opts.container
      */
-    constructor({ scene, moves, cx, cy, container }) {
+    constructor({ scene, moves, cx, cy, alpha, container }) {
         super(scene, 0, 0);
 
         this.remaining = moves;
 
         const mc = this.scene.SETTINGS.movesCounter;
+        const layoutMc = this.scene.SETTINGS.layout?.movesCounter;
+
+        const targetAlpha = (alpha !== undefined) ? alpha : (layoutMc?.alpha !== undefined ? layoutMc.alpha : (mc?.alpha !== undefined ? mc.alpha : 1));
 
         this.bg = scene.add.image(0, 0, 'moves_bg').setScale(mc.backgroundScale);
         this.add(this.bg);
@@ -29,18 +33,21 @@ export default class MovesCounter extends Phaser.GameObjects.Container {
         this.add(this.label);
 
         // Wire into the responsive system
-        this.addProperties(['pos', 'scale']);
+        this.addProperties(['pos', 'scale', 'alpha']);
         this.px = cx; this.py = cy;
         this.lx = cx; this.ly = cy;
         this.pScaleX = 1; this.pScaleY = 1;
         this.lScaleX = 1; this.lScaleY = 1;
+        this.pAlpha = targetAlpha;
+        this.lAlpha = targetAlpha;
+        this.setAlpha(targetAlpha);
         this.setCustomPosition(0, 0).setAlign('Center');
 
         container.add(this);
         this.setDepth(6);
     }
 
-    /** Decrease count by 1 and refresh the label.  Returns remaining moves. */
+    /** Decrease count by 1 and refresh the label. Returns remaining moves. */
     decrement() {
         if (this.remaining > 0) this.remaining--;
         this.label.setText(this._buildText());

@@ -1,9 +1,9 @@
 {
   "_comment": "Global settings for the Category Sort playable. All placement, scale, and animation values live here.",
   "game": {
-    "startingMoves": 232,
+    "startingMoves": 4,
     "cardsPerColumn": 5,
-    "gameFinalTime": 6000
+    "gameFinalTime": 0
   },
   "cardTypes": [
     {
@@ -45,8 +45,8 @@
   "background": {
     "mode": "image",
     "color": "#dfaa6c",
-    "pImage": "wood_bg",
-    "lImage": "wood_bg",
+    "pImage": "sky_bg",
+    "lImage": "sky_bg",
     "pScaleX": 1.05,
     "pScaleY": 1.05,
     "lScaleX": 2.1,
@@ -66,9 +66,9 @@
       "icon": "gradient"
     },
     "movesCounter": {
-      "cx": 0,
-      "cy": -410,
-      "alpha": 0
+      "cx": -170,
+      "cy": 424,
+      "alpha": 1
     },
     "columns": [
       {
