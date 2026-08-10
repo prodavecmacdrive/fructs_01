@@ -8,12 +8,19 @@ export default class Background extends Phaser.GameObjects.Container {
     }
 
     static ensureWoodTexture(scene) {
-        if (!scene || !scene.textures || scene.textures.exists('wood_bg')) return;
+        if (!scene || !scene.textures) return;
+        if (scene.textures.exists('wood_bg')) {
+            const tex = scene.textures.get('wood_bg');
+            if (tex && tex.key !== '__MISSING') return;
+            scene.textures.remove('wood_bg');
+        }
 
         const width = 1024;
         const height = 1024;
-        const canvasTex = scene.textures.createCanvas('wood_bg', width, height);
-        const ctx = canvasTex.context;
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
 
         // Base warm wood tone gradient
         const baseGrad = ctx.createLinearGradient(0, 0, width, 0);
@@ -98,7 +105,7 @@ export default class Background extends Phaser.GameObjects.Container {
         ctx.fillStyle = vignette;
         ctx.fillRect(0, 0, width, height);
 
-        canvasTex.refresh();
+        scene.textures.addCanvas('wood_bg', canvas);
     }
 
     init(background, pImage, lImage, pScaleX, pScaleY, lScaleX, lScaleY) {

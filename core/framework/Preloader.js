@@ -1,4 +1,5 @@
 import TRANSITION_SETTINGS from '../../transition-screen-settings.json';
+import Background from '../../src/Background';
 
 export default class Preloader extends Phaser.Scene {
     constructor() {
@@ -13,6 +14,8 @@ export default class Preloader extends Phaser.Scene {
 
     create() {
         if (typeof window.trackAxonEvent === 'function') window.trackAxonEvent('LOADING');
+
+        Background.ensureWoodTexture(this);
 
         this.loaded = 0;
         this.audioLoaded = false;
